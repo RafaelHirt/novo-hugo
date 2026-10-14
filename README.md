@@ -1,6 +1,15 @@
 # Novo HUGO · Simulador de custeio
 
-Dashboard estático em português para simulação financeira. Paleta verde, amarelo e branco inspirada nas cores de Goiás; não utiliza logotipo oficial.
+Dashboard estático em português para simulação financeira. Identidade visual baseada no verde-azulado da SES e no azul do SUS, usando as referências enviadas pelo usuário. As imagens de `assets/` são adaptações das referências do hospital e da identidade institucional, convertidas para WebP e incluídas no próprio site.
+
+## Interface
+
+- Indicadores financeiros, projeção anual e capacidade de internação.
+- Busca com ou sem acentos, filtro por categoria e opção de mostrar somente serviços alterados.
+- Categorias recolhíveis, destaque das alterações e restauração de valores por serviço.
+- Resumo financeiro fixo durante a edição e composição do custeio abaixo dos serviços.
+- Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
+- Sem dependências de imagens, fontes ou scripts externos durante o uso.
 
 ## Desenvolvimento
 

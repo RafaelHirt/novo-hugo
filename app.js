@@ -1,25 +1,49 @@
 import { rows, reference, cost, initial } from './data.js';
 import { currency, signedCurrency, number, parseCurrency, roundCurrency } from './format.js';
+import { icon } from './icons.js';
 
+const $ = selector => document.querySelector(selector);
+const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const defaults = initial();
 let state = initial();
 try {
   const saved = JSON.parse(localStorage.getItem('novo-hugo-v1'));
   if (Array.isArray(saved) && saved.length === rows.length) {
-    state = saved.map((s, i) => ({
-      enabled: typeof s.enabled === 'boolean' ? s.enabled : true,
-      qty: Number.isFinite(s.qty) && s.qty >= 0 ? s.qty : rows[i].qty,
-      unit: Number.isFinite(s.unit) && s.unit >= 0 ? s.unit : rows[i].unit,
-      factor: rows[i].factor === undefined ? undefined
-        : Number.isFinite(s.factor) && s.factor >= 0 && (rows[i].kind !== 'bed' || s.factor <= 100)
-          ? s.factor : rows[i].factor,
-    }));
+    state = saved.map((candidate, i) => {
+      const s = candidate || {};
+      return {
+        enabled: typeof s.enabled === 'boolean' ? s.enabled : true,
+        qty: Number.isFinite(s.qty) && s.qty >= 0 ? s.qty : rows[i].qty,
+        unit: Number.isFinite(s.unit) && s.unit >= 0 ? s.unit : rows[i].unit,
+        factor: rows[i].factor === undefined ? undefined
+          : Number.isFinite(s.factor) && s.factor >= 0 && (rows[i].kind !== 'bed' || s.factor <= 100)
+            ? s.factor : rows[i].factor,
+      };
+    });
   }
 } catch {}
 
-const groups = [...new Set(rows.map(r => r.group))];
+const groups = [...new Set(rows.map(row => row.group))];
+const groupIcons = ['bed', 'activity', 'hospital', 'calendar', 'people', 'scissors', 'lab', 'external', 'document'];
+const colors = ['#007d76', '#35558b', '#519b86', '#92bdb4', '#637f9b', '#b99744', '#4c92a0', '#859bb2', '#aacbc2'];
+const openGroups = new Map(groups.map((group, i) => [group, i < 2]));
+let metricsVisible = true;
+let activeTab = 'hugo';
 
+for (const element of document.querySelectorAll('[data-icon]')) {
+  element.innerHTML = icon(element.dataset.icon);
+}
+for (const group of groups) {
+  const option = document.createElement('option');
+  option.value = group;
+  option.textContent = group;
+  $('#group-filter').append(option);
+}
+
+const changed = id => ['enabled', 'qty', 'unit', 'factor'].some(key => state[id][key] !== defaults[id][key]);
 function field(row, key, label) {
-  const common = `aria-label="${label} — ${row.name}" data-id="${row.id}" data-key="${key}"`;
+  const disabled = state[row.id].enabled ? '' : 'disabled';
+  const common = `aria-label="${label} — ${row.name}" data-id="${row.id}" data-key="${key}" ${disabled}`;
   if (key === 'unit') {
     return `<input ${common} class="money-input" type="text" inputmode="decimal" value="${currency(state[row.id][key])}">`;
   }
@@ -27,32 +51,54 @@ function field(row, key, label) {
 }
 
 function tables() {
-  const query = document.querySelector('#search').value.toLocaleLowerCase('pt-BR');
-  document.querySelector('#tables').innerHTML = groups.map(group => {
-    const filtered = rows.filter(r => r.group === group && r.name.toLocaleLowerCase('pt-BR').includes(query));
-    if (!filtered.length) return '';
-    return `<details open>
-      <summary>${group}<span data-group="${group}"></span></summary>
-      <div class="table-scroll"><table>
-        <thead><tr><th>Ativo / serviço</th><th>Quantidade / leitos</th><th>Ocupação / horas</th><th>Custo unitário</th><th>Total mensal</th></tr></thead>
-        <tbody>${filtered.map(r => `<tr data-row="${r.id}" class="${state[r.id].enabled ? '' : 'disabled'}">
-          <td><label class="service-name"><input type="checkbox" data-id="${r.id}" data-key="enabled" ${state[r.id].enabled ? 'checked' : ''}>
-            <span>${r.name}<small>${r.kind === 'bed' ? 'Paciente-dia · referência ' + number(r.patientDays) : r.kind === 'surgery' ? 'Hora cirúrgica' : r.group === 'Escritório de gestão de altas' ? 'Nº de leitos' : 'Produção mensal'}</small></span>
-          </label></td>
-          <td>${field(r, 'qty', r.kind === 'bed' ? 'Leitos' : 'Quantidade')}</td>
-          <td>${r.factor === undefined ? '<span class="muted">—</span>' : field(r, 'factor', r.kind === 'bed' ? 'Ocupação (%)' : 'Horas médias') + (r.kind === 'bed' ? ' %' : ' h')}</td>
-          <td>${field(r, 'unit', 'Custo unitário')}</td>
-          <td class="row-total" data-total="${r.id}"></td>
-        </tr>`).join('')}</tbody>
-      </table></div>
+  const query = normalize($('#search').value.trim());
+  const category = $('#group-filter').value;
+  const onlyChanged = $('#changed-only').checked;
+  const filteredRows = rows.filter(row => (!category || row.group === category)
+    && (!query || normalize(row.name + ' ' + row.group).includes(query))
+    && (!onlyChanged || changed(row.id)));
+  const visibleGroups = groups.filter(group => filteredRows.some(row => row.group === group));
+  const filtered = Boolean(query || category || onlyChanged);
+  $('#clear-search').hidden = !$('#search').value;
+  $('#service-count').textContent = `${filteredRows.length}${filtered ? ` de ${rows.length}` : ''} serviços · ${visibleGroups.length} ${visibleGroups.length === 1 ? 'categoria' : 'categorias'}`;
+  $('#tables').innerHTML = visibleGroups.map(group => {
+    const groupRows = filteredRows.filter(row => row.group === group);
+    const originalCount = rows.filter(row => row.group === group).length;
+    const kind = groupRows[0].kind;
+    const withFactor = kind === 'bed' || kind === 'surgery';
+    const qtyLabel = kind === 'bed' ? 'Leitos' : kind === 'surgery' ? 'Nº de cirurgias' : 'Quantidade';
+    const factorLabel = kind === 'bed' ? 'Ocupação' : 'Horas médias';
+    const count = groupRows.length === originalCount ? `${originalCount} ${originalCount === 1 ? 'serviço' : 'serviços'}` : `${groupRows.length} de ${originalCount} serviços`;
+    return `<details data-category="${group}" ${filtered || openGroups.get(group) ? 'open' : ''}>
+      <summary>
+        <span class="category-icon">${icon(groupIcons[groups.indexOf(group)])}</span>
+        <span class="category-label"><strong>${group}</strong><small>${count}</small></span>
+        <span class="category-cost" data-group="${group}" title="Custo total da categoria"></span>
+        <span class="category-chevron">${icon('chevron')}</span>
+      </summary>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Serviços de ${group}">
+        <table class="${withFactor ? 'with-factor' : 'without-factor'}">
+          <thead><tr><th scope="col">Ativo / serviço</th><th scope="col">${qtyLabel}</th>${withFactor ? `<th scope="col">${factorLabel}</th>` : ''}<th scope="col">${kind === 'surgery' ? 'Custo / hora' : 'Custo unitário'}</th><th scope="col">Total mensal</th><th scope="col"><span class="sr-only">Restaurar serviço</span></th></tr></thead>
+          <tbody>${groupRows.map(row => `<tr data-row="${row.id}">
+            <td><div class="service-cell"><label class="service-name">
+              <input class="service-switch" type="checkbox" aria-label="Incluir ${row.name}" data-id="${row.id}" data-key="enabled" ${state[row.id].enabled ? 'checked' : ''}>
+              <span>${row.name}<small>${row.kind === 'bed' ? 'Paciente-dia · referência ' + number(row.patientDays) : row.kind === 'surgery' ? 'Hora cirúrgica' : row.group === 'Escritório de gestão de altas' ? 'Nº de leitos' : 'Produção mensal'}</small></span>
+            </label><span class="row-badge" data-badge="${row.id}"></span></div></td>
+            <td data-label="${qtyLabel}">${field(row, 'qty', qtyLabel)}</td>
+            ${withFactor ? `<td data-label="${factorLabel}"><span class="factor-field">${field(row, 'factor', row.kind === 'bed' ? 'Ocupação (%)' : factorLabel)}<span>${row.kind === 'bed' ? '%' : 'h'}</span></span></td>` : ''}
+            <td data-label="${kind === 'surgery' ? 'Custo / hora' : 'Custo unitário'}">${field(row, 'unit', 'Custo unitário')}</td>
+            <td class="row-total" data-label="Total mensal" data-total="${row.id}"></td>
+            <td class="row-actions"><button class="icon-button row-reset" data-restore="${row.id}" aria-label="Restaurar ${row.name}" title="Restaurar valores deste serviço">${icon('reset')}</button></td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
     </details>`;
-  }).join('') || '<p>Nenhum serviço encontrado.</p>';
+  }).join('') || `<div class="no-results">${icon('search')}<h3>${onlyChanged && !query && !category ? 'Nenhum serviço alterado' : 'Nenhum serviço encontrado'}</h3><p>${onlyChanged && !query && !category ? 'Os serviços estão com os valores de referência.' : 'Tente outro termo ou remova os filtros.'}</p><button class="button secondary" id="clear-filters">Mostrar todos os serviços</button></div>`;
   update();
 }
 
 function scenario() {
   const values = rows.map((row, i) => roundCurrency(cost(row, state[i])));
-  // Sum cents so the cards, chart, rows and exported total always agree.
   const total = values.reduce((sum, value) => sum + Math.round(value * 100), 0) / 100;
   return { values, total };
 }
@@ -60,46 +106,80 @@ function scenario() {
 function update() {
   const { values, total } = scenario();
   const delta = roundCurrency(total - reference);
-  document.querySelector('#total').textContent = currency(total);
-  document.querySelector('#annual').textContent = currency(total * 12) + ' / ano';
-  document.querySelector('#delta').textContent = signedCurrency(delta);
-  document.querySelector('#percent').textContent = number(delta / reference * 100) + '% em relação à referência';
-  document.querySelector('#beds').textContent = number(rows.reduce((sum, row) => sum + (row.kind === 'bed' && state[row.id].enabled ? state[row.id].qty : 0), 0));
-  document.querySelector('#reference').textContent = currency(reference);
-  const totals = groups.map(group => ({
-    group,
+  $('#total').textContent = currency(total);
+  $('#annual').textContent = currency(total * 12) + ' / ano';
+  $('#delta').textContent = signedCurrency(delta);
+  $('#percent').textContent = number(delta / reference * 100) + '% em relação à referência';
+  $('.metric-delta').dataset.direction = delta > 0 ? 'increase' : delta < 0 ? 'decrease' : 'neutral';
+  $('#beds').textContent = number(rows.reduce((sum, row) => sum + (row.kind === 'bed' && state[row.id].enabled ? state[row.id].qty : 0), 0));
+  $('#reference').textContent = currency(reference);
+  $('#floating-total').textContent = currency(total);
+  $('#floating-delta').textContent = signedCurrency(delta);
+  const modifiedCount = rows.filter(row => changed(row.id)).length;
+  const activeCount = state.filter(row => row.enabled).length;
+  $('#change-count').textContent = `${activeCount} serviços ativos${modifiedCount ? ` · ${modifiedCount} ${modifiedCount === 1 ? 'alterado' : 'alterados'}` : ' · Sem alterações'}`;
+  $('#reset').disabled = modifiedCount === 0;
+
+  const totals = groups.map((group, index) => ({ group, index,
     total: rows.filter(row => row.group === group).reduce((sum, row) => sum + Math.round(values[row.id] * 100), 0) / 100,
   }));
-  const max = Math.max(...totals.map(t => t.total), 1);
-  document.querySelector('#chart').innerHTML = totals.map(t => `<div class="chart-row">
-    <div><span>${t.group}</span><strong>${currency(t.total)}</strong></div>
-    <div class="track"><div style="width:${t.total / max * 100}%"></div></div>
-  </div>`).join('');
-  document.querySelectorAll('[data-total]').forEach(el => el.textContent = currency(values[+el.dataset.total]));
-  document.querySelectorAll('[data-group]').forEach(el => el.textContent = currency(totals.find(t => t.group === el.dataset.group).total));
-  try { localStorage.setItem('novo-hugo-v1', JSON.stringify(state)); } catch {}
+  const max = Math.max(...totals.map(item => item.total), 1);
+  $('#chart').innerHTML = [...totals].sort((a, b) => b.total - a.total).map(item => `<button class="chart-row" data-chart-group="${item.group}" aria-label="Ver serviços de ${item.group}, ${currency(item.total)}">
+    <span class="chart-label"><span class="chart-dot" style="background:${colors[item.index]}"></span>${item.group}</span>
+    <span class="track"><span style="width:${item.total / max * 100}%;background:${colors[item.index]}"></span></span>
+    <strong>${currency(item.total)}</strong><span class="chart-percent">${number(total ? item.total / total * 100 : 0)}%</span>
+    ${icon('chevron')}
+  </button>`).join('');
+  document.querySelectorAll('[data-group]').forEach(el => el.textContent = currency(totals.find(item => item.group === el.dataset.group).total));
+  document.querySelectorAll('[data-row]').forEach(el => {
+    const id = +el.dataset.row, isChanged = changed(id), enabled = state[id].enabled;
+    el.classList.toggle('disabled', !enabled);
+    el.classList.toggle('modified', isChanged && enabled);
+    el.querySelector('[data-total]').textContent = currency(values[id]);
+    const badge = el.querySelector('[data-badge]');
+    badge.textContent = enabled ? 'Alterado' : 'Retirado';
+    badge.hidden = !isChanged;
+    const restore = el.querySelector('[data-restore]');
+    restore.disabled = !isChanged;
+    el.querySelectorAll('input:not([type=checkbox])').forEach(input => input.disabled = !enabled);
+  });
+  try {
+    localStorage.setItem('novo-hugo-v1', JSON.stringify(state));
+    $('#save-status').innerHTML = `${icon('check')}Salvo neste navegador`;
+  } catch {
+    $('#save-status').textContent = 'Salvamento automático indisponível';
+  }
 }
 
-const tableContainer = document.querySelector('#tables');
+function clearFilters() {
+  $('#search').value = '';
+  $('#group-filter').value = '';
+  $('#changed-only').checked = false;
+  tables();
+}
+const tableContainer = $('#tables');
+tableContainer.addEventListener('toggle', event => {
+  if (event.target.tagName === 'DETAILS') openGroups.set(event.target.dataset.category, event.target.open);
+}, true);
 tableContainer.addEventListener('input', event => {
   const el = event.target;
   if (!el.dataset.key) return;
   const id = +el.dataset.id, key = el.dataset.key;
   if (key === 'enabled') {
     state[id].enabled = el.checked;
-    el.closest('tr').classList.toggle('disabled', !el.checked);
   } else if (key === 'unit') {
     const value = parseCurrency(el.value);
     el.setAttribute('aria-invalid', value === null ? 'true' : 'false');
     if (value === null) return;
     state[id].unit = value;
   } else {
-    if (el.value === '' || !el.validity.valid) return;
+    const valid = el.value !== '' && el.validity.valid;
+    el.setAttribute('aria-invalid', valid ? 'false' : 'true');
+    if (!valid) return;
     state[id][key] = Number(el.value);
   }
   update();
 });
-
 tableContainer.addEventListener('focusin', event => {
   const el = event.target;
   if (el.dataset.key !== 'unit') return;
@@ -110,29 +190,102 @@ tableContainer.addEventListener('focusin', event => {
 });
 tableContainer.addEventListener('focusout', event => {
   const el = event.target;
-  if (el.dataset.key !== 'unit') return;
-  el.value = currency(state[+el.dataset.id].unit);
+  const key = el.dataset.key;
+  if (!key || key === 'enabled') return;
+  el.value = key === 'unit' ? currency(state[+el.dataset.id].unit) : state[+el.dataset.id][key];
   el.removeAttribute('aria-invalid');
+  if ($('#changed-only').checked && !changed(+el.dataset.id)) tables();
+});
+tableContainer.addEventListener('click', event => {
+  const button = event.target.closest('[data-restore]');
+  if (button) {
+    const id = +button.dataset.restore;
+    state[id] = { ...defaults[id] };
+    tables();
+    const target = $(`[data-id="${id}"][data-key="enabled"]`) || $('#changed-only');
+    target.focus({ preventScroll: true });
+  }
+  if (event.target.closest('#clear-filters')) clearFilters();
+});
+$('#search').addEventListener('input', tables);
+$('#group-filter').addEventListener('change', tables);
+$('#changed-only').addEventListener('change', tables);
+$('#clear-search').addEventListener('click', () => {
+  $('#search').value = '';
+  tables();
+  $('#search').focus();
+});
+for (const [selector, open] of [['#expand-all', true], ['#collapse-all', false]]) {
+  $(selector).addEventListener('click', () => {
+    groups.forEach(group => openGroups.set(group, open));
+    tableContainer.querySelectorAll('details').forEach(details => details.open = open);
+  });
+}
+
+const resetDialog = $('#reset-dialog');
+$('#reset').addEventListener('click', () => resetDialog.showModal());
+$('#confirm-reset').addEventListener('click', () => {
+  state = initial();
+  clearFilters();
+  resetDialog.close();
+  $('#search').focus({ preventScroll: true });
+});
+resetDialog.addEventListener('click', event => {
+  if (event.target === resetDialog) resetDialog.close();
 });
 
-document.querySelector('#search').addEventListener('input', tables);
-document.querySelector('#reset').addEventListener('click', () => {
-  if (confirm('Restaurar todos os valores da planilha? Os ajustes atuais serão descartados.')) {
-    state = initial();
-    tables();
+function refreshFloatingSummary() {
+  $('#floating-summary').hidden = activeTab !== 'hugo' || metricsVisible;
+}
+new IntersectionObserver(([entry]) => {
+  metricsVisible = entry.isIntersecting;
+  refreshFloatingSummary();
+}).observe($('.metric-primary'));
+const scrollTo = element => element.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+$('#back-to-summary').addEventListener('click', () => scrollTo($('#metrics')));
+
+const tabButtons = [...document.querySelectorAll('[data-tab]')];
+function selectTab(button) {
+  activeTab = button.dataset.tab;
+  for (const tab of tabButtons) {
+    const selected = tab === button;
+    tab.classList.toggle('active', selected);
+    tab.setAttribute('aria-selected', String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    $('#' + tab.dataset.tab).hidden = !selected;
   }
+  refreshFloatingSummary();
+}
+for (const button of tabButtons) {
+  button.addEventListener('click', () => selectTab(button));
+  button.addEventListener('keydown', event => {
+    const index = tabButtons.indexOf(button);
+    let next;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') next = (index + (event.key === 'ArrowRight' ? 1 : -1) + tabButtons.length) % tabButtons.length;
+    if (event.key === 'Home') next = 0;
+    if (event.key === 'End') next = tabButtons.length - 1;
+    if (next === undefined) return;
+    event.preventDefault();
+    selectTab(tabButtons[next]);
+    tabButtons[next].focus();
+  });
+}
+$('#chart').addEventListener('click', event => {
+  const row = event.target.closest('[data-chart-group]');
+  if (!row) return;
+  $('#group-filter').value = row.dataset.chartGroup;
+  $('#search').value = '';
+  $('#changed-only').checked = false;
+  tables();
+  scrollTo($('#services'));
 });
-document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => {
-  document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('active', b === btn));
-  document.querySelector('#hugo').hidden = btn.dataset.tab !== 'hugo';
-  document.querySelector('#hugol').hidden = btn.dataset.tab !== 'hugol';
-}));
-document.querySelector('#export').addEventListener('click', () => {
+
+$('#export').addEventListener('click', () => {
   const { values, total } = scenario();
   const decimal = value => value.toFixed(2).replace('.', ',');
   const csv = [
     ['Grupo', 'Serviço', 'Ativo', 'Quantidade / leitos', 'Ocupação (%) / horas médias', 'Custo unitário (R$)', 'Total mensal (R$)'],
-    ...rows.map(r => [r.group, r.name, state[r.id].enabled ? 'Sim' : 'Não', String(state[r.id].qty).replace('.', ','), state[r.id].factor === undefined ? '' : String(state[r.id].factor).replace('.', ','), decimal(state[r.id].unit), decimal(values[r.id])]),
+    ...rows.map(row => [row.group, row.name, state[row.id].enabled ? 'Sim' : 'Não', String(state[row.id].qty).replace('.', ','), state[row.id].factor === undefined ? '' : String(state[row.id].factor).replace('.', ','), decimal(state[row.id].unit), decimal(values[row.id])]),
     ['TOTAL', '', '', '', '', '', decimal(total)],
   ].map(row => row.map(value => '"' + String(value).replaceAll('"', '""') + '"').join(';')).join('\r\n');
   const url = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }));

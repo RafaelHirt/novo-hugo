@@ -1,11 +1,111 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Novo HUGO · Simulador de custeio</title><link rel="stylesheet" href="style.css"></head>
-<body><header><div class="brand"><span class="mark">+</span><div>SAÚDE <small>GOIÁS · PLANEJAMENTO HOSPITALAR</small></div></div><span class="badge">SIMULAÇÃO FINANCEIRA</span></header>
-<main><div class="intro"><div class="eyebrow">PLANEJAMENTO HOSPITALAR</div><h1>Novo HUGO</h1><p>Explore a composição do custeio e simule a estrutura de serviços do hospital.</p></div>
-<nav aria-label="Cenários"><button class="tab active" data-tab="hugo">Dados 4º T.A</button><button class="tab" data-tab="hugol">4º T.A HUGO (Base de valores HUGOL) <span>Em breve</span></button></nav>
-<section id="hugo"><div class="context"><div><strong>HOSPITAL: HUGO — 4º TA ao TC 97/2024</strong><p>4º Termo Aditivo em trâmite</p></div><button id="reset" class="secondary">Restaurar dados</button></div>
-<div class="metrics" aria-live="polite"><article><small>CUSTEIO MENSAL SIMULADO</small><strong id="total"></strong><span id="annual"></span></article><article><small>VARIAÇÃO SOBRE A REFERÊNCIA</small><strong id="delta"></strong><span id="percent"></span></article><article><small>LEITOS DE INTERNAÇÃO ATIVOS</small><strong id="beds"></strong><span>Referência: 406 leitos</span></article><article><small>CUSTEIO MENSAL DE REFERÊNCIA</small><strong id="reference"></strong><span>Valores da planilha fornecida</span></article></div>
-<section class="panel services"><div class="panel-heading"><div><h2>Serviços e capacidade</h2><p>Os ajustes são salvos neste navegador.</p></div><button id="export" class="secondary">Exportar cenário CSV</button></div><label class="search">Buscar serviço <input id="search" type="search" placeholder="Ex.: UTI, cirurgia, tomografia"></label><div id="tables"></div></section>
-<section class="panel composition"><div class="panel-heading"><h2>Composição do custeio</h2><span>Mensal · R$</span></div><div id="chart"></div></section></section>
-<section id="hugol" hidden><div class="panel empty"><span class="empty-icon">↗</span><div class="eyebrow">SEGUNDO CENÁRIO</div><h2>4º T.A HUGO (Base de valores HUGOL)</h2><p>Esta aba está preparada para receber os dados.</p><p>Para as linhas de UTI, PS e Cirurgias, serão utilizados os valores atualmente previstos no HUGOL.</p><span class="badge">AGUARDANDO PLANILHA</span></div></section>
-<footer>Novo HUGO <span>Planejamento · Simulação · Tomada de decisão</span></footer></main><script type="module" src="app.js"></script></body></html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#007d76">
+  <meta name="description" content="Simulador de custeio mensal do Novo HUGO, com ajustes de leitos, serviços e valores do 4º Termo Aditivo.">
+  <title>Novo HUGO · Simulador de custeio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#services">Ir para os serviços</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <img class="institution-logo" src="assets/ses-goias.webp" alt="SUS · Secretaria de Estado da Saúde · Estado de Goiás" width="430" height="104">
+      <div class="header-label"><span class="header-dot"></span><div>Planejamento hospitalar<small>Painel de custeio · Novo HUGO</small></div></div>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-media"><img src="assets/novo-hugo.webp" alt="" width="1536" height="1024" fetchpriority="high"></div>
+      <div class="hero-content">
+        <span class="hero-eyebrow">GESTÃO E PLANEJAMENTO</span>
+        <h1 id="page-title">Novo HUGO</h1>
+        <p>Simulação de custeio hospitalar</p>
+        <span class="hero-status"><span></span>4º Termo Aditivo em trâmite</span>
+      </div>
+      <div class="hero-caption"><span data-icon="hospital"></span>Hospital Estadual de Urgências de Goiás</div>
+    </section>
+
+    <nav class="tabs" role="tablist" aria-label="Bases da simulação">
+      <button id="tab-hugo" class="tab active" data-tab="hugo" role="tab" aria-selected="true" aria-controls="hugo"><span data-icon="document"></span>Dados 4º T.A</button>
+      <button id="tab-hugol" class="tab" data-tab="hugol" role="tab" aria-selected="false" aria-controls="hugol" tabindex="-1"><span data-icon="document"></span>4º T.A HUGO (Base de valores HUGOL)<span class="tab-badge">Em breve</span></button>
+    </nav>
+
+    <section id="hugo" role="tabpanel" aria-labelledby="tab-hugo">
+      <div class="context">
+        <div><span class="section-eyebrow">CENÁRIO DE PRECIFICAÇÃO</span><h2>HUGO · 4º TA ao TC 97/2024</h2><p>4º Termo Aditivo em trâmite</p></div>
+        <div class="context-actions"><button id="reset" class="button secondary"><span data-icon="reset"></span>Restaurar dados</button><button id="export" class="button primary"><span data-icon="download"></span>Exportar cenário CSV</button></div>
+      </div>
+
+      <div id="metrics" class="metrics">
+        <article class="metric metric-primary">
+          <div class="metric-heading"><small>CUSTEIO MENSAL SIMULADO</small><span class="metric-icon" data-icon="wallet"></span></div>
+          <strong id="total" aria-live="polite"></strong>
+          <span id="annual"></span>
+        </article>
+        <article class="metric metric-delta">
+          <div class="metric-heading"><small>VARIAÇÃO SOBRE A REFERÊNCIA</small><span class="metric-icon" data-icon="trend"></span></div>
+          <strong id="delta"></strong><span id="percent"></span>
+        </article>
+        <article class="metric">
+          <div class="metric-heading"><small>LEITOS DE INTERNAÇÃO ATIVOS</small><span class="metric-icon" data-icon="bed"></span></div>
+          <strong id="beds"></strong><span>Referência: 406 leitos</span>
+        </article>
+        <article class="metric">
+          <div class="metric-heading"><small>CUSTEIO MENSAL DE REFERÊNCIA</small><span class="metric-icon" data-icon="document"></span></div>
+          <strong id="reference"></strong><span>Base do 4º Termo Aditivo</span>
+        </article>
+      </div>
+
+      <section id="services" class="panel services" aria-labelledby="services-title">
+        <div class="panel-heading">
+          <div><span class="section-eyebrow">ESTRUTURA HOSPITALAR</span><h2 id="services-title">Serviços e capacidade</h2><p id="service-count"></p></div>
+          <div class="save-status" id="save-status" role="status"></div>
+        </div>
+        <div class="filters">
+          <label class="search"><span class="sr-only">Buscar serviço</span><span data-icon="search"></span><input id="search" type="search" placeholder="Buscar serviço ou exame"><button id="clear-search" class="icon-button" type="button" aria-label="Limpar busca" hidden><span data-icon="close"></span></button></label>
+          <label class="group-filter"><span class="sr-only">Filtrar categoria</span><select id="group-filter"><option value="">Todas as categorias</option></select></label>
+          <label class="changed-filter"><input id="changed-only" type="checkbox">Somente alterados</label>
+        </div>
+        <div class="table-tools"><span id="change-count"></span><div><button id="expand-all" class="text-button"><span data-icon="expand"></span>Expandir</button><button id="collapse-all" class="text-button"><span data-icon="collapse"></span>Recolher</button></div></div>
+        <div id="tables"></div>
+      </section>
+
+      <section class="panel composition" aria-labelledby="composition-title">
+        <div class="panel-heading"><div><span class="section-eyebrow">DISTRIBUIÇÃO MENSAL</span><h2 id="composition-title">Composição do custeio</h2><p>Participação de cada categoria no cenário atual.</p></div><span class="composition-badge"><span data-icon="chart"></span>Mensal · R$</span></div>
+        <div id="chart"></div>
+      </section>
+    </section>
+
+    <section id="hugol" role="tabpanel" aria-labelledby="tab-hugol" hidden>
+      <div class="panel empty">
+        <span class="empty-icon" data-icon="clock"></span>
+        <span class="section-eyebrow">PRÓXIMA BASE DE SIMULAÇÃO</span>
+        <h2>4º T.A HUGO (Base de valores HUGOL)</h2>
+        <p>Esta aba está preparada para receber os dados.</p>
+        <p>Para as linhas de UTI, PS e Cirurgias, serão utilizados os valores atualmente previstos no HUGOL.</p>
+        <span class="empty-status">Aguardando planilha</span>
+      </div>
+    </section>
+    <footer><div>Novo HUGO<span>Planejamento hospitalar</span></div><span>SES · Secretaria de Estado da Saúde de Goiás</span></footer>
+  </main>
+
+  <div id="floating-summary" class="floating-summary" hidden>
+    <div><small>CUSTEIO MENSAL SIMULADO</small><strong id="floating-total"></strong></div>
+    <div class="floating-delta"><small>VARIAÇÃO</small><span id="floating-delta"></span></div>
+    <button id="back-to-summary" class="icon-button" aria-label="Voltar ao resumo financeiro" title="Voltar ao resumo financeiro"><span data-icon="up"></span></button>
+  </div>
+
+  <dialog id="reset-dialog">
+    <form method="dialog">
+      <div class="dialog-icon" data-icon="reset"></div><h2>Restaurar dados originais?</h2>
+      <p>Os ajustes deste cenário serão substituídos pelos valores de referência do 4º Termo Aditivo.</p>
+      <div class="dialog-actions"><button class="button secondary" value="cancel">Manter ajustes</button><button id="confirm-reset" class="button primary" type="button">Restaurar dados</button></div>
+    </form>
+  </dialog>
+  <noscript><p>Ative o JavaScript no navegador para usar o simulador.</p></noscript>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
