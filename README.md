@@ -1,19 +1,22 @@
-# Novo HUGO · Simulador de custeio
+# Novo HUGO · Demonstração de custeio
 
-Dashboard estático em português para simulação financeira. Identidade visual baseada no verde-azulado da SES e no azul do SUS, usando as referências enviadas pelo usuário. As imagens de `assets/` são adaptações das referências do hospital e da identidade institucional, convertidas para WebP e incluídas no próprio site.
+Dashboard em português para demonstração financeira, com acesso por senha validado no servidor. Identidade visual baseada no verde-azulado da SES e no azul do SUS, usando as referências enviadas pelo usuário. As imagens de `assets/` são adaptações das referências do hospital e da identidade institucional, convertidas para WebP e incluídas no próprio site.
 
 ## Interface
 
-- Indicadores financeiros, projeção anual e capacidade de internação.
+- Indicadores financeiros e projeção anual, com resumo fixo e compacto durante a rolagem.
+- Leitos de enfermaria (UI e PS Observação), UTI e total: originalmente 336 + 70 = 406.
 - Busca com ou sem acentos, filtro por categoria e opção de mostrar somente serviços alterados.
 - Categorias recolhíveis, destaque das alterações e restauração de valores por serviço.
 - Resumo financeiro fixo durante a edição e composição do custeio abaixo dos serviços.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
+- Aba Comparativo com resumo por categoria e serviços detalhados opcionais, sem coluna de ocupação. Os valores HUGOL e as diferenças permanecem pendentes até o recebimento da base.
+- Indicador de conexão com animação suave, respeitando a preferência por movimentos reduzidos.
 - Sem dependências de imagens, fontes ou scripts externos durante o uso.
 
 ## Desenvolvimento
 
-Node.js 20 ou superior. Sem dependências externas de execução.
+Node.js 20 ou superior. Sem dependências externas de execução. Defina `DASHBOARD_PASSWORD` no ambiente de execução antes de iniciar o servidor; não registre o valor em arquivos versionados ou comandos salvos. Arquivos `.env` estão ignorados pelo Git, mas não são carregados automaticamente por `npm run dev`.
 
 ```sh
 npm run dev
@@ -21,7 +24,19 @@ npm test
 npm run build
 ```
 
-Servidor na porta 3000 (ou `PORT`). Build em `dist`. No Netlify, conecte este repositório: `netlify.toml` configura build e diretório de publicação. Nenhum segredo é necessário.
+Servidor na porta 3000 (ou `PORT`). Build em `dist`. Os testes usam senhas temporárias aleatórias em memória e não precisam da senha de produção. O servidor local aplica a mesma validação de acesso usada no Netlify.
+
+## Acesso e publicação no Netlify
+
+`netlify.toml` configura o build, o diretório de publicação e a Edge Function `access` para todas as rotas. A senha não faz parte do JavaScript entregue ao navegador nem do build estático.
+
+1. Em **Project configuration → Environment variables**, adicione `DASHBOARD_PASSWORD` com a senha de acesso definida para o painel. Marque o valor como secreto e disponibilize-o às funções no contexto Production (e aos demais contextos que precisarem de acesso).
+2. Inicie um novo deploy depois de salvar a variável.
+3. Confira o login, o acesso ao painel e o botão Sair no site publicado.
+
+Não há nome de usuário. A sessão dura oito horas e usa cookie assinado, HttpOnly, SameSite=Strict e Secure em HTTPS. Alterar a senha invalida as sessões anteriores. Páginas e dados protegidos não podem ser armazenados no cache compartilhado. Sem a variável, o servidor retorna acesso indisponível e mantém os dados bloqueados; erros da Edge Function não liberam arquivos estáticos. Somente as duas imagens institucionais e o script de apresentação do login são públicos. Há limitação de tentativas de login por IP em cada instância da função.
+
+A autenticação foi verificada no servidor local e no adaptador da Edge Function; a confirmação no Netlify exige a variável e um deploy na plataforma.
 
 ## Dados e cálculos
 

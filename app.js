@@ -1,6 +1,7 @@
-import { rows, reference, cost, initial } from './data.js';
+import { rows, reference, cost, initial, bedTotals } from './data.js';
 import { currency, signedCurrency, number, parseCurrency, roundCurrency } from './format.js';
 import { icon } from './icons.js';
+import { renderComparison } from './comparison.js';
 
 const $ = selector => document.querySelector(selector);
 const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -27,8 +28,6 @@ const groups = [...new Set(rows.map(row => row.group))];
 const groupIcons = ['bed', 'activity', 'hospital', 'calendar', 'people', 'scissors', 'lab', 'external', 'document'];
 const colors = ['#007d76', '#35558b', '#519b86', '#92bdb4', '#637f9b', '#b99744', '#4c92a0', '#859bb2', '#aacbc2'];
 const openGroups = new Map(groups.map((group, i) => [group, i < 2]));
-let metricsVisible = true;
-let activeTab = 'hugo';
 
 for (const element of document.querySelectorAll('[data-icon]')) {
   element.innerHTML = icon(element.dataset.icon);
@@ -111,10 +110,11 @@ function update() {
   $('#delta').textContent = signedCurrency(delta);
   $('#percent').textContent = number(delta / reference * 100) + '% em relação à referência';
   $('.metric-delta').dataset.direction = delta > 0 ? 'increase' : delta < 0 ? 'decrease' : 'neutral';
-  $('#beds').textContent = number(rows.reduce((sum, row) => sum + (row.kind === 'bed' && state[row.id].enabled ? state[row.id].qty : 0), 0));
+  const beds = bedTotals(state);
+  $('#ward-beds').textContent = number(beds.ward);
+  $('#icu-beds').textContent = number(beds.icu);
+  $('#beds').textContent = number(beds.total);
   $('#reference').textContent = currency(reference);
-  $('#floating-total').textContent = currency(total);
-  $('#floating-delta').textContent = signedCurrency(delta);
   const modifiedCount = rows.filter(row => changed(row.id)).length;
   const activeCount = state.filter(row => row.enabled).length;
   $('#change-count').textContent = `${activeCount} serviços ativos${modifiedCount ? ` · ${modifiedCount} ${modifiedCount === 1 ? 'alterado' : 'alterados'}` : ' · Sem alterações'}`;
@@ -124,6 +124,7 @@ function update() {
     total: rows.filter(row => row.group === group).reduce((sum, row) => sum + Math.round(values[row.id] * 100), 0) / 100,
   }));
   const max = Math.max(...totals.map(item => item.total), 1);
+  renderComparison({ rows, state, values, total, totals, beds });
   $('#chart').innerHTML = [...totals].sort((a, b) => b.total - a.total).map(item => `<button class="chart-row" data-chart-group="${item.group}" aria-label="Ver serviços de ${item.group}, ${currency(item.total)}">
     <span class="chart-label"><span class="chart-dot" style="background:${colors[item.index]}"></span>${item.group}</span>
     <span class="track"><span style="width:${item.total / max * 100}%;background:${colors[item.index]}"></span></span>
@@ -234,19 +235,26 @@ resetDialog.addEventListener('click', event => {
   if (event.target === resetDialog) resetDialog.close();
 });
 
-function refreshFloatingSummary() {
-  $('#floating-summary').hidden = activeTab !== 'hugo' || metricsVisible;
-}
 new IntersectionObserver(([entry]) => {
-  metricsVisible = entry.isIntersecting;
-  refreshFloatingSummary();
-}).observe($('.metric-primary'));
+  $('#metrics-dock').classList.toggle('is-stuck', entry.boundingClientRect.top < 8 && !$('#hugo').hidden);
+}, { rootMargin: '-8px 0px 0px 0px' }).observe($('#summary-sentinel'));
+new ResizeObserver(([entry]) => {
+  if (entry.contentRect.height > 0) document.documentElement.style.setProperty('--summary-height', Math.ceil(entry.target.getBoundingClientRect().height) + 'px');
+}).observe($('#metrics-dock'));
 const scrollTo = element => element.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
-$('#back-to-summary').addEventListener('click', () => scrollTo($('#metrics')));
+
+function updateConnectionStatus() {
+  const online = navigator.onLine;
+  $('#connection-status').dataset.online = String(online);
+  $('#connection-label').textContent = online ? 'Online' : 'Sem conexão';
+}
+addEventListener('online', updateConnectionStatus);
+addEventListener('offline', updateConnectionStatus);
+addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
+updateConnectionStatus();
 
 const tabButtons = [...document.querySelectorAll('[data-tab]')];
 function selectTab(button) {
-  activeTab = button.dataset.tab;
   for (const tab of tabButtons) {
     const selected = tab === button;
     tab.classList.toggle('active', selected);
@@ -254,7 +262,10 @@ function selectTab(button) {
     tab.tabIndex = selected ? 0 : -1;
     $('#' + tab.dataset.tab).hidden = !selected;
   }
-  refreshFloatingSummary();
+  if (button.dataset.tab !== 'hugo') {
+    $('#metrics-dock').classList.remove('is-stuck');
+    document.documentElement.style.setProperty('--summary-height', '0px');
+  }
 }
 for (const button of tabButtons) {
   button.addEventListener('click', () => selectTab(button));

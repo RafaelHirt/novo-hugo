@@ -23,3 +23,12 @@ export const rows=raw.map(([group,name,unit,total,qty,factor,patientDays],id)=>(
 export const reference=27261236.24;
 export function cost(row,state){if(!state.enabled)return 0;return row.total*(state.qty/row.qty)*(state.unit/row.unit)*(row.factor===undefined?1:state.factor/row.factor);}
 export function initial(){return rows.map(r=>({enabled:true,qty:r.qty,unit:r.unit,factor:r.factor}));}
+export function bedTotals(state) {
+  let ward = 0, icu = 0;
+  for (const row of rows) {
+    if (row.kind !== 'bed' || !state[row.id].enabled) continue;
+    if (row.group === 'UTI') icu += state[row.id].qty;
+    else ward += state[row.id].qty;
+  }
+  return { ward, icu, total: ward + icu };
+}

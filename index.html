@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#007d76">
-  <meta name="description" content="Simulador de custeio mensal do Novo HUGO, com ajustes de leitos, serviços e valores do 4º Termo Aditivo.">
-  <title>Novo HUGO · Simulador de custeio</title>
+  <meta name="description" content="Demonstração de custeio do Novo HUGO, com ajustes de leitos, serviços e valores do 4º Termo Aditivo.">
+  <title>Novo HUGO · Demonstração de custeio</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,16 +13,15 @@
   <header class="site-header">
     <div class="header-inner">
       <img class="institution-logo" src="assets/ses-goias.webp" alt="SUS · Secretaria de Estado da Saúde · Estado de Goiás" width="430" height="104">
-      <div class="header-label"><span class="header-dot"></span><div>Planejamento hospitalar<small>Painel de custeio · Novo HUGO</small></div></div>
+      <div class="header-actions"><span id="connection-status" class="connection-status" role="status" data-online="true"><span class="connection-dot" aria-hidden="true"></span><span id="connection-label">Online</span></span><form method="post" action="/auth/logout"><button class="button secondary logout-button"><span data-icon="logout"></span>Sair</button></form></div>
     </div>
   </header>
   <main id="main">
     <section class="hero" aria-labelledby="page-title">
       <div class="hero-media"><img src="assets/novo-hugo.webp" alt="" width="1536" height="1024" fetchpriority="high"></div>
       <div class="hero-content">
-        <span class="hero-eyebrow">GESTÃO E PLANEJAMENTO</span>
         <h1 id="page-title">Novo HUGO</h1>
-        <p>Simulação de custeio hospitalar</p>
+        <p>Demonstração de custeio</p>
         <span class="hero-status"><span></span>4º Termo Aditivo em trâmite</span>
       </div>
       <div class="hero-caption"><span data-icon="hospital"></span>Hospital Estadual de Urgências de Goiás</div>
@@ -31,6 +30,7 @@
     <nav class="tabs" role="tablist" aria-label="Bases da simulação">
       <button id="tab-hugo" class="tab active" data-tab="hugo" role="tab" aria-selected="true" aria-controls="hugo"><span data-icon="document"></span>Dados 4º T.A</button>
       <button id="tab-hugol" class="tab" data-tab="hugol" role="tab" aria-selected="false" aria-controls="hugol" tabindex="-1"><span data-icon="document"></span>4º T.A HUGO (Base de valores HUGOL)<span class="tab-badge">Em breve</span></button>
+      <button id="tab-comparison" class="tab" data-tab="comparison" role="tab" aria-selected="false" aria-controls="comparison" tabindex="-1"><span data-icon="chart"></span>Comparativo</button>
     </nav>
 
     <section id="hugo" role="tabpanel" aria-labelledby="tab-hugo">
@@ -39,7 +39,8 @@
         <div class="context-actions"><button id="reset" class="button secondary"><span data-icon="reset"></span>Restaurar dados</button><button id="export" class="button primary"><span data-icon="download"></span>Exportar cenário CSV</button></div>
       </div>
 
-      <div id="metrics" class="metrics">
+      <div id="summary-sentinel" class="summary-sentinel" aria-hidden="true"></div>
+      <div id="metrics-dock" class="metrics-dock"><div id="metrics" class="metrics">
         <article class="metric metric-primary">
           <div class="metric-heading"><small>CUSTEIO MENSAL SIMULADO</small><span class="metric-icon" data-icon="wallet"></span></div>
           <strong id="total" aria-live="polite"></strong>
@@ -49,15 +50,16 @@
           <div class="metric-heading"><small>VARIAÇÃO SOBRE A REFERÊNCIA</small><span class="metric-icon" data-icon="trend"></span></div>
           <strong id="delta"></strong><span id="percent"></span>
         </article>
-        <article class="metric">
+        <article class="metric metric-beds">
           <div class="metric-heading"><small>LEITOS DE INTERNAÇÃO ATIVOS</small><span class="metric-icon" data-icon="bed"></span></div>
-          <strong id="beds"></strong><span>Referência: 406 leitos</span>
+          <div class="bed-counters"><div><span title="Leitos de Enfermaria: UI e PS Observação">Enfermaria</span><strong id="ward-beds"></strong></div><div><span>UTI</span><strong id="icu-beds"></strong></div><div class="bed-total"><span>Total</span><strong id="beds"></strong></div></div>
+          <span class="bed-note">Enfermaria: UI e PS Observação</span>
         </article>
-        <article class="metric">
+        <article class="metric metric-reference">
           <div class="metric-heading"><small>CUSTEIO MENSAL DE REFERÊNCIA</small><span class="metric-icon" data-icon="document"></span></div>
           <strong id="reference"></strong><span>Base do 4º Termo Aditivo</span>
         </article>
-      </div>
+      </div></div>
 
       <section id="services" class="panel services" aria-labelledby="services-title">
         <div class="panel-heading">
@@ -89,14 +91,22 @@
         <span class="empty-status">Aguardando planilha</span>
       </div>
     </section>
-    <footer><div>Novo HUGO<span>Planejamento hospitalar</span></div><span>SES · Secretaria de Estado da Saúde de Goiás</span></footer>
+    <section id="comparison" role="tabpanel" aria-labelledby="tab-comparison" hidden>
+      <div class="context"><div><span class="section-eyebrow">VISÃO COMPARATIVA</span><h2>Comparação de cenários</h2><p>Dados 4º T.A × 4º T.A HUGO (Base de valores HUGOL)</p></div></div>
+      <div class="comparison-metrics">
+        <article class="metric metric-primary"><div class="metric-heading"><small>HUGO · CENÁRIO ATUAL</small><span class="metric-icon" data-icon="wallet"></span></div><strong id="comparison-current-total"></strong><span id="comparison-beds"></span></article>
+        <article class="metric"><div class="metric-heading"><small>BASE DE VALORES HUGOL</small><span class="metric-icon" data-icon="document"></span></div><strong class="pending-value">Aguardando dados</strong><span>UTI, PS e Cirurgias: valores previstos no HUGOL.</span></article>
+        <article class="metric"><div class="metric-heading"><small>DIFERENÇA ENTRE OS CENÁRIOS</small><span class="metric-icon" data-icon="trend"></span></div><strong>—</strong><span>Disponível após a inclusão da base HUGOL.</span></article>
+      </div>
+      <section class="panel comparison-panel" aria-labelledby="comparison-title"><div class="panel-heading"><div><span class="section-eyebrow">RESUMO POR CATEGORIA</span><h2 id="comparison-title">Custeio mensal lado a lado</h2><p>A coluna HUGO acompanha os ajustes feitos em Dados 4º T.A.</p></div></div>
+        <div class="table-scroll"><table class="comparison-table"><thead><tr><th>Categoria</th><th>HUGO</th><th>Base HUGOL</th><th>Diferença</th></tr></thead><tbody id="comparison-groups"></tbody><tfoot><tr><th>Total mensal</th><td id="comparison-footer-total"></td><td>—</td><td>—</td></tr></tfoot></table></div>
+        <details class="comparison-details"><summary><span class="category-icon" data-icon="document"></span><span class="category-label"><strong>Ver serviços detalhados</strong><small>Quantidades e custeio mensal</small></span><span class="category-chevron" data-icon="chevron"></span></summary>
+          <div class="table-scroll"><table class="comparison-table comparison-service-table"><thead><tr><th>Serviço</th><th>Quantidade / leitos</th><th>HUGO</th><th>Base HUGOL</th><th>Diferença</th></tr></thead><tbody id="comparison-services"></tbody></table></div>
+        </details>
+      </section>
+    </section>
+    <footer><div>Novo HUGO</div><span>SES · Secretaria de Estado da Saúde de Goiás</span></footer>
   </main>
-
-  <div id="floating-summary" class="floating-summary" hidden>
-    <div><small>CUSTEIO MENSAL SIMULADO</small><strong id="floating-total"></strong></div>
-    <div class="floating-delta"><small>VARIAÇÃO</small><span id="floating-delta"></span></div>
-    <button id="back-to-summary" class="icon-button" aria-label="Voltar ao resumo financeiro" title="Voltar ao resumo financeiro"><span data-icon="up"></span></button>
-  </div>
 
   <dialog id="reset-dialog">
     <form method="dialog">

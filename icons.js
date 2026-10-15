@@ -1,4 +1,5 @@
 const paths = {
+  logout: '<path d="M9 3H3v18h6m5-14 5 5-5 5m-7-5h12"/>',
   hospital: '<path d="M8 21H3V7h5m8 14h5V7h-5M8 21V3h8v18M10 7h4m-2-2v4M10 21v-5h4v5M4 11h2m-2 4h2m12-4h2m-2 4h2"/>',
   wallet: '<path d="M20 8V5a2 2 0 0 0-2-2H5a3 3 0 0 0 0 6h15v11H5a3 3 0 0 1-3-3V6m18 6h-5v5h5"/><path d="M16 14.5h.01"/>',
   trend: '<path d="m3 17 6-6 4 4 8-10m-6 0h6v6"/>',
