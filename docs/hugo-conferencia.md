@@ -1,15 +1,15 @@
 # Conferência da base HUGO
 
-Fonte: `02 NOVO HUGO - BASE HUGO VIGENTE Rafael.xlsx`. Importação dos valores armazenados nas seis abas de cenários, de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL. HUGO - ATUAL, Azul e RESUMO não foram importados como cenários. A assinatura SHA-256 consta em `hugo-source.js`; o arquivo completo não é publicado.
+Fonte: `02 NOVO HUGO - BASE HUGO VIGENTE (3).xlsx`. Importação dos valores armazenados nas seis abas de cenários, de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL. HUGO - ATUAL, Azul e RESUMO não foram importados como cenários. A assinatura SHA-256 consta em `hugo-source.js`; o arquivo completo não é publicado.
 
 | Aba de origem | Cenário | Planilha e dashboard — mensal |
 | --- | --- | ---: |
-| HUGO - SEM BANCO DE SANGUE | Novo prédio — sem incrementos | R$ 27.571.044,71 |
-| HUGO - SEM RESSONÂNCIA | + Banco de sangue | R$ 27.751.484,21 |
-| HUGO - SEM SAD E HEMODINÂMICA | + Banco e ressonância | R$ 27.893.984,21 |
-| HUGO - SEM HEMODINÂMICA | + Banco, ressonância e SAD | R$ 28.127.378,21 |
-| HUGO - MENOS LEITOS | + Banco, ressonância, SAD e hemodinâmica | R$ 29.244.113,21 |
-| HUGO - FINAL | + Todos e adequação de leitos | R$ 32.375.824,12 |
+| HUGO - SEM BANCO DE SANGUE | Novo prédio — sem incrementos | R$ 28.665.201,56 |
+| HUGO - SEM RESSONÂNCIA | + Banco de sangue | R$ 28.845.641,06 |
+| HUGO - SEM SAD E HEMODINÂMICA | + Banco e ressonância | R$ 28.988.141,06 |
+| HUGO - SEM HEMODINÂMICA | + Banco, ressonância e SAD | R$ 29.221.535,06 |
+| HUGO - MENOS LEITOS | + Banco, ressonância, SAD e hemodinâmica | R$ 30.338.270,06 |
+| HUGO - FINAL | + Todos e adequação de leitos | R$ 33.469.980,97 |
 
 | Incremento independente | Composição | Acréscimo mensal |
 | --- | --- | ---: |
@@ -19,16 +19,25 @@ Fonte: `02 NOVO HUGO - BASE HUGO VIGENTE Rafael.xlsx`. Importação dos valores 
 | Hemodinâmica | 250 procedimentos | R$ 1.116.735,00 |
 | Adequação de leitos | +35 UI e +20 UTI; ajuste de 18 produções de SADT | R$ 3.131.710,91 |
 
-Ressonância + hemodinâmica, sem banco e sem os demais incrementos: **R$ 28.830.279,71**. Os cinco incrementos podem ser combinados em qualquer ordem; os testes verificam os 32 conjuntos, todas as linhas dos seis cenários e a soma das categorias em centavos.
+Ressonância + hemodinâmica, sem banco e sem os demais incrementos: **R$ 29.924.436,56**. UI e UTI agora são opções separadas; os testes verificam as 64 combinações, todas as linhas dos seis cenários originais e a soma das categorias em centavos. A hemodinâmica oferece também 450 procedimentos por R$ 2.010.123,00 mensais.
+
+## Adequações separadas
+
+| Opção | Leitos acrescentados | Custo direto dos leitos | SADT isolado | Acréscimo isolado mensal |
+| --- | ---: | ---: | ---: | ---: |
+| Enfermaria (UI) | 35 | R$ 956.263,11 | R$ 258.568,26 | R$ 1.214.831,37 |
+| UTI | 20 | R$ 1.771.384,23 | R$ 145.034,32 | R$ 1.916.418,55 |
+
+Com ambas as adequações, o acréscimo é **R$ 3.131.710,91**, dos quais R$ 404.063,57 em SADT. Os efeitos isolados não são somados diretamente: o índice de SADT e as quantidades de cada linha têm arredondamentos. O cenário completo com 450 hemodinâmicas custa **R$ 34.363.368,97**.
 
 ## Regras preservadas
 
 - Os pacientes-dia usam `ROUNDUP(leitos × ocupação × 30,4; 0)`, conforme as abas da fonte. Ocupação editável em passos de 0,5 ponto percentual.
 - Cirurgias preservam horas fracionadas; serviços usam quantidade × custo unitário. Valores de cada linha são arredondados a centavos antes da soma.
-- P12 usa `SUM(P6:P10)` e exclui a linha P11, UI Cirúrgica do 2º andar, R$ 1.094.156,85. Essa regra financeira foi preservada para reproduzir o total solicitado; a retirada do banner não altera o cálculo. A linha segue nos indicadores de leitos e é identificada na própria linha e no CSV.
-- Sem adequação são 336 UI + 70 UTI = 406 leitos; com adequação, 371 UI + 90 UTI = 461. PS Observação, hospital dia e escritório de gestão de altas ficam fora dessa contagem.
-- Adequação aplica os aumentos de UI, UTI e SADT juntos. Alterar manualmente uma linha não reestima a produção das outras.
+- P12 desta revisão usa `SUM(P6:P11)` e inclui a UI Cirúrgica do 2º andar, R$ 1.094.156,85. O importador lê o intervalo real do subtotal; todas as seis UI participam do custeio e os totais coincidem com a fonte atualizada.
+- A capacidade física definida pelo usuário é 318 UI + 70 UTI = 388 leitos. Adequação apenas de UI: 353 + 70 = 423; apenas de UTI: 318 + 90 = 408; ambas: 353 + 90 = 443. A distribuição financeira da planilha (336 UI na base) permanece no cálculo, sem alteração de custeio por essa correção de capacidade.
+- UI e UTI podem ser ampliadas separadamente. O SADT usa a fórmula da fonte, com índices 1,09 para +35 UI, 1,05 para +20 UTI e 1,14 para ambas; cada quantidade é arredondada. Com as duas opções, reproduz as linhas do cenário final. Alterar manualmente uma linha não reestima a produção das outras.
 - A seleção ou retirada de um incremento restaura suas próprias linhas; preserva as demais edições manuais.
-- T.A Atual, base HUGOL e base HUGO têm estados separados. O comparativo lê os valores, leitos e incrementos de cada estado, sem coluna de ocupação.
+- 4 T.A (Atual), base HUGOL e base HUGO têm estados separados. O comparativo lê os valores, leitos e incrementos de cada estado, sem coluna de ocupação.
 
 Os totais originais têm frações abaixo de um centavo em algumas células. A importação confere o total arredondado contra a soma das linhas monetárias em centavos; os seis totais coincidem.

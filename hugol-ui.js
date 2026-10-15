@@ -7,7 +7,7 @@ export function initHugol(options = {}) {
 }
 
 export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false }) {
-  const { increments, presets, presetState, setIncrement, snapshot: hugolSnapshot, volume: hugolVolume, workbookAudit } = model;
+  const { increments, presets, presetState, setIncrement, setHemodynamicsVolume, snapshot: hugolSnapshot, volume: hugolVolume, workbookAudit } = model;
   const root = document.getElementById(panelId);
   const $ = selector => root.querySelector(selector.replaceAll('#hugol-', '#' + prefix + '-'));
   const policy = { includeOmittedWard };
@@ -17,12 +17,13 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey));
     if (saved) {
-      const restored = { base: saved.base, selected: saved.selected, edits: saved.edits && typeof saved.edits === 'object' && !Array.isArray(saved.edits) ? saved.edits : {} };
+      const restored = model.normalizeConfig({ base: saved.base, selected: saved.selected, edits: saved.edits && typeof saved.edits === 'object' && !Array.isArray(saved.edits) ? saved.edits : {} });
       hugolSnapshot(restored, policy); config = restored;
     }
   } catch {}
   $('#hugol-preset').innerHTML = presets.map(item => `<option value="${item.id}">${h(item.name)}</option>`).join('') + '<option value="custom" disabled>Combinação personalizada</option>';
-  $('#hugol-increments').innerHTML = increments.map((item, index) => `<label class="increment-card"><input type="checkbox" data-increment="${item.id}"><span class="increment-card-body"><span class="increment-card-heading"><span class="increment-icon">${icon(['lab','activity','people','hospital','bed'][index])}</span><strong>${h(item.name)}</strong></span><span class="increment-description">${h(item.description)}</span><span class="increment-amount">+ ${currency(item.amountCents / 100)}</span><small>Referência mensal da planilha</small></span></label>`).join('');
+  const incrementIcons = { blood:'lab', mri:'activity', sad:'people', hemodynamics:'hospital', wardBeds:'bed', icuBeds:'activity' };
+  $('#hugol-increments').innerHTML = increments.map(item => `<article class="increment-card"><label class="increment-card-choice"><input type="checkbox" data-increment="${item.id}"><span class="increment-card-body"><span class="increment-card-heading"><span class="increment-icon">${icon(incrementIcons[item.id])}</span><strong>${h(item.name)}</strong></span><span class="increment-description" data-increment-description="${item.id}">${h(item.description)}</span><span class="increment-amount" data-increment-amount="${item.id}">+ ${currency(item.amountCents / 100)}</span><small data-increment-caption="${item.id}">${item.addedBeds ? 'Acréscimo mensal desta opção isolada' : 'Referência mensal da planilha'}</small>${item.addedBeds ? `<small class="increment-breakdown">Leitos: ${currency(item.bedAmountCents / 100)}<br>SADT: ${currency(item.sadtAmountCents / 100)}</small>` : ''}</span></label>${item.id === 'hemodynamics' ? `<label class="increment-volume" for="${prefix}-hemodynamics-volume"><span>Procedimentos por mês</span><select id="${prefix}-hemodynamics-volume" aria-label="Procedimentos de hemodinâmica por mês na base ${basisName}"><option value="250">250 procedimentos</option><option value="450">450 procedimentos</option></select></label>` : ''}</article>`).join('');
   $('#hugol-audit').innerHTML = workbookAudit(policy).map(item => `<tr><th scope="row">${h(item.name)}</th><td data-label="Planilha">${currency(item.sourceTotalCents / 100)}</td><td data-label="Dashboard">${currency(item.dashboardTotal)}</td><td data-label="Conferência" class="audit-result">${item.difference === 0 ? 'Conferido' : signedCurrency(item.difference)}</td></tr>`).join('');
 
   function field(row, key, label) {
@@ -59,10 +60,27 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     $('#hugol-preset').value = snapshot.modifiedIds.length ? 'custom' : snapshot.preset?.id || 'custom';
     $('#hugol-increment-fieldset').disabled = config.base !== 'new';
     $('#hugol-base-instruction').hidden = config.base === 'new';
-    $('#hugol-select-all').disabled = config.base !== 'new' || config.selected.length === 5;
+    $('#hugol-select-all').disabled = config.base !== 'new' || config.selected.length === increments.length;
     $('#hugol-clear-increments').disabled = config.selected.length === 0;
     for (const checkbox of root.querySelectorAll('[data-increment]')) checkbox.checked = config.selected.includes(checkbox.dataset.increment);
-    $('#hugol-selection-summary').textContent = `${config.selected.length} de 5 incrementos selecionados${snapshot.modifiedIds.length ? ` · ${snapshot.modifiedIds.length} serviços ajustados manualmente` : ''}`;
+    const hemodynamics = snapshot.rows.find(row => row.group === 'Hemodinâmica');
+    const volumeSelect = $('#hugol-hemodynamics-volume');
+    volumeSelect.disabled = !hemodynamics || !snapshot.state[hemodynamics.id].enabled;
+    if (hemodynamics) {
+      const state = snapshot.state[hemodynamics.id], quantity = state.qty || 250;
+      volumeSelect.innerHTML = [250, 450, ...([250, 450].includes(quantity) ? [] : [quantity])].map(value => `<option value="${value}">${number(value)} procedimentos</option>`).join('');
+      volumeSelect.value = String(quantity);
+      $('[data-increment-description="hemodynamics"]').textContent = `${number(quantity)} procedimentos por mês.`;
+      $('[data-increment-amount="hemodynamics"]').textContent = '+ ' + currency(quantity * state.unit);
+      $('[data-increment-caption="hemodynamics"]').textContent = `${number(quantity)} × ${currency(state.unit)} por procedimento`;
+    } else {
+      volumeSelect.innerHTML = '<option value="250">250 procedimentos</option><option value="450">450 procedimentos</option>';
+      const reference = increments.find(item => item.id === 'hemodynamics');
+      $('[data-increment-description="hemodynamics"]').textContent = reference.description;
+      $('[data-increment-amount="hemodynamics"]').textContent = '+ ' + currency(reference.amountCents / 100);
+      $('[data-increment-caption="hemodynamics"]').textContent = 'Referência mensal da planilha';
+    }
+    $('#hugol-selection-summary').textContent = `${config.selected.length} de ${increments.length} incrementos selecionados${snapshot.modifiedIds.length ? ` · ${snapshot.modifiedIds.length} ${snapshot.modifiedIds.length === 1 ? 'serviço ajustado manualmente' : 'serviços ajustados manualmente'}` : ''}`;
     $('#hugol-change-count').textContent = `${snapshot.rows.filter(row => snapshot.state[row.id].enabled).length} serviços ativos`;
     if (rebuild) renderTables();
     for (const total of root.querySelectorAll('[data-h-group]')) total.textContent = currency(snapshot.totals.find(item => item.group === total.dataset.hGroup).total);
@@ -80,6 +98,7 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     onChange?.(snapshot);
   }
   $('#hugol-increments').addEventListener('change', event => { if (event.target.dataset.increment) { config = setIncrement(config, event.target.dataset.increment, event.target.checked); refresh(); } });
+  $('#hugol-hemodynamics-volume').addEventListener('change', event => { config = setHemodynamicsVolume(config, Number(event.target.value)); refresh(); });
   $('#hugol-preset').addEventListener('change', event => { config = presetState(event.target.value); refresh(); });
   $('#hugol-reset').addEventListener('click', () => { config = presetState(defaultPreset); $('#hugol-search').value = ''; refresh(); });
   $('#hugol-select-all').addEventListener('click', () => { for (const item of increments) config = setIncrement(config, item.id, true); refresh(); });

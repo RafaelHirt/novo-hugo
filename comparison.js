@@ -4,7 +4,7 @@ import { icon } from './icons.js';
 
 const snapshots = {};
 const definitions = [
-  { id:'current', label:'T.A Atual', title:'T.A Atual', subtitle:'Contrato vigente', totalId:'comparison-current-total', footerId:'comparison-footer-total' },
+  { id:'current', label:'4 T.A (Atual)', title:'4 T.A (Atual)', subtitle:'Contrato vigente', totalId:'comparison-current-total', footerId:'comparison-footer-total' },
   { id:'hugol', label:'5º T.A · Base R$ HUGOL', title:'5º T.A HUGO', subtitle:'Base R$ HUGOL', totalId:'comparison-hugol-total', footerId:'comparison-hugol-footer-total' },
   { id:'hugoBase', label:'5º T.A · Base R$ HUGO', title:'5º T.A HUGO', subtitle:'Base R$ HUGO', totalId:'comparison-hugo-total', footerId:'comparison-hugo-footer-total' },
 ];
@@ -46,7 +46,10 @@ function refresh() {
   for (const button of document.querySelectorAll('[data-comparison-period]')) button.setAttribute('aria-pressed',String((button.dataset.comparisonPeriod==='annual')===annual));
   $('#comparison-cards').innerHTML=view.scenarios.map(item=>{
     const {snapshot}=item, modified=modifiedCount(snapshot);
-    const chips=snapshot.selected?.length?snapshot.selected.map(entry=>entry.name):[item.id==='current'?'Base vigente':snapshot.baseName+' · Sem incrementos'];
+    const chips=snapshot.selected?.length?snapshot.selected.map(entry=>{
+      const row=entry.id==='hemodynamics'?snapshot.rows.find(row=>row.group==='Hemodinâmica'):null;
+      return row?`${entry.name} · ${number(snapshot.state[row.id].enabled?snapshot.state[row.id].qty:0)}/mês`:entry.name;
+    }):[item.id==='current'?'Base vigente':snapshot.baseName+' · Sem incrementos'];
     return `<article class="compare-scenario ${item.isReference?'is-reference':''}" data-scenario="${item.id}"><div class="compare-scenario-heading"><div><small>${h(item.title)}</small><h3>${h(item.subtitle)}</h3></div>${item.isReference?'<span class="reference-badge">Referência</span>':icon('document')}</div><strong id="${item.totalId}" class="compare-scenario-total">${currency(item.amount)}</strong><span class="compare-period-caption">${annual?'Custeio anual · '+currency(snapshot.total)+' / mês':'Custeio mensal · '+currency(snapshot.total*12)+' / ano'}</span><div class="compare-scenario-delta" data-direction="${direction(item.delta)}">${item.isReference?'Base para as diferenças':`<strong>${signedCurrency(item.delta)}</strong><span>${percent(item.percent)} vs. ${h(view.referenceLabel)}</span>`}</div><div class="compare-capacity"><div><small>Enfermaria</small><strong>${number(snapshot.beds.ward)}</strong></div><div><small>UTI</small><strong>${number(snapshot.beds.icu)}</strong></div><div><small>Total de leitos</small><strong>${number(snapshot.beds.total)}</strong></div></div><div class="comparison-chips">${chips.map(label=>`<span>${h(label)}</span>`).join('')}${modified?`<span>${modified} ${modified===1?'ajuste manual':'ajustes manuais'}</span>`:''}</div></article>`;
   }).join('');
   const head=label=>`<tr><th scope="col">${label}</th>${view.scenarios.map(item=>`<th scope="col" class="${item.isReference?'reference-column':''}">${h(item.title)}<small>${h(item.subtitle)}${item.isReference?' · Referência':''}</small></th>`).join('')}</tr>`;

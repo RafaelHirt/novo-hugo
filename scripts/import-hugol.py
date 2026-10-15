@@ -6,19 +6,20 @@ Requires openpyxl for this one-time import, not for running the dashboard.
 import argparse
 import hashlib
 import json
+import re
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 import openpyxl
 
 HUGOL_SHEETS = [
-    'HUGO - BASE HUGOL (Sem aumento)',
-    'HUGO - (Novo Prédio - Saídas)',
-    'HUGO - (Com banco de sangue)',
-    'HUGO - (Com banco e ressoância)',
-    'HUGO(com banco, ressonância SAD',
-    'HUGO - banc, ress, SAD, Hemodin',
-    'HUGO - + adequaçãode leitos',
+    ('HUGO - BASE HUGOL', 'HUGO - BASE HUGOL (Sem aumento)'),
+    ('HUGO - SEM BANCO DE SANGUE', 'HUGO - (Novo Prédio - Saídas)'),
+    ('HUGO - SEM RESSONÂNCIA', 'HUGO - (Com banco de sangue)'),
+    ('HUGO - SEM SAD E HEMODINÂMICA', 'HUGO - (Com banco e ressoância)'),
+    ('HUGO - SEM HEMODINÂMICA', 'HUGO(com banco, ressonância SAD'),
+    ('HUGO - MESMOS LEITOS', 'HUGO - banc, ress, SAD, Hemodin'),
+    ('HUGO - FINAL', 'HUGO - + adequaçãode leitos'),
 ]
 HUGO_SHEETS = ['HUGO - SEM BANCO DE SANGUE', 'HUGO - SEM RESSONÂNCIA', 'HUGO - SEM SAD E HEMODINÂMICA', 'HUGO - SEM HEMODINÂMICA', 'HUGO - MENOS LEITOS', 'HUGO - FINAL']
 INCREMENTS = [
@@ -51,6 +52,12 @@ def cents(value):
 def extract(values, formulas, same=False, prefix=''):
     result = []
     groups = SAME_GROUPS if same else NEW_GROUPS
+    if not same:
+        subtotal_formula = formulas['P12'].value.replace(' ', '').upper()
+        subtotal_range = re.fullmatch(r'=SUM\(P(\d+):P(\d+)\)', subtotal_formula)
+        if not subtotal_range:
+            raise ValueError(f'Unsupported ward subtotal: {subtotal_formula}')
+        financial_ward_rows = range(int(subtotal_range[1]), int(subtotal_range[2]) + 1)
     for start, end, group in groups:
         for index in range(start, end + 1):
             def cell(column):
@@ -69,7 +76,7 @@ def extract(values, formulas, same=False, prefix=''):
                 'qty': cell(qty_column), 'unit': cell('H' if same else 'M'),
                 'sourceVolume': cell(volume_column), 'sourceTotalCents': cents(cell(total_column)),
                 'sourceRow': index, 'sourceCell': f'{total_column}{index}',
-                'countedInWorkbook': same or index != 11,
+                'countedInWorkbook': same or group != 'Enfermarias' or index in financial_ward_rows,
             }
             if factor is not None:
                 item['factor'] = factor
@@ -87,11 +94,11 @@ parser.add_argument('workbook')
 parser.add_argument('--basis', choices=['hugol', 'hugo'], default='hugol')
 args = parser.parse_args()
 is_hugol = args.basis == 'hugol'
-SHEETS = HUGOL_SHEETS if is_hugol else HUGO_SHEETS
 prefix = '' if is_hugol else 'hugo-'
 path = Path(args.workbook)
 values = openpyxl.load_workbook(path, data_only=True)
 formulas = openpyxl.load_workbook(path, data_only=False)
+SHEETS = [next(name for name in alternatives if name in values.sheetnames) for alternatives in HUGOL_SHEETS] if is_hugol else HUGO_SHEETS
 same = extract(values[SHEETS[0]], formulas[SHEETS[0]], same=True) if is_hugol else []
 new_sheets = SHEETS[1:] if is_hugol else SHEETS
 versions = [extract(values[name], formulas[name], prefix=prefix) for name in new_sheets]
@@ -127,10 +134,18 @@ payload = {
     'fileName': path.name, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
     'bases': ({'same': same} if is_hugol else {}) | {'new': versions[0]}, 'increments': increments,
     'presets': presets,
-    'subtotalIssue': {
+    'bedAdequacy': {
+        'referenceBeds': values[new_sheets[0]]['U4'].value,
+        'baseBeds': values[new_sheets[0]]['V4'].value,
+        'sadtBaseQuantities': {
+            row['id']: values[new_sheets[0]][f"S{row['sourceRow']}"].value
+            for row in versions[0] if row['id'] in increments[-1]['patches'] and row['group'].startswith('SADT')
+        },
+    },
+    'subtotalIssue': ({
         'rowId': prefix + 'new-11', 'name': 'UI Clínica Cirúrgica Geral Adulto (2º Andar)',
         'beds': 40, 'amountCents': next(row['sourceTotalCents'] for row in versions[0] if row['sourceRow'] == 11), 'formulaCell': 'P12', 'formula': '=SUM(P6:P10)',
-    },
+    } if any(not row['countedInWorkbook'] for row in versions[0]) else None),
 }
 for preset in presets:
     rows = same if preset['base'] == 'same' else versions[int(preset['id'].split('-')[1])]

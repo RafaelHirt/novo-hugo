@@ -13,7 +13,7 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 - Paciente-dia projetado atualizado em cada linha de internação, com base em 30,4 dias por mês.
 - Ocupação de 0% a 100%, com controles em passos de 0,5 ponto percentual nas UI, UTI e PS Observação.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
-- Abas 5º T.A HUGO com bases R$ HUGOL e R$ HUGO: cinco incrementos independentes e edição dos serviços em cada base. Sete cenários originais na HUGOL e seis na HUGO.
+- Abas 5º T.A HUGO com bases R$ HUGOL e R$ HUGO: seis opções independentes (UI e UTI separadas) e edição dos serviços em cada base. Sete cenários originais na HUGOL e seis na HUGO.
 - Comparativo dos três cenários salvos, com referência escolhida pelo usuário, diferenças em reais e percentual, visão mensal ou anual e filtro de diferenças. Os cartões mostram os incrementos selecionados e a capacidade de leitos. Serviços e quantidades ficam em detalhe opcional, sem coluna de ocupação; exportação do comparativo em CSV.
 - Indicador de conexão com animação suave, respeitando a preferência por movimentos reduzidos.
 - Sem dependências de imagens, fontes ou scripts externos durante o uso.
@@ -54,28 +54,32 @@ Nos demais serviços, os totais da imagem permanecem como base: total original �
 
 Na UTI, a mesma regra vale para as cinco linhas: 10 leitos × 80% × 30,4 = 243,2, arredondados para 243 pacientes-dia; × R$ 3.069,99 = R$ 746.007,57. Para 20 leitos a 80%, são 486 pacientes-dia e R$ 1.492.015,14.
 
-A contagem de leitos usa a mesma função `bedTotals` em qualquer base: soma apenas UI e UTI ativas, com suas quantidades ajustadas, independentemente da ocupação. Na base original são 318 UI + 70 UTI = 388 leitos. Os 18 lugares de PS Observação, Hospital dia e escritório de gestão de altas não entram nos indicadores de leitos; seus serviços continuam no cálculo financeiro. A planilha original exibe 406 por incluir PS Observação. Sua transcrição e seus totais financeiros foram preservados. Valores são mensais; o anual é uma projeção de 12 meses iguais. O modelo estima o custeio pela produção e não separa custos fixos e variáveis.
+A função `bedTotals` soma UI e UTI ativas, independentemente da ocupação. Nos cenários do novo prédio, a capacidade física de enfermaria parte de 318 leitos, conforme orientação do usuário, e acompanha os acréscimos de UI; a distribuição financeira de 336 posições da planilha permanece no cálculo de custeio. Assim, o ajuste de capacidade não altera valores, ocupação ou paciente-dia. Na base original são 318 UI + 70 UTI = 388 leitos. Os 18 lugares de PS Observação, Hospital dia e escritório de gestão de altas não entram nos indicadores de leitos; seus serviços continuam no cálculo financeiro. A planilha original exibe 406 por incluir PS Observação. Sua transcrição e seus totais financeiros foram preservados. Valores são mensais; o anual é uma projeção de 12 meses iguais. O modelo estima o custeio pela produção e não separa custos fixos e variáveis.
 
 Valores monetários usam o padrão brasileiro (R$ 1.234,56), com duas casas decimais e totais somados em centavos. Custos unitários podem ser digitados com vírgula decimal ou colados com R$. O CSV usa ponto e vírgula como separador, vírgula decimal e duas casas nos valores monetários.
 
-Os ajustes da T.A Atual, da base R$ HUGOL e da base R$ HUGO ficam em três chaves distintas do localStorage e podem ser restaurados ou exportados em CSV. O comparativo acompanha esses estados; seus filtros não alteram os cenários nem os totais gerais.
+Os ajustes da 4 T.A (Atual), da base R$ HUGOL e da base R$ HUGO ficam em três chaves distintas do localStorage e podem ser restaurados ou exportados em CSV. O comparativo acompanha esses estados; seus filtros não alteram os cenários nem os totais gerais.
 
 ## Incrementos com base R$ HUGOL
 
-Dados de `01 NOVO HUGO alterado rafael.xlsx`, somente das sete abas de HUGO - BASE HUGOL (Sem aumento) até HUGO - + adequaçãode leitos. HUGO - ATUAL, Azul e RESUMO não foram usados como fontes desta importação. Os valores já calculados das abas aprovadas são extraídos sem executar fórmulas do arquivo. O arquivo completo não é publicado no site.
+Fonte atual: `01 NOVO HUGO - BASE HUGOL.xlsx`. São importadas somente as sete abas de HUGO - BASE HUGOL até HUGO - FINAL. HUGO - ATUAL, Azul e RESUMO não são fontes de cenários. A importação lê valores já calculados, sem executar fórmulas, e registra o SHA-256. O arquivo completo não é publicado.
 
-Banco de sangue, ressonância, SAD, hemodinâmica e adequação de leitos podem ser combinados em qualquer ordem. Os 32 conjuntos e os sete cenários originais são verificados em testes. A seleção de adequação aplica +35 UI, +20 UTI e os 18 volumes adicionais de SADT da planilha. Edições manuais alteram apenas a linha editada. Alternar um incremento restaura as linhas daquele incremento e mantém os demais ajustes.
+A nova planilha inclui a UI Cirúrgica do 2º andar no subtotal financeiro (`P12 = SUM(P6:P11)`). O cenário sem incrementos é R$ 27.383.612,79 e o completo, R$ 32.041.004,33, usando os 250 procedimentos originais de hemodinâmica. Todos os sete totais e suas linhas foram conferidos em centavos.
 
-O cenário inicial é Novo Prédio, sem incrementos (R$ 26.074.748,34). Para reproduzir os totais solicitados, o dashboard mantém a regra do subtotal P12 da planilha, que deixa de fora a UI Cirúrgica do 2º andar: 40 leitos, R$ 1.308.864,45. Essa linha continua na contagem de leitos; seu valor nominal é exibido e identificado na própria linha como fora do subtotal. O banner explicativo foi retirado a pedido do usuário; o CSV distingue custo nominal e custeio considerado.
+Banco de sangue, ressonância, SAD, hemodinâmica, adequação de enfermaria e adequação de UTI formam seis opções independentes. A hemodinâmica oferece 250 ou 450 procedimentos mensais: 450 × R$ 4.466,94 = R$ 2.010.123,00. O seletor usa o custo unitário atual da linha e acompanha alterações manuais. O comparativo mostra o volume selecionado.
 
-As novas abas usam `ROUNDUP` nos pacientes-dia: arredondar para cima (leitos × ocupação × 30,4). A base sem aumento e a T.A Atual usam o arredondamento ao inteiro mais próximo. As cirurgias do novo prédio preservam horas fracionadas. As regras das duas bases de incremento são compartilhadas em `increment-model.js`, sem alterar os dados da T.A Atual.
+A adequação de enfermaria acrescenta 35 UI; a de UTI, 20 leitos. Os cartões mostram o acréscimo financeiro da opção isolada e distinguem custo dos leitos e ajuste de SADT. O SADT acompanha a fórmula da planilha: índice de leitos arredondado a duas casas, seguido do arredondamento da quantidade de cada serviço. Os efeitos conjuntos podem diferir da soma dos efeitos isolados por causa desses arredondamentos; com ambas as opções, o cenário final coincide com o arquivo.
 
-Confira [a conferência dos totais e incrementos](docs/hugol-conferencia.md). `scripts/import-hugol.py` reproduz `hugol-source.js` a partir do arquivo original, com `openpyxl` somente na importação; o dashboard continua sem dependências de execução.
+A capacidade física inicial das duas bases é 318 UI + 70 UTI = 388; somente UI ampliada resulta em 423, somente UTI em 408 e ambas em 443. As quantidades usadas no custeio permanecem iguais às da planilha. A seleção antiga de adequação é migrada para as duas opções, preservando outros ajustes salvos. Alternar uma opção de leitos restaura suas linhas e as linhas de SADT relacionadas, preservando os demais serviços.
+
+Confira [os totais, os incrementos e as fórmulas](docs/hugol-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis hugol` reproduz `hugol-source.js`, usando `openpyxl` somente durante a importação.
 
 ## Incrementos com base R$ HUGO
 
-Dados de `02 NOVO HUGO - BASE HUGO VIGENTE Rafael.xlsx`, das seis abas de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL. HUGO - ATUAL, Azul e RESUMO não são fontes desta importação. A mesma lógica de caixas independentes, cenários predefinidos e edição é usada com os preços próprios do HUGO, mantendo os dados e o salvamento separados da base HUGOL.
+Fonte atual: `02 NOVO HUGO - BASE HUGO VIGENTE (3).xlsx`, das seis abas de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL. HUGO - ATUAL, Azul e RESUMO não são fontes desta importação.
 
-O cenário inicial, sem incrementos, é R$ 27.571.044,71; com os cinco incrementos, R$ 32.375.824,12. A adequação de leitos acrescenta R$ 3.131.710,91 nesta base, com os mesmos +35 UI, +20 UTI e ajustes de SADT. Os seis cenários e as 32 combinações são conferidos em centavos. A regra do subtotal da planilha é preservada nas duas bases.
+A revisão inclui a UI do 2º andar no subtotal (`P12 = SUM(P6:P11)`): R$ 28.665.201,56 sem incrementos e R$ 33.469.980,97 no cenário completo com 250 hemodinâmicas. Com 450, o completo passa a R$ 34.363.368,97. Os seis cenários originais fecham em centavos. A interface já oferece as adequações separadas, capacidade física de 318 UI e opção de 450 hemodinâmicas, com estados e salvamento separados da base HUGOL.
 
-Confira [os totais e a composição da base HUGO](docs/hugo-conferencia.md). Para reproduzir `hugo-source.js`, execute `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis hugo`; a importação lê apenas valores já calculados e registra o SHA-256 da fonte.
+As abas do novo prédio usam `ROUNDUP` para paciente-dia (leitos × ocupação × 30,4). A base HUGOL sem aumento e a 4 T.A (Atual) usam o arredondamento ao inteiro mais próximo. Cirurgias do novo prédio preservam horas fracionadas. As duas bases de incremento compartilham `increment-model.js` e `hugol-ui.js`.
+
+Confira [a conferência da fonte HUGO](docs/hugo-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis hugo` reproduz `hugo-source.js` a partir do arquivo correspondente. As 64 combinações de cada base, a opção de 450 e a migração dos ajustes salvos têm testes.
