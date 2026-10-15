@@ -9,6 +9,7 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 - Busca com ou sem acentos, filtro por categoria e opção de mostrar somente serviços alterados.
 - Categorias recolhíveis, destaque das alterações e restauração de valores por serviço.
 - Resumo financeiro fixo durante a edição e composição do custeio abaixo dos serviços.
+- Barra inferior compacta durante a rolagem, com total e variação atualizados e botão para voltar ao resumo. Aparece na aba Dados 4º T.A e prioriza o total nas telas menores.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
 - Aba Comparativo com resumo por categoria e serviços detalhados opcionais, sem coluna de ocupação. Os valores HUGOL e as diferenças permanecem pendentes até o recebimento da base.
 - Indicador de conexão com animação suave, respeitando a preferência por movimentos reduzidos.

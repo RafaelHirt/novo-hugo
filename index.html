@@ -40,7 +40,7 @@
       </div>
 
       <div id="summary-sentinel" class="summary-sentinel" aria-hidden="true"></div>
-      <div id="metrics-dock" class="metrics-dock"><div id="metrics" class="metrics">
+      <div id="metrics-dock" class="metrics-dock" role="region" aria-label="Resumo financeiro" tabindex="-1"><div id="metrics" class="metrics">
         <article class="metric metric-primary">
           <div class="metric-heading"><small>CUSTEIO MENSAL SIMULADO</small><span class="metric-icon" data-icon="wallet"></span></div>
           <strong id="total" aria-live="polite"></strong>
@@ -107,6 +107,12 @@
     </section>
     <footer><div>Novo HUGO</div><span>SES · Secretaria de Estado da Saúde de Goiás</span></footer>
   </main>
+
+  <aside id="floating-summary" class="floating-summary" aria-label="Resumo financeiro flutuante" hidden>
+    <div><small>CUSTEIO MENSAL SIMULADO</small><strong id="floating-total"></strong></div>
+    <div class="floating-delta"><small>VARIAÇÃO</small><span id="floating-delta"></span></div>
+    <button id="back-to-summary" class="icon-button" type="button" aria-label="Voltar ao resumo financeiro" title="Voltar ao resumo financeiro"><span data-icon="up"></span></button>
+  </aside>
 
   <dialog id="reset-dialog">
     <form method="dialog">

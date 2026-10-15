@@ -115,6 +115,8 @@ function update() {
   $('#icu-beds').textContent = number(beds.icu);
   $('#beds').textContent = number(beds.total);
   $('#reference').textContent = currency(reference);
+  $('#floating-total').textContent = currency(total);
+  $('#floating-delta').textContent = signedCurrency(delta);
   const modifiedCount = rows.filter(row => changed(row.id)).length;
   const activeCount = state.filter(row => row.enabled).length;
   $('#change-count').textContent = `${activeCount} serviços ativos${modifiedCount ? ` · ${modifiedCount} ${modifiedCount === 1 ? 'alterado' : 'alterados'}` : ' · Sem alterações'}`;
@@ -235,13 +237,23 @@ resetDialog.addEventListener('click', event => {
   if (event.target === resetDialog) resetDialog.close();
 });
 
-new IntersectionObserver(([entry]) => {
-  $('#metrics-dock').classList.toggle('is-stuck', entry.boundingClientRect.top < 8 && !$('#hugo').hidden);
-}, { rootMargin: '-8px 0px 0px 0px' }).observe($('#summary-sentinel'));
+function refreshSummaryVisibility() {
+  // The cards stay visible while sticky, so observe their original position.
+  const passedSummary = !$('#hugo').hidden && $('#summary-sentinel').getBoundingClientRect().top < 8;
+  $('#metrics-dock').classList.toggle('is-stuck', passedSummary);
+  $('#floating-summary').hidden = !passedSummary;
+  document.documentElement.classList.toggle('has-floating-summary', passedSummary);
+}
+new IntersectionObserver(refreshSummaryVisibility, { rootMargin: '-8px 0px 0px 0px' }).observe($('#summary-sentinel'));
+addEventListener('resize', refreshSummaryVisibility);
 new ResizeObserver(([entry]) => {
   if (entry.contentRect.height > 0) document.documentElement.style.setProperty('--summary-height', Math.ceil(entry.target.getBoundingClientRect().height) + 'px');
 }).observe($('#metrics-dock'));
 const scrollTo = element => element.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+$('#back-to-summary').addEventListener('click', () => {
+  scrollTo($('#summary-sentinel'));
+  $('#metrics-dock').focus({ preventScroll: true });
+});
 
 function updateConnectionStatus() {
   const online = navigator.onLine;
@@ -263,9 +275,9 @@ function selectTab(button) {
     $('#' + tab.dataset.tab).hidden = !selected;
   }
   if (button.dataset.tab !== 'hugo') {
-    $('#metrics-dock').classList.remove('is-stuck');
     document.documentElement.style.setProperty('--summary-height', '0px');
   }
+  refreshSummaryVisibility();
 }
 for (const button of tabButtons) {
   button.addEventListener('click', () => selectTab(button));
