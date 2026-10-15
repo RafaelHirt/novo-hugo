@@ -1,7 +1,8 @@
 import { rows, reference, cost, initial, bedTotals, projectedPatientDays, DAYS_PER_MONTH } from './data.js';
 import { currency, signedCurrency, number, parseCurrency, roundCurrency } from './format.js';
 import { icon } from './icons.js';
-import { renderComparison } from './comparison.js';
+import { renderComparison, setHugolComparison } from './comparison.js';
+import { initHugol } from './hugol-ui.js';
 
 const $ = selector => document.querySelector(selector);
 const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -240,15 +241,21 @@ resetDialog.addEventListener('click', event => {
 });
 
 function refreshSummaryVisibility() {
-  // The cards stay visible while sticky, so observe their original position.
-  const passedSummary = !$('#hugo').hidden && $('#summary-sentinel').getBoundingClientRect().top < 8;
-  $('#metrics-dock').classList.toggle('is-stuck', passedSummary);
+  let height = 0;
+  for (const dock of document.querySelectorAll('[data-summary-panel]')) {
+    const panel = dock.dataset.summaryPanel;
+    const visible = !$('#' + panel).hidden;
+    const sentinel = document.querySelector(`[data-summary-sentinel="${panel}"]`);
+    dock.classList.toggle('is-stuck', visible && sentinel.getBoundingClientRect().top < 8);
+    if (visible) height = Math.ceil(dock.getBoundingClientRect().height);
+  }
+  document.documentElement.style.setProperty('--summary-height', height + 'px');
 }
-new IntersectionObserver(refreshSummaryVisibility, { rootMargin: '-8px 0px 0px 0px' }).observe($('#summary-sentinel'));
+const summaryObserver = new IntersectionObserver(refreshSummaryVisibility, { rootMargin: '-8px 0px 0px 0px' });
+for (const sentinel of document.querySelectorAll('[data-summary-sentinel]')) summaryObserver.observe(sentinel);
 addEventListener('resize', refreshSummaryVisibility);
-new ResizeObserver(([entry]) => {
-  if (entry.contentRect.height > 0) document.documentElement.style.setProperty('--summary-height', Math.ceil(entry.target.getBoundingClientRect().height) + 'px');
-}).observe($('#metrics-dock'));
+const summaryResizeObserver = new ResizeObserver(refreshSummaryVisibility);
+for (const dock of document.querySelectorAll('[data-summary-panel]')) summaryResizeObserver.observe(dock);
 const scrollTo = element => element.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
 
 function updateConnectionStatus() {
@@ -269,9 +276,6 @@ function selectTab(button) {
     tab.setAttribute('aria-selected', String(selected));
     tab.tabIndex = selected ? 0 : -1;
     $('#' + tab.dataset.tab).hidden = !selected;
-  }
-  if (button.dataset.tab !== 'hugo') {
-    document.documentElement.style.setProperty('--summary-height', '0px');
   }
   refreshSummaryVisibility();
 }
@@ -316,3 +320,4 @@ $('#export').addEventListener('click', () => {
 });
 
 tables();
+initHugol({ onChange: setHugolComparison });

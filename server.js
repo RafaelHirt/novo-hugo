@@ -8,6 +8,7 @@ const files = {
   '/': 'index.html', '/index.html': 'index.html', '/style.css': 'style.css',
   '/app.js': 'app.js', '/data.js': 'data.js', '/format.js': 'format.js',
   '/icons.js': 'icons.js', '/comparison.js': 'comparison.js', '/login.js': 'login.js',
+  '/hugol-source.js': 'hugol-source.js', '/hugol-model.js': 'hugol-model.js', '/hugol-ui.js': 'hugol-ui.js',
   '/assets/novo-hugo.webp': 'assets/novo-hugo.webp', '/assets/ses-goias.webp': 'assets/ses-goias.webp',
 };
 

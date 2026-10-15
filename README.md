@@ -13,8 +13,8 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 - Paciente-dia projetado atualizado em cada linha de internação, com base em 30,4 dias por mês.
 - Ocupação de 0% a 100%, com controles em passos de 0,5 ponto percentual nas UI, UTI e PS Observação.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
-- Abas T.A Atual, 5º T.A HUGO - Incremento de serviços (Base R$ HUGOL), 5º T.A HUGO - Incremento de serviços (Base R$ HUGO) e Comparativo. As duas bases do 5º T.A aguardam os dados de incremento.
-- Aba Comparativo com os três cenários, resumo por categoria e serviços detalhados opcionais, sem coluna de ocupação. A coluna T.A Atual acompanha os serviços ativos, as quantidades e os custos editados, incluindo o efeito da ocupação. Os valores das duas bases do 5º T.A permanecem pendentes até o recebimento dos dados.
+- Aba 5º T.A HUGO - Incremento de serviços (Base R$ HUGOL) com cinco incrementos independentes, sete cenários da planilha e edição dos serviços. A base R$ HUGO permanece preparada para receber dados.
+- Aba Comparativo com resumo por categoria e serviços detalhados opcionais, sem coluna de ocupação. T.A Atual e Base R$ HUGOL acompanham os ajustes e seleções salvos separadamente em cada aba. Os dados da base R$ HUGO permanecem pendentes.
 - Indicador de conexão com animação suave, respeitando a preferência por movimentos reduzidos.
 - Sem dependências de imagens, fontes ou scripts externos durante o uso.
 
@@ -58,4 +58,16 @@ A contagem de leitos usa a mesma função `bedTotals` em qualquer base: soma ape
 
 Valores monetários usam o padrão brasileiro (R$ 1.234,56), com duas casas decimais e totais somados em centavos. Custos unitários podem ser digitados com vírgula decimal ou colados com R$. O CSV usa ponto e vírgula como separador, vírgula decimal e duas casas nos valores monetários.
 
-Os ajustes da T.A Atual ficam no localStorage do navegador e podem ser restaurados ou exportados em CSV. As abas do 5º T.A aguardam os dados de incremento; na base R$ HUGOL, UTI, PS e Cirurgias utilizarão os valores atualmente previstos no HUGOL. A nova aba com base R$ HUGO está preparada separadamente. Validar os dados com a planilha original antes de decisões financeiras.
+Os ajustes da T.A Atual e da base R$ HUGOL ficam em chaves distintas do localStorage e podem ser restaurados ou exportados em CSV. A base R$ HUGO aguarda os dados de incremento.
+
+## Incrementos com base R$ HUGOL
+
+Dados de `01 NOVO HUGO alterado rafael.xlsx`, somente das sete abas de HUGO - BASE HUGOL (Sem aumento) até HUGO - + adequaçãode leitos. HUGO - ATUAL, Azul e RESUMO não foram usados como fontes desta importação. Os valores já calculados das abas aprovadas são extraídos sem executar fórmulas do arquivo. O arquivo completo não é publicado no site.
+
+Banco de sangue, ressonância, SAD, hemodinâmica e adequação de leitos podem ser combinados em qualquer ordem. Os 32 conjuntos e os sete cenários originais são verificados em testes. A seleção de adequação aplica +35 UI, +20 UTI e os 18 volumes adicionais de SADT da planilha. Edições manuais alteram apenas a linha editada. Alternar um incremento restaura as linhas daquele incremento e mantém os demais ajustes.
+
+O cenário inicial é Novo Prédio, sem incrementos (R$ 26.074.748,34). Para reproduzir os totais solicitados, o dashboard mantém a regra do subtotal P12 da planilha, que deixa de fora a UI Cirúrgica do 2º andar: 40 leitos, R$ 1.308.864,45. Essa linha continua na contagem de leitos; seu valor nominal é exibido e identificado como fora do subtotal. O aviso aparece no cenário e no comparativo; o CSV distingue custo nominal e custeio considerado. A inclusão financeira dessa linha requer uma decisão sobre corrigir a planilha, e não é aplicada silenciosamente.
+
+As novas abas usam `ROUNDUP` nos pacientes-dia: arredondar para cima (leitos × ocupação × 30,4). A base sem aumento e a T.A Atual usam o arredondamento ao inteiro mais próximo. As cirurgias do novo prédio preservam horas fracionadas. As regras estão no modelo próprio da base HUGOL, sem alterar os dados da T.A Atual.
+
+Confira [a conferência dos totais e incrementos](docs/hugol-conferencia.md). `scripts/import-hugol.py` reproduz `hugol-source.js` a partir do arquivo original, com `openpyxl` somente na importação; o dashboard continua sem dependências de execução.

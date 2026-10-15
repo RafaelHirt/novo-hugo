@@ -9,6 +9,7 @@ export const roundCurrency = value => Math.round((value + Number.EPSILON) * 100)
 export const currency = value => brl.format(roundCurrency(value) || 0);
 export const signedCurrency = value => signedBrl.format(roundCurrency(value) || 0);
 export const number = value => value.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+export const escapeHtml = value => String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 
 // Accept Brazilian monetary values, including amounts pasted with R$.
 export function parseCurrency(input) {
