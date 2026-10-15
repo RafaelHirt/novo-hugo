@@ -1,4 +1,4 @@
-import { rows, reference, cost, initial, bedTotals } from './data.js';
+import { rows, reference, cost, initial, bedTotals, projectedPatientDays, DAYS_PER_MONTH } from './data.js';
 import { currency, signedCurrency, number, parseCurrency, roundCurrency } from './format.js';
 import { icon } from './icons.js';
 import { renderComparison } from './comparison.js';
@@ -81,7 +81,7 @@ function tables() {
           <tbody>${groupRows.map(row => `<tr data-row="${row.id}">
             <td><div class="service-cell"><label class="service-name">
               <input class="service-switch" type="checkbox" aria-label="Incluir ${row.name}" data-id="${row.id}" data-key="enabled" ${state[row.id].enabled ? 'checked' : ''}>
-              <span>${row.name}<small>${row.kind === 'bed' ? 'Paciente-dia · referência ' + number(row.patientDays) : row.kind === 'surgery' ? 'Hora cirúrgica' : row.group === 'Escritório de gestão de altas' ? 'Nº de leitos' : 'Produção mensal'}${row.bedType === 'observation' ? ' · Fora da contagem de leitos' : ''}</small></span>
+              <span>${row.name}<small>${row.kind === 'bed' ? `<span data-patient-days="${row.id}"></span> · ${number(DAYS_PER_MONTH)} dias/mês` : row.kind === 'surgery' ? 'Hora cirúrgica' : row.group === 'Escritório de gestão de altas' ? 'Nº de leitos' : 'Produção mensal'}${row.bedType === 'observation' ? ' · Fora da contagem de leitos' : ''}</small></span>
             </label><span class="row-badge" data-badge="${row.id}"></span></div></td>
             <td data-label="${qtyLabel}">${field(row, 'qty', qtyLabel)}</td>
             ${withFactor ? `<td data-label="${factorLabel}"><span class="factor-field">${field(row, 'factor', row.kind === 'bed' ? 'Ocupação (%)' : factorLabel)}<span>${row.kind === 'bed' ? '%' : 'h'}</span></span></td>` : ''}
@@ -115,8 +115,6 @@ function update() {
   $('#icu-beds').textContent = number(beds.icu);
   $('#beds').textContent = number(beds.total);
   $('#reference').textContent = currency(reference);
-  $('#floating-total').textContent = currency(total);
-  $('#floating-delta').textContent = signedCurrency(delta);
   const modifiedCount = rows.filter(row => changed(row.id)).length;
   const activeCount = state.filter(row => row.enabled).length;
   $('#change-count').textContent = `${activeCount} serviços ativos${modifiedCount ? ` · ${modifiedCount} ${modifiedCount === 1 ? 'alterado' : 'alterados'}` : ' · Sem alterações'}`;
@@ -139,6 +137,8 @@ function update() {
     el.classList.toggle('disabled', !enabled);
     el.classList.toggle('modified', isChanged && enabled);
     el.querySelector('[data-total]').textContent = currency(values[id]);
+    const patientDays = el.querySelector('[data-patient-days]');
+    if (patientDays) patientDays.textContent = `Paciente-dia projetado: ${number(projectedPatientDays(rows[id], state[id]))}`;
     const badge = el.querySelector('[data-badge]');
     badge.textContent = enabled ? 'Alterado' : 'Retirado';
     badge.hidden = !isChanged;
@@ -241,8 +241,6 @@ function refreshSummaryVisibility() {
   // The cards stay visible while sticky, so observe their original position.
   const passedSummary = !$('#hugo').hidden && $('#summary-sentinel').getBoundingClientRect().top < 8;
   $('#metrics-dock').classList.toggle('is-stuck', passedSummary);
-  $('#floating-summary').hidden = !passedSummary;
-  document.documentElement.classList.toggle('has-floating-summary', passedSummary);
 }
 new IntersectionObserver(refreshSummaryVisibility, { rootMargin: '-8px 0px 0px 0px' }).observe($('#summary-sentinel'));
 addEventListener('resize', refreshSummaryVisibility);
@@ -250,10 +248,6 @@ new ResizeObserver(([entry]) => {
   if (entry.contentRect.height > 0) document.documentElement.style.setProperty('--summary-height', Math.ceil(entry.target.getBoundingClientRect().height) + 'px');
 }).observe($('#metrics-dock'));
 const scrollTo = element => element.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
-$('#back-to-summary').addEventListener('click', () => {
-  scrollTo($('#summary-sentinel'));
-  $('#metrics-dock').focus({ preventScroll: true });
-});
 
 function updateConnectionStatus() {
   const online = navigator.onLine;

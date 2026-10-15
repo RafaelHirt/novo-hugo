@@ -1,4 +1,4 @@
-// Totais preservados conforme a imagem; quantidades exibidas podem estar arredondadas.
+// Original totals are retained for reference; bed costs use rounded patient-days.
 const raw=[
 ['Enfermarias','UI Clínica Médica (2º Andar)',999.23,2460104.26,90,90,2462],
 ['Enfermarias','UI Clínica Cirúrgica (3º Andar)',999.23,3198535.23,117,90,3201],
@@ -21,7 +21,16 @@ const raw=[
 ];
 export const rows=raw.map(([group,name,unit,total,qty,factor,patientDays,bedType],id)=>({id,group,name,unit,total,qty,factor,patientDays,kind:patientDays?'bed':group==='Cirurgias'?'surgery':'service',bedType:patientDays?(bedType??(group==='UTI'?'icu':'ward')):null}));
 export const reference=27261236.24;
-export function cost(row,state){if(!state.enabled)return 0;return row.total*(state.qty/row.qty)*(state.unit/row.unit)*(row.factor===undefined?1:state.factor/row.factor);}
+export const DAYS_PER_MONTH = 30.4;
+export function projectedPatientDays(row, state) {
+  if (row.kind !== 'bed' || !state.enabled) return 0;
+  return Math.round(state.qty * (state.factor / 100) * DAYS_PER_MONTH);
+}
+export function cost(row, state) {
+  if (!state.enabled) return 0;
+  if (row.kind === 'bed') return projectedPatientDays(row, state) * state.unit;
+  return row.total * (state.qty / row.qty) * (state.unit / row.unit) * (row.factor === undefined ? 1 : state.factor / row.factor);
+}
 export function initial(){return rows.map(r=>({enabled:true,qty:r.qty,unit:r.unit,factor:r.factor}));}
 // Shared by every scenario: observation positions affect costs, never bed counts.
 export function bedTotals(state, scenarioRows = rows) {

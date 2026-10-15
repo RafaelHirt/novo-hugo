@@ -168,13 +168,6 @@ input[aria-invalid=true] { border-color: #b85353 !important; }
 footer { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 30px 4px 10px; color: #7c909b; font-size: 10px; }
 footer > div { font-size: 13px; font-weight: 650; color: #4d6b7d; }
 footer > div span { display: block; font-size: 10px; font-weight: 400; margin-top: 4px; color: #83959e; }
-.floating-summary { position: fixed; z-index: 35; left: 50%; transform: translateX(-50%); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: min(630px, calc(100% - 32px)); padding: 14px 18px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 24px; color: white; background: #153f4df5; backdrop-filter: blur(12px); box-shadow: 0 8px 36px #123a4a38; font-variant-numeric: tabular-nums; }
-.floating-summary small { display: block; color: #b5d2da; letter-spacing: .8px; font-size: 8px; margin-bottom: 6px; }
-.floating-summary strong { font-size: 20px; white-space: nowrap; }
-.floating-delta span { font-size: 13px; white-space: nowrap; }
-.floating-summary .icon-button { color: #d1e6ed; background: #ffffff14; width: 34px; height: 34px; flex-shrink: 0; }
-html.has-floating-summary { scroll-padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
-.has-floating-summary main { padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
 dialog { width: min(460px, calc(100% - 32px)); border: 0; border-radius: 18px; padding: 28px; color: var(--navy); box-shadow: 0 30px 90px #143a4a36; }
 dialog::backdrop { background: #0e2d436b; backdrop-filter: blur(4px); }
 .dialog-icon { width: 48px; height: 48px; border-radius: 12px; background: #eaf4f3; color: var(--teal); display: grid; place-items: center; margin-bottom: 20px; }
@@ -290,14 +283,8 @@ dialog p { font-size: 13px; margin-top: 12px; }
   .empty h2 { font-size: 21px; }
   footer { align-items: flex-start; }
   footer > span { max-width: 160px; font-size: 9px; text-align: right; line-height: 1.6; }
-  .floating-summary { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); padding: 12px 14px; gap: 12px; width: calc(100% - 24px); }
-  .floating-summary small { font-size: 7px; }
-  .floating-summary strong { font-size: 18px; }
-  .floating-delta span { font-size: 10px; }
-  .floating-summary .icon-button { width: 30px; height: 30px; }
   .dialog-actions { flex-direction: column-reverse; }
 }
-@media (max-width: 400px) { .floating-delta { display: none; } }
 @media (max-width: 360px) {
   .chart-row { grid-template-columns: minmax(0, 1fr) 100px 30px; }
   .chart-row strong { font-size: 9px; }
