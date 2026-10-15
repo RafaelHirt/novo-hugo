@@ -11,6 +11,7 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 - Resumo financeiro fixo durante a edição e composição do custeio abaixo dos serviços.
 - Indicadores fixos somente no topo durante a rolagem, sem duplicar o resumo na parte inferior.
 - Paciente-dia projetado atualizado em cada linha de internação, com base em 30,4 dias por mês.
+- Ocupação de 0% a 100%, com controles em passos de 0,5 ponto percentual nas UI, UTI e PS Observação.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
 - Abas T.A Atual, 5º T.A HUGO - Incremento de serviços (Base R$ HUGOL), 5º T.A HUGO - Incremento de serviços (Base R$ HUGO) e Comparativo. As duas bases do 5º T.A aguardam os dados de incremento.
 - Aba Comparativo com os três cenários, resumo por categoria e serviços detalhados opcionais, sem coluna de ocupação. A coluna T.A Atual acompanha os serviços ativos, as quantidades e os custos editados, incluindo o efeito da ocupação. Os valores das duas bases do 5º T.A permanecem pendentes até o recebimento dos dados.
@@ -50,6 +51,8 @@ Se aparecer **Acesso indisponível** depois de cadastrar a senha, confira o nome
 Nas linhas de internação, incluindo PS Observação, a projeção segue as imagens da planilha: `paciente-dia = arredondar(leitos × ocupação / 100 × 30,4)`; o custo mensal da linha é `paciente-dia × custo unitário`. O arredondamento para inteiro ocorre antes da multiplicação pelo custo unitário. A ocupação é percentual de 0 a 100. Exemplo: 90 leitos × 80% × 30,4 = 2.188,8, arredondados para 2.189 pacientes-dia; × R$ 999,23 = R$ 2.187.314,47. Essa regra também reproduz todos os pacientes-dia e custos originais das dez linhas de internação. Usar a proporção sobre o total original produziria R$ 2.186.759,34 nesse exemplo, por reaproveitar o paciente-dia já arredondado da referência.
 
 Nos demais serviços, os totais da imagem permanecem como base: total original × quantidade atual / original × custo unitário atual / original; em cirurgias, também × horas médias atuais / originais. Os totais gerais somam as linhas em centavos. O cálculo de paciente-dia é compartilhado pelo resumo, pelos totais por categoria e pelo comparativo; os ajustes já salvos no navegador são reaplicados com essa fórmula.
+
+Na UTI, a mesma regra vale para as cinco linhas: 10 leitos × 80% × 30,4 = 243,2, arredondados para 243 pacientes-dia; × R$ 3.069,99 = R$ 746.007,57. Para 20 leitos a 80%, são 486 pacientes-dia e R$ 1.492.015,14.
 
 A contagem de leitos usa a mesma função `bedTotals` em qualquer base: soma apenas UI e UTI ativas, com suas quantidades ajustadas, independentemente da ocupação. Na base original são 318 UI + 70 UTI = 388 leitos. Os 18 lugares de PS Observação, Hospital dia e escritório de gestão de altas não entram nos indicadores de leitos; seus serviços continuam no cálculo financeiro. A planilha original exibe 406 por incluir PS Observação. Sua transcrição e seus totais financeiros foram preservados. Valores são mensais; o anual é uma projeção de 12 meses iguais. O modelo estima o custeio pela produção e não separa custos fixos e variáveis.
 

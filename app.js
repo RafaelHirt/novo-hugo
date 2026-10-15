@@ -46,7 +46,9 @@ function field(row, key, label) {
   if (key === 'unit') {
     return `<input ${common} class="money-input" type="text" inputmode="decimal" value="${currency(state[row.id][key])}">`;
   }
-  return `<input ${common} type="number" min="0" ${key === 'factor' && row.kind === 'bed' ? 'max="100"' : ''} step="${key === 'qty' ? '1' : '0.01'}" value="${state[row.id][key]}">`;
+  const occupancy = key === 'factor' && row.kind === 'bed';
+  const step = key === 'qty' ? 1 : occupancy ? 0.5 : 0.01;
+  return `<input ${common} type="number" min="0" ${occupancy ? 'max="100"' : ''} step="${step}" value="${state[row.id][key]}">`;
 }
 
 function tables() {

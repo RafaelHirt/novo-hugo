@@ -46,6 +46,17 @@ test('Ocupação de 80% reproduz os 2.189 pacientes-dia e R$ 2.187.314,47 da pla
   assert.equal(projectedPatientDays(rows[0], { ...state, factor: 80 }), 2189);
   assert.equal(Math.round(cost(rows[0], { ...state, factor: 80 }) * 100), 218731447);
 });
+test('Todas as UTIs usam pacientes-dia arredondados: 10 leitos a 80% custam R$ 746.007,57', () => {
+  const state = initial();
+  const icuRows = rows.filter(row => row.bedType === 'icu');
+  assert.equal(icuRows.length, 5);
+  for (const row of icuRows) {
+    const scenario = { ...state[row.id], factor: 80 };
+    const tenBeds = row.qty === 10;
+    assert.equal(projectedPatientDays(row, scenario), tenBeds ? 243 : 486, row.name);
+    assert.equal(Math.round(cost(row, scenario) * 100), tenBeds ? 74600757 : 149201514, row.name);
+  }
+});
 test('As dez linhas de internação reproduzem seus pacientes-dia e custos originais', () => {
   const state = initial();
   const bedRows = rows.filter(row => row.kind === 'bed');
