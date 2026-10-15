@@ -1,9 +1,16 @@
-import { increments, presets, subtotalIssue, presetState, setIncrement, hugolSnapshot, hugolVolume, workbookAudit } from './hugol-model.js';
+import { model as hugolModel } from './hugol-model.js';
 import { currency, signedCurrency, number, parseCurrency, escapeHtml as h } from './format.js';
 import { icon } from './icons.js';
 
-export function initHugol({ onChange, defaultPreset = 'new-0', includeOmittedWard = false } = {}) {
-  const $ = selector => document.querySelector(selector), policy = { includeOmittedWard }, storageKey = 'novo-hugo-hugol-v1';
+export function initHugol(options = {}) {
+  return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', ...options });
+}
+
+export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false }) {
+  const { increments, presets, presetState, setIncrement, snapshot: hugolSnapshot, volume: hugolVolume, workbookAudit } = model;
+  const root = document.getElementById(panelId);
+  const $ = selector => root.querySelector(selector.replaceAll('#hugol-', '#' + prefix + '-'));
+  const policy = { includeOmittedWard };
   const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   let config = presetState(defaultPreset), snapshot;
   const openGroups = new Map([['Enfermarias', true], ['UTI', true]]);
@@ -31,9 +38,9 @@ export function initHugol({ onChange, defaultPreset = 'new-0', includeOmittedWar
     $('#hugol-tables').innerHTML = [...new Set(rows.map(row => row.group))].map(group => {
       const groupRows = rows.filter(row => row.group === group), kind = groupRows[0].kind, withFactor = kind !== 'service';
       const quantity = kind === 'bed' ? 'Leitos' : kind === 'surgery' ? 'Nº de cirurgias' : 'Quantidade', factor = kind === 'bed' ? 'Ocupação' : 'Horas médias';
-      return `<details data-h-category="${h(group)}" ${search || openGroups.get(group) ? 'open' : ''}><summary><span class="category-icon">${icon(kind === 'bed' ? 'bed' : kind === 'surgery' ? 'scissors' : 'document')}</span><span class="category-label"><strong>${h(group)}</strong><small>${groupRows.length} serviços</small></span><span class="category-cost" data-h-group="${h(group)}"></span><span class="category-chevron">${icon('chevron')}</span></summary><div class="table-scroll" tabindex="0" role="region" aria-label="${h('Serviços da base HUGOL: ' + group)}"><table class="${withFactor ? 'with-factor' : 'without-factor'}"><thead><tr><th>Ativo / serviço</th><th>${quantity}</th>${withFactor ? `<th>${factor}</th>` : ''}<th>Custo unitário</th><th>Total mensal</th><th><span class="sr-only">Restaurar serviço</span></th></tr></thead><tbody>${groupRows.map(row => {
+      return `<details data-h-category="${h(group)}" ${search || openGroups.get(group) ? 'open' : ''}><summary><span class="category-icon">${icon(kind === 'bed' ? 'bed' : kind === 'surgery' ? 'scissors' : 'document')}</span><span class="category-label"><strong>${h(group)}</strong><small>${groupRows.length} serviços</small></span><span class="category-cost" data-h-group="${h(group)}"></span><span class="category-chevron">${icon('chevron')}</span></summary><div class="table-scroll" tabindex="0" role="region" aria-label="${h('Serviços da base ' + basisName + ': ' + group)}"><table class="${withFactor ? 'with-factor' : 'without-factor'}"><thead><tr><th>Ativo / serviço</th><th>${quantity}</th>${withFactor ? `<th>${factor}</th>` : ''}<th>Custo unitário</th><th>Total mensal</th><th><span class="sr-only">Restaurar serviço</span></th></tr></thead><tbody>${groupRows.map(row => {
         const state = snapshot.state[row.id], excluded = !includeOmittedWard && !row.countedInWorkbook;
-        return `<tr data-h-row="${row.id}"><td><div class="service-cell"><label class="service-name"><input type="checkbox" class="service-switch" data-h-id="${row.id}" data-h-key="enabled" aria-label="${h('Incluir ' + row.name + ' na base HUGOL')}" ${state.enabled ? 'checked' : ''} ${row.available ? '' : 'disabled'}><span>${h(row.name)}<small data-h-volume="${row.id}"></small>${excluded ? '<small class="excluded-label">Fora do subtotal da planilha</small>' : ''}</span></label><span class="row-badge" data-h-badge="${row.id}"></span></div></td><td data-label="${quantity}">${field(row, 'qty', quantity)}</td>${withFactor ? `<td data-label="${factor}"><span class="factor-field">${field(row, 'factor', factor)}<span>${kind === 'bed' ? '%' : 'h'}</span></span></td>` : ''}<td data-label="Custo unitário">${field(row, 'unit', 'Custo unitário')}</td><td class="row-total" data-label="${excluded ? 'Valor fora do subtotal' : 'Total mensal'}" data-h-total="${row.id}"></td><td class="row-actions"><button type="button" class="icon-button row-reset" data-h-restore="${row.id}" aria-label="${h('Restaurar ' + row.name + ' na base HUGOL')}" title="Restaurar valores deste serviço">${icon('reset')}</button></td></tr>`;
+        return `<tr data-h-row="${row.id}"><td><div class="service-cell"><label class="service-name"><input type="checkbox" class="service-switch" data-h-id="${row.id}" data-h-key="enabled" aria-label="${h('Incluir ' + row.name + ' na base ' + basisName)}" ${state.enabled ? 'checked' : ''} ${row.available ? '' : 'disabled'}><span>${h(row.name)}<small data-h-volume="${row.id}"></small>${excluded ? '<small class="excluded-label">Fora do subtotal da planilha</small>' : ''}</span></label><span class="row-badge" data-h-badge="${row.id}"></span></div></td><td data-label="${quantity}">${field(row, 'qty', quantity)}</td>${withFactor ? `<td data-label="${factor}"><span class="factor-field">${field(row, 'factor', factor)}<span>${kind === 'bed' ? '%' : 'h'}</span></span></td>` : ''}<td data-label="Custo unitário">${field(row, 'unit', 'Custo unitário')}</td><td class="row-total" data-label="${excluded ? 'Valor fora do subtotal' : 'Total mensal'}" data-h-total="${row.id}"></td><td class="row-actions"><button type="button" class="icon-button row-reset" data-h-restore="${row.id}" aria-label="${h('Restaurar ' + row.name + ' na base ' + basisName)}" title="Restaurar valores deste serviço">${icon('reset')}</button></td></tr>`;
       }).join('')}</tbody></table></div></details>`;
     }).join('') || '<div class="no-results"><h3>Nenhum serviço encontrado</h3><p>Tente outro termo de busca.</p></div>';
   }
@@ -54,14 +61,12 @@ export function initHugol({ onChange, defaultPreset = 'new-0', includeOmittedWar
     $('#hugol-base-instruction').hidden = config.base === 'new';
     $('#hugol-select-all').disabled = config.base !== 'new' || config.selected.length === 5;
     $('#hugol-clear-increments').disabled = config.selected.length === 0;
-    for (const checkbox of document.querySelectorAll('[data-increment]')) checkbox.checked = config.selected.includes(checkbox.dataset.increment);
+    for (const checkbox of root.querySelectorAll('[data-increment]')) checkbox.checked = config.selected.includes(checkbox.dataset.increment);
     $('#hugol-selection-summary').textContent = `${config.selected.length} de 5 incrementos selecionados${snapshot.modifiedIds.length ? ` · ${snapshot.modifiedIds.length} serviços ajustados manualmente` : ''}`;
     $('#hugol-change-count').textContent = `${snapshot.rows.filter(row => snapshot.state[row.id].enabled).length} serviços ativos`;
-    const issue = $('#hugol-subtotal-note'); issue.hidden = config.base !== 'new';
-    issue.innerHTML = includeOmittedWard ? '<strong>Subtotal corrigido</strong><p>A UI Cirúrgica do 2º andar está incluída no custeio. Na planilha, a fórmula do subtotal deixa essa linha de fora.</p>' : `<strong>Subtotal conforme a planilha</strong><p>A UI Cirúrgica do 2º andar (${subtotalIssue.beds} leitos na base) aparece na planilha, mas sua linha fica fora do subtotal financeiro. O dashboard reproduz essa regra: ${currency(snapshot.excludedAmount)} fora do custeio; os leitos ativos continuam na contagem.</p>`;
     if (rebuild) renderTables();
-    for (const total of document.querySelectorAll('[data-h-group]')) total.textContent = currency(snapshot.totals.find(item => item.group === total.dataset.hGroup).total);
-    for (const element of document.querySelectorAll('[data-h-row]')) {
+    for (const total of root.querySelectorAll('[data-h-group]')) total.textContent = currency(snapshot.totals.find(item => item.group === total.dataset.hGroup).total);
+    for (const element of root.querySelectorAll('[data-h-row]')) {
       const row = snapshot.rows.find(item => item.id === element.dataset.hRow), state = snapshot.state[row.id], modified = snapshot.modifiedIds.includes(row.id);
       element.classList.toggle('disabled', !state.enabled); element.classList.toggle('modified', modified && state.enabled);
       element.querySelector('[data-h-total]').textContent = currency(snapshot.rawValues[row.id]);
@@ -102,7 +107,7 @@ export function initHugol({ onChange, defaultPreset = 'new-0', includeOmittedWar
     const lines = [['Categoria','Serviço','Ativo','Quantidade / leitos','Ocupação (%) / horas médias','Custo unitário (R$)','Custo da linha (R$)','Custeio considerado (R$)'], ...snapshot.rows.map(row => [row.group, row.name, snapshot.state[row.id].enabled ? 'Sim' : 'Não', snapshot.state[row.id].qty, row.factor === undefined ? '' : String(snapshot.state[row.id].factor).replace('.', ','), decimal(snapshot.state[row.id].unit), decimal(snapshot.rawValues[row.id]), decimal(snapshot.values[row.id])]), ['TOTAL','','','','','','',decimal(snapshot.total)]];
     const csv = lines.map(row => row.map(value => '"' + String(value).replaceAll('"','""') + '"').join(';')).join('\r\n');
     const url = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }));
-    const link = document.createElement('a'); link.href = url; link.download = 'novo-hugo-base-hugol.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const link = document.createElement('a'); link.href = url; link.download = 'novo-hugo-base-' + basisName.toLowerCase() + '.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
   refresh();
 }

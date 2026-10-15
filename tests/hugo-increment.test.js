@@ -1,0 +1,40 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { model } from '../hugo-model.js';
+import { hugoSource } from '../hugo-source.js';
+
+const policy = { includeOmittedWard: false };
+const cents = value => Math.round(value * 100);
+
+test('Os seis cenários da nova base HUGO reproduzem a planilha em centavos', () => {
+  const audit = model.workbookAudit(policy);
+  assert.deepEqual(audit.map(item => cents(item.dashboardTotal)), [2757104471,2775148421,2789398421,2812737821,2924411321,3237582412]);
+  assert.ok(audit.every(item => item.difference === 0));
+  for (const preset of model.presets) {
+    const snapshot = model.snapshot(model.presetState(preset.id), policy);
+    for (const row of snapshot.rows) assert.equal(cents(snapshot.rawValues[row.id]), row.sourceTotalCents, `${preset.id}: ${row.name}`);
+  }
+});
+
+test('As 32 combinações da base HUGO são independentes, incluindo o ajuste de SADT da adequação', () => {
+  assert.deepEqual(model.increments.map(item => item.amountCents), [18043950,14250000,23339400,111673500,313171091]);
+  for (let mask=0; mask<32; mask++) {
+    const selected = model.increments.filter((item, index) => mask & (1 << index));
+    const result = model.snapshot({ base:'new', selected:selected.map(item => item.id), edits:{} }, policy);
+    assert.equal(cents(result.total), 2757104471 + selected.reduce((sum,item) => sum + item.amountCents,0));
+    assert.equal(result.beds.total, mask & 16 ? 461 : 406);
+    assert.equal(cents(result.totals.reduce((sum,item) => sum + item.total,0)), cents(result.total));
+  }
+});
+
+test('A base HUGO usa preços próprios e preserva a referência após editar uma linha', () => {
+  const config = model.presetState('new-0');
+  const result = model.snapshot(config, policy);
+  assert.equal(result.state['hugo-new-6'].unit,999.23);
+  assert.equal(result.state['hugo-new-16'].unit,3069.99);
+  assert.equal(hugoSource.bases.new.length,52);
+  assert.deepEqual(config.selected,[]);
+  assert.equal(model.snapshot({...config,edits:{'hugo-new-6':{qty:50}}},policy).beds.total,400);
+  assert.equal(model.snapshot(config,policy).beds.total,406);
+  assert.equal(hugoSource.bases.new[0].qty,56);
+});

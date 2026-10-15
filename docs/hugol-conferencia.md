@@ -26,7 +26,7 @@ Banco + SAD, sem ressonância e sem os demais incrementos: **R$ 26.488.581,84**.
 
 Nas seis abas de Novo Prédio, P12 contém `SUM(P6:P10)` e não inclui P11, a UI Clínica Cirúrgica Geral Adulto (2º Andar), com 40 leitos e R$ 1.308.864,45/mês. A soma de todas as linhas ultrapassa os totais publicados exatamente nesse valor.
 
-Para cumprir o pedido de reproduzir os totais da planilha, essa exclusão está mantida e identificada no dashboard, no comparativo e no CSV. Os 40 leitos continuam nos indicadores porque I12 inclui essa linha. Não se confunde com PS Observação, que sempre fica fora da contagem de leitos.
+Para cumprir o pedido de reproduzir os totais da planilha, essa exclusão está mantida, com identificação na linha do serviço e no CSV. O banner explicativo foi retirado a pedido do usuário. Os 40 leitos continuam nos indicadores porque I12 inclui essa linha. Não se confunde com PS Observação, que sempre fica fora da contagem de leitos.
 
 Se for decidido incluir P11 no custeio, o novo prédio sem incrementos passa a **R$ 27.383.612,79**, e o cenário completo a **R$ 32.041.004,33**. O modelo testa também essa alternativa, mas a interface usa os totais originais da planilha.
 
@@ -39,4 +39,4 @@ Se for decidido incluir P11 no custeio, o novo prédio sem incrementos passa a *
 - Adequação: 336 UI + 70 UTI = 406 leitos passam a 371 UI + 90 UTI = 461. A base sem aumento permanece com 318 UI + 70 UTI = 388, excluído PS Observação.
 - Ajustes manuais são locais à linha. A seleção do pacote de adequação aplica as alterações de SADT exatamente como na planilha; editar um leito manualmente não reestima outros serviços.
 
-As alterações da base HUGOL são armazenadas separadamente da T.A Atual, e o comparativo usa o estado atual de ambas.
+As alterações da base HUGOL são armazenadas separadamente da T.A Atual e da base HUGO. O comparativo usa o estado atual das três abas.

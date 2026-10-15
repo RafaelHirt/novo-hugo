@@ -1,8 +1,9 @@
 import { rows, reference, cost, initial, bedTotals, projectedPatientDays, DAYS_PER_MONTH } from './data.js';
 import { currency, signedCurrency, number, parseCurrency, roundCurrency } from './format.js';
 import { icon } from './icons.js';
-import { renderComparison, setHugolComparison } from './comparison.js';
-import { initHugol } from './hugol-ui.js';
+import { renderComparison, setHugolComparison, setHugoComparison } from './comparison.js';
+import { initHugol, initIncrementScenario } from './hugol-ui.js';
+import { model as hugoIncrementModel } from './hugo-model.js';
 
 const $ = selector => document.querySelector(selector);
 const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -321,3 +322,4 @@ $('#export').addEventListener('click', () => {
 
 tables();
 initHugol({ onChange: setHugolComparison });
+initIncrementScenario({ model: hugoIncrementModel, panelId: 'hugo-increment', prefix: 'hugo-base', basisName: 'HUGO', storageKey: 'novo-hugo-hugo-v1', onChange: setHugoComparison });

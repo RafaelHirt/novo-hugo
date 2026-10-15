@@ -1,17 +1,17 @@
-"""Extract only the seven approved sheets; never evaluate workbook formulas.
+"""Extract only approved scenario sheets; never evaluate workbook formulas.
 
-Usage: python scripts/import-hugol.py /path/to/workbook.xlsx
+Usage: python scripts/import-hugol.py /path/to/workbook.xlsx [--basis hugol|hugo]
 Requires openpyxl for this one-time import, not for running the dashboard.
 """
+import argparse
 import hashlib
 import json
-import sys
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 import openpyxl
 
-SHEETS = [
+HUGOL_SHEETS = [
     'HUGO - BASE HUGOL (Sem aumento)',
     'HUGO - (Novo Prédio - Saídas)',
     'HUGO - (Com banco de sangue)',
@@ -20,6 +20,7 @@ SHEETS = [
     'HUGO - banc, ress, SAD, Hemodin',
     'HUGO - + adequaçãode leitos',
 ]
+HUGO_SHEETS = ['HUGO - SEM BANCO DE SANGUE', 'HUGO - SEM RESSONÂNCIA', 'HUGO - SEM SAD E HEMODINÂMICA', 'HUGO - SEM HEMODINÂMICA', 'HUGO - MENOS LEITOS', 'HUGO - FINAL']
 INCREMENTS = [
     ('blood', 'Banco de sangue', '750 bolsas de sangue total e 25 bolsas de plaquetas por aférese.'),
     ('mri', 'Ressonância magnética', '100 exames internos e 300 externos por mês.'),
@@ -47,7 +48,7 @@ def cents(value):
     return int(Decimal(str(value)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP) * 100)
 
 
-def extract(values, formulas, same=False):
+def extract(values, formulas, same=False, prefix=''):
     result = []
     groups = SAME_GROUPS if same else NEW_GROUPS
     for start, end, group in groups:
@@ -63,7 +64,7 @@ def extract(values, formulas, same=False):
             if kind == 'bed':
                 factor = float(Decimal(str(factor)) * 100)
             item = {
-                'id': f"{'same' if same else 'new'}-{index}",
+                'id': f"{prefix}{'same' if same else 'new'}-{index}",
                 'name': name, 'group': group, 'criterion': criterion, 'kind': kind,
                 'qty': cell(qty_column), 'unit': cell('H' if same else 'M'),
                 'sourceVolume': cell(volume_column), 'sourceTotalCents': cents(cell(total_column)),
@@ -81,12 +82,21 @@ def extract(values, formulas, same=False):
     return result
 
 
-path = Path(sys.argv[1])
+parser = argparse.ArgumentParser()
+parser.add_argument('workbook')
+parser.add_argument('--basis', choices=['hugol', 'hugo'], default='hugol')
+args = parser.parse_args()
+is_hugol = args.basis == 'hugol'
+SHEETS = HUGOL_SHEETS if is_hugol else HUGO_SHEETS
+prefix = '' if is_hugol else 'hugo-'
+path = Path(args.workbook)
 values = openpyxl.load_workbook(path, data_only=True)
 formulas = openpyxl.load_workbook(path, data_only=False)
-same = extract(values[SHEETS[0]], formulas[SHEETS[0]], same=True)
-versions = [extract(values[name], formulas[name]) for name in SHEETS[1:]]
-sheet_totals = [cents(values[SHEETS[0]]['I71'].value)] + [cents(values[name]['P89'].value) for name in SHEETS[1:]]
+same = extract(values[SHEETS[0]], formulas[SHEETS[0]], same=True) if is_hugol else []
+new_sheets = SHEETS[1:] if is_hugol else SHEETS
+versions = [extract(values[name], formulas[name], prefix=prefix) for name in new_sheets]
+new_totals = [cents(values[name]['P89'].value) for name in new_sheets]
+sheet_totals = ([cents(values[SHEETS[0]]['I71'].value)] if is_hugol else []) + new_totals
 increments = []
 for index, (key, label, description) in enumerate(INCREMENTS):
     patches = {}
@@ -97,35 +107,35 @@ for index, (key, label, description) in enumerate(INCREMENTS):
             patches[after['id']] = patch
     increments.append({
         'id': key, 'name': label, 'description': description,
-        'amountCents': sheet_totals[index + 2] - sheet_totals[index + 1],
-        'sourceSheet': SHEETS[index + 2], 'patches': patches,
+        'amountCents': new_totals[index + 1] - new_totals[index],
+        'sourceSheet': new_sheets[index + 1], 'patches': patches,
     })
 
 presets = [{
     'id': 'same', 'name': 'HUGO · Base HUGOL (sem aumento)', 'base': 'same',
     'selected': [], 'sourceSheet': SHEETS[0], 'sourceCell': 'I71', 'sourceTotalCents': sheet_totals[0],
-}]
+}] if is_hugol else []
 labels = ['Novo prédio · Sem incrementos', '+ Banco de sangue', '+ Banco e ressonância', '+ Banco, ressonância e SAD', '+ Banco, ressonância, SAD e hemodinâmica', '+ Todos e adequação de leitos']
-for index, (name, rows) in enumerate(zip(SHEETS[1:], versions)):
+for index, (name, rows) in enumerate(zip(new_sheets, versions)):
     presets.append({
         'id': f'new-{index}', 'name': labels[index], 'base': 'new',
         'selected': [item[0] for item in INCREMENTS[:index]],
-        'sourceSheet': name, 'sourceCell': 'P89', 'sourceTotalCents': sheet_totals[index + 1],
+        'sourceSheet': name, 'sourceCell': 'P89', 'sourceTotalCents': new_totals[index],
     })
 
 payload = {
     'fileName': path.name, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
-    'bases': {'same': same, 'new': versions[0]}, 'increments': increments,
+    'bases': ({'same': same} if is_hugol else {}) | {'new': versions[0]}, 'increments': increments,
     'presets': presets,
     'subtotalIssue': {
-        'rowId': 'new-11', 'name': 'UI Clínica Cirúrgica Geral Adulto (2º Andar)',
-        'beds': 40, 'amountCents': 130886445, 'formulaCell': 'P12', 'formula': '=SUM(P6:P10)',
+        'rowId': prefix + 'new-11', 'name': 'UI Clínica Cirúrgica Geral Adulto (2º Andar)',
+        'beds': 40, 'amountCents': next(row['sourceTotalCents'] for row in versions[0] if row['sourceRow'] == 11), 'formulaCell': 'P12', 'formula': '=SUM(P6:P10)',
     },
 }
 for preset in presets:
     rows = same if preset['base'] == 'same' else versions[int(preset['id'].split('-')[1])]
     expected = sum(row['sourceTotalCents'] for row in rows if row['countedInWorkbook'])
     assert expected == preset['sourceTotalCents'], (preset['id'], expected, preset['sourceTotalCents'])
-target = Path(__file__).resolve().parents[1] / 'hugol-source.js'
-target.write_text('// Approved worksheet values and incremental changes. Generated by scripts/import-hugol.py.\nexport const hugolSource = ' + json.dumps(payload, ensure_ascii=False, indent=2) + ';\n')
+target = Path(__file__).resolve().parents[1] / f'{args.basis}-source.js'
+target.write_text(f'// Approved worksheet values and incremental changes. Generated by scripts/import-hugol.py.\nexport const {args.basis}Source = ' + json.dumps(payload, ensure_ascii=False, indent=2) + ';\n')
 print(f'{len(same)} + {len(versions[0])} service rows, {len(increments)} independent increments, {len(presets)} checked worksheet totals -> {target.name}')
