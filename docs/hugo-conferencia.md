@@ -4,7 +4,7 @@ Fonte: `02 NOVO HUGO - BASE HUGO VIGENTE (3).xlsx`. Importação dos valores arm
 
 | Aba de origem | Cenário | Planilha e dashboard — mensal |
 | --- | --- | ---: |
-| HUGO - SEM BANCO DE SANGUE | Novo prédio — sem incrementos | R$ 28.665.201,56 |
+| HUGO - SEM BANCO DE SANGUE | Novo Prédio - Base | R$ 28.665.201,56 |
 | HUGO - SEM RESSONÂNCIA | + Banco de sangue | R$ 28.845.641,06 |
 | HUGO - SEM SAD E HEMODINÂMICA | + Banco e ressonância | R$ 28.988.141,06 |
 | HUGO - SEM HEMODINÂMICA | + Banco, ressonância e SAD | R$ 29.221.535,06 |
@@ -35,7 +35,7 @@ Com ambas as adequações, o acréscimo é **R$ 3.131.710,91**, dos quais R$ 404
 - Os pacientes-dia usam `ROUNDUP(leitos × ocupação × 30,4; 0)`, conforme as abas da fonte. Ocupação editável em passos de 0,5 ponto percentual.
 - Cirurgias preservam horas fracionadas; serviços usam quantidade × custo unitário. Valores de cada linha são arredondados a centavos antes da soma.
 - P12 desta revisão usa `SUM(P6:P11)` e inclui a UI Cirúrgica do 2º andar, R$ 1.094.156,85. O importador lê o intervalo real do subtotal; todas as seis UI participam do custeio e os totais coincidem com a fonte atualizada.
-- A capacidade física definida pelo usuário é 318 UI + 70 UTI = 388 leitos. Adequação apenas de UI: 353 + 70 = 423; apenas de UTI: 318 + 90 = 408; ambas: 353 + 90 = 443. A distribuição financeira da planilha (336 UI na base) permanece no cálculo, sem alteração de custeio por essa correção de capacidade.
+- A contagem inclui PS Observação na enfermaria: 336 enfermaria + 70 UTI = 406 leitos. Adequação apenas de UI: 371 + 70 = 441; apenas de UTI: 336 + 90 = 426; ambas: 371 + 90 = 461. O desconto anterior de 18 no indicador foi retirado; as quantidades financeiras e o custeio permanecem iguais.
 - UI e UTI podem ser ampliadas separadamente. O SADT usa a fórmula da fonte, com índices 1,09 para +35 UI, 1,05 para +20 UTI e 1,14 para ambas; cada quantidade é arredondada. Com as duas opções, reproduz as linhas do cenário final. Alterar manualmente uma linha não reestima a produção das outras.
 - A seleção ou retirada de um incremento restaura suas próprias linhas; preserva as demais edições manuais.
 - 4 T.A (Atual), base HUGOL e base HUGO têm estados separados. O comparativo lê os valores, leitos e incrementos de cada estado, sem coluna de ocupação.

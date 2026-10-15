@@ -122,7 +122,7 @@ presets = [{
     'id': 'same', 'name': 'HUGO · Base HUGOL (sem aumento)', 'base': 'same',
     'selected': [], 'sourceSheet': SHEETS[0], 'sourceCell': 'I71', 'sourceTotalCents': sheet_totals[0],
 }] if is_hugol else []
-labels = ['Novo prédio · Sem incrementos', '+ Banco de sangue', '+ Banco e ressonância', '+ Banco, ressonância e SAD', '+ Banco, ressonância, SAD e hemodinâmica', '+ Todos e adequação de leitos']
+labels = ['Novo Prédio - Base', '+ Banco de sangue', '+ Banco e ressonância', '+ Banco, ressonância e SAD', '+ Banco, ressonância, SAD e hemodinâmica', '+ Todos e adequação de leitos']
 for index, (name, rows) in enumerate(zip(new_sheets, versions)):
     presets.append({
         'id': f'new-{index}', 'name': labels[index], 'base': 'new',

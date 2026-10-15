@@ -5,7 +5,7 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 ## Interface
 
 - Indicadores financeiros e projeção anual, com resumo fixo e compacto durante a rolagem.
-- Leitos de enfermaria (somente UI), UTI e total: originalmente 318 + 70 = 388. PS Observação participa do custeio, mas nunca dos indicadores de leitos, inclusive nas próximas bases de cenário.
+- Leitos de enfermaria (UI + PS Observação), UTI e total: inicialmente 336 + 70 = 406. Os 18 de PS Observação integram enfermaria por decisão do usuário; hospital dia e escritório de gestão de altas não entram nessa contagem.
 - Busca com ou sem acentos, filtro por categoria e opção de mostrar somente serviços alterados.
 - Categorias recolhíveis, destaque das alterações e restauração de valores por serviço.
 - Resumo financeiro fixo durante a edição e composição do custeio abaixo dos serviços.
@@ -54,7 +54,7 @@ Nos demais serviços, os totais da imagem permanecem como base: total original �
 
 Na UTI, a mesma regra vale para as cinco linhas: 10 leitos × 80% × 30,4 = 243,2, arredondados para 243 pacientes-dia; × R$ 3.069,99 = R$ 746.007,57. Para 20 leitos a 80%, são 486 pacientes-dia e R$ 1.492.015,14.
 
-A função `bedTotals` soma UI e UTI ativas, independentemente da ocupação. Nos cenários do novo prédio, a capacidade física de enfermaria parte de 318 leitos, conforme orientação do usuário, e acompanha os acréscimos de UI; a distribuição financeira de 336 posições da planilha permanece no cálculo de custeio. Assim, o ajuste de capacidade não altera valores, ocupação ou paciente-dia. Na base original são 318 UI + 70 UTI = 388 leitos. Os 18 lugares de PS Observação, Hospital dia e escritório de gestão de altas não entram nos indicadores de leitos; seus serviços continuam no cálculo financeiro. A planilha original exibe 406 por incluir PS Observação. Sua transcrição e seus totais financeiros foram preservados. Valores são mensais; o anual é uma projeção de 12 meses iguais. O modelo estima o custeio pela produção e não separa custos fixos e variáveis.
+A função `bedTotals` soma UI e PS Observação na enfermaria e mantém UTI separada, considerando apenas linhas ativas e suas quantidades ajustadas, independentemente da ocupação. A base inicial é 318 UI + 18 PS Observação = 336 enfermaria, mais 70 UTI, totalizando 406. Nas bases do novo prédio, as quantidades distribuídas na planilha já somam 336; o desconto anterior de 18 foi removido, sem acrescentá-los novamente ou alterar o custeio. Hospital dia e escritório de gestão de altas não entram nos indicadores de internação. Valores são mensais; o anual projeta 12 meses iguais. O modelo estima o custeio pela produção e não separa custos fixos e variáveis.
 
 Valores monetários usam o padrão brasileiro (R$ 1.234,56), com duas casas decimais e totais somados em centavos. Custos unitários podem ser digitados com vírgula decimal ou colados com R$. O CSV usa ponto e vírgula como separador, vírgula decimal e duas casas nos valores monetários.
 
@@ -64,13 +64,13 @@ Os ajustes da 4 T.A (Atual), da base R$ HUGOL e da base R$ HUGO ficam em três c
 
 Fonte atual: `01 NOVO HUGO - BASE HUGOL.xlsx`. São importadas somente as sete abas de HUGO - BASE HUGOL até HUGO - FINAL. HUGO - ATUAL, Azul e RESUMO não são fontes de cenários. A importação lê valores já calculados, sem executar fórmulas, e registra o SHA-256. O arquivo completo não é publicado.
 
-A nova planilha inclui a UI Cirúrgica do 2º andar no subtotal financeiro (`P12 = SUM(P6:P11)`). O cenário sem incrementos é R$ 27.383.612,79 e o completo, R$ 32.041.004,33, usando os 250 procedimentos originais de hemodinâmica. Todos os sete totais e suas linhas foram conferidos em centavos.
+A nova planilha inclui a UI Cirúrgica do 2º andar no subtotal financeiro (`P12 = SUM(P6:P11)`). O cenário Novo Prédio - Base é R$ 27.383.612,79 e o completo, R$ 32.041.004,33, usando os 250 procedimentos originais de hemodinâmica. Todos os sete totais e suas linhas foram conferidos em centavos.
 
 Banco de sangue, ressonância, SAD, hemodinâmica, adequação de enfermaria e adequação de UTI formam seis opções independentes. A hemodinâmica oferece 250 ou 450 procedimentos mensais: 450 × R$ 4.466,94 = R$ 2.010.123,00. O seletor usa o custo unitário atual da linha e acompanha alterações manuais. O comparativo mostra o volume selecionado.
 
 A adequação de enfermaria acrescenta 35 UI; a de UTI, 20 leitos. Os cartões mostram o acréscimo financeiro da opção isolada e distinguem custo dos leitos e ajuste de SADT. O SADT acompanha a fórmula da planilha: índice de leitos arredondado a duas casas, seguido do arredondamento da quantidade de cada serviço. Os efeitos conjuntos podem diferir da soma dos efeitos isolados por causa desses arredondamentos; com ambas as opções, o cenário final coincide com o arquivo.
 
-A capacidade física inicial das duas bases é 318 UI + 70 UTI = 388; somente UI ampliada resulta em 423, somente UTI em 408 e ambas em 443. As quantidades usadas no custeio permanecem iguais às da planilha. A seleção antiga de adequação é migrada para as duas opções, preservando outros ajustes salvos. Alternar uma opção de leitos restaura suas linhas e as linhas de SADT relacionadas, preservando os demais serviços.
+A capacidade inicial das duas bases é 336 enfermaria + 70 UTI = 406; somente UI ampliada resulta em 441, somente UTI em 426 e ambas em 461. As quantidades usadas no custeio permanecem iguais às da planilha. A seleção antiga de adequação é migrada para as duas opções, preservando outros ajustes salvos. Alternar uma opção de leitos restaura suas linhas e as linhas de SADT relacionadas, preservando os demais serviços.
 
 Confira [os totais, os incrementos e as fórmulas](docs/hugol-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis hugol` reproduz `hugol-source.js`, usando `openpyxl` somente durante a importação.
 
@@ -78,7 +78,7 @@ Confira [os totais, os incrementos e as fórmulas](docs/hugol-conferencia.md). `
 
 Fonte atual: `02 NOVO HUGO - BASE HUGO VIGENTE (3).xlsx`, das seis abas de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL. HUGO - ATUAL, Azul e RESUMO não são fontes desta importação.
 
-A revisão inclui a UI do 2º andar no subtotal (`P12 = SUM(P6:P11)`): R$ 28.665.201,56 sem incrementos e R$ 33.469.980,97 no cenário completo com 250 hemodinâmicas. Com 450, o completo passa a R$ 34.363.368,97. Os seis cenários originais fecham em centavos. A interface já oferece as adequações separadas, capacidade física de 318 UI e opção de 450 hemodinâmicas, com estados e salvamento separados da base HUGOL.
+A revisão inclui a UI do 2º andar no subtotal (`P12 = SUM(P6:P11)`): R$ 28.665.201,56 sem incrementos e R$ 33.469.980,97 no cenário completo com 250 hemodinâmicas. Com 450, o completo passa a R$ 34.363.368,97. Os seis cenários originais fecham em centavos. A interface já oferece as adequações separadas, capacidade inicial de 336 enfermaria (UI + PS Observação) e opção de 450 hemodinâmicas, com estados e salvamento separados da base HUGOL.
 
 As abas do novo prédio usam `ROUNDUP` para paciente-dia (leitos × ocupação × 30,4). A base HUGOL sem aumento e a 4 T.A (Atual) usam o arredondamento ao inteiro mais próximo. Cirurgias do novo prédio preservam horas fracionadas. As duas bases de incremento compartilham `increment-model.js` e `hugol-ui.js`.
 

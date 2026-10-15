@@ -951,7 +951,7 @@ export const hugoSource = {
   "presets": [
     {
       "id": "new-0",
-      "name": "Novo prédio · Sem incrementos",
+      "name": "Novo Prédio - Base",
       "base": "new",
       "selected": [],
       "sourceSheet": "HUGO - SEM BANCO DE SANGUE",

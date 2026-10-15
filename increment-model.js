@@ -84,7 +84,7 @@ export function createIncrementModel(source, basisName) {
     });
   }
 
-  function priceRows(rows, edits, includeOmittedWard, baseKey = 'new') {
+  function priceRows(rows, edits, includeOmittedWard) {
     const state = {}, rawValues = {}, values = {};
     for (const row of rows) {
       const candidate = edits[row.id] || {};
@@ -102,14 +102,7 @@ export function createIncrementModel(source, basisName) {
     const groups = [...new Set(rows.map(row => row.group))];
     const totals = groups.map(group => ({ group, total: rows.filter(row => row.group === group).reduce((cents, row) => cents + Math.round(values[row.id] * 100), 0) / 100 }));
     const total = totals.reduce((cents, item) => cents + Math.round(item.total * 100), 0) / 100;
-    const beds = bedTotals(state, rows);
-    if (baseKey === 'new') {
-      // Physical capacity is 318 UI. Financial quantities retain the workbook's distribution.
-      const referenceWardQuantity = newBase.filter(row => row.bedType === 'ward').reduce((sum, row) => sum + row.qty, 0);
-      beds.ward = Math.max(0, 318 + beds.ward - referenceWardQuantity);
-      beds.total = beds.ward + beds.icu;
-    }
-    return { rows, state, rawValues, values, totals, total, beds };
+    return { rows, state, rawValues, values, totals, total, beds: bedTotals(state, rows) };
   }
 
   function scenarioSnapshot(config, { includeOmittedWard } = {}) {
@@ -118,8 +111,8 @@ export function createIncrementModel(source, basisName) {
     if (!Object.hasOwn(source.bases, config.base) || !Array.isArray(config.selected)) throw new Error('Base de cenário inválida.');
     if (config.selected.some(id => !incrementById.has(id)) || config.base === 'same' && config.selected.length) throw new Error('Seleção de incrementos inválida para esta base.');
     const rows = buildRows(config);
-    const snapshot = priceRows(rows, config.edits || {}, includeOmittedWard, config.base);
-    const base = priceRows(buildRows({ base: config.base, selected: [] }), {}, includeOmittedWard, config.base);
+    const snapshot = priceRows(rows, config.edits || {}, includeOmittedWard);
+    const base = priceRows(buildRows({ base: config.base, selected: [] }), {}, includeOmittedWard);
     const matchingPreset = presets.find(item => item.base === config.base && item.selected.length === config.selected.length && item.selected.every(id => config.selected.includes(id)));
     const modified = rows.filter(row => {
       const original = { enabled: row.available && row.qty > 0, qty: row.qty, unit: row.unit, factor: row.factor };
@@ -128,7 +121,7 @@ export function createIncrementModel(source, basisName) {
     return {
       ...snapshot, baseTotal: base.total, delta: roundCurrency(snapshot.total - base.total),
       selected: increments.filter(item => config.selected.includes(item.id)),
-      baseName: config.base === 'new' ? 'Novo prédio' : `HUGO · Base ${basisName} (sem aumento)`,
+      baseName: config.base === 'new' ? 'Novo Prédio - Base' : `HUGO · Base ${basisName} (sem aumento)`,
       preset: matchingPreset, modifiedIds: modified.map(row => row.id), includeOmittedWard,
       excludedAmount: rows.reduce((cents, row) => cents + Math.round((snapshot.rawValues[row.id] - snapshot.values[row.id]) * 100), 0) / 100,
     };

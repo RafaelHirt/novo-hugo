@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {rows,initial,cost,reference,bedTotals,projectedPatientDays} from '../data.js';
-test('A referência mantém o custo da planilha e conta 388 leitos sem PS Observação',()=>{const state=initial();assert.ok(Math.abs(rows.reduce((sum,r)=>sum+cost(r,state[r.id]),0)-reference)<0.01);assert.deepEqual(bedTotals(state),{ward:318,icu:70,total:388});});
+test('A referência mantém o custo da planilha e conta 406 leitos incluindo PS Observação',()=>{const state=initial();assert.ok(Math.abs(rows.reduce((sum,r)=>sum+cost(r,state[r.id]),0)-reference)<0.01);assert.deepEqual(bedTotals(state),{ward:336,icu:70,total:406});});
 test('Retirada, leitos, ocupação e custo unitário alteram o custeio da UI em centavos',()=>{const r=rows[0],s=initial()[0];assert.equal(cost(r,{...s,enabled:false}),0);for(const change of [{qty:45},{factor:45},{unit:r.unit/2}])assert.equal(Math.round(cost(r,{...s,...change})*100),123005213);});
 test('Horas médias e número de cirurgias determinam o custo',()=>{const r=rows.find(r=>r.kind==='surgery'),s=initial()[r.id];assert.equal(cost(r,{...s,factor:3}),r.total/2);assert.equal(cost(r,{...s,qty:0}),0);});
 test('Subtotais da imagem e total geral fecham em centavos', () => {
@@ -14,32 +14,32 @@ test('Subtotais da imagem e total geral fecham em centavos', () => {
   assert.equal(subtotal('SADT externo'), 15802850);
   assert.equal(rows.reduce((sum, row) => sum + Math.round(row.total * 100), 0), 2726123624);
 });
-test('PS Observação afeta o custeio, mas nunca a contagem de leitos', () => {
+test('PS Observação integra enfermarias e acompanha sua quantidade e ativação', () => {
   const state = initial();
   const observation = rows.find(row => row.bedType === 'observation');
   assert.equal(cost(observation, state[observation.id]), 214974.92);
   state[observation.id].qty = 180;
-  assert.deepEqual(bedTotals(state), { ward: 318, icu: 70, total: 388 });
+  assert.deepEqual(bedTotals(state), { ward: 498, icu: 70, total: 568 });
   assert.equal(Math.round(cost(observation, state[observation.id]) * 100), 214661088);
   state[observation.id].enabled = false;
   assert.deepEqual(bedTotals(state), { ward: 318, icu: 70, total: 388 });
   assert.equal(cost(observation, state[observation.id]), 0);
 });
-test('Somente UI e UTI ativas entram nos leitos; ocupação não altera a capacidade', () => {
+test('UI, PS Observação e UTI ativas entram nos leitos; ocupação não altera a capacidade', () => {
   const state = initial();
   state[5].qty = 5;
-  assert.deepEqual(bedTotals(state), { ward: 318, icu: 65, total: 383 });
+  assert.deepEqual(bedTotals(state), { ward: 336, icu: 65, total: 401 });
   state[0].factor = 0;
-  assert.equal(bedTotals(state).ward, 318);
+  assert.equal(bedTotals(state).ward, 336);
   state[0].enabled = false;
-  assert.deepEqual(bedTotals(state), { ward: 228, icu: 65, total: 293 });
+  assert.deepEqual(bedTotals(state), { ward: 246, icu: 65, total: 311 });
 });
 test('A regra de leitos é compartilhada com outras bases de cenário', () => {
   const state = initial();
   state[4].qty = 100;
   state[0].qty = 100;
   const otherScenario = rows.map(row => ({ ...row }));
-  assert.deepEqual(bedTotals(state, otherScenario), { ward: 328, icu: 70, total: 398 });
+  assert.deepEqual(bedTotals(state, otherScenario), { ward: 428, icu: 70, total: 498 });
 });
 test('Ocupação de 80% reproduz os 2.189 pacientes-dia e R$ 2.187.314,47 da planilha', () => {
   const state = initial()[0];

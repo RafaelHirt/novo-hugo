@@ -21,7 +21,7 @@ test('Visão anual multiplica custos e diferenças por 12 e preserva percentuais
   assert.equal(annual.scenarios[0].amount,327134834.88);
   assert.equal(Math.round(annual.scenarios[1].delta*100),146851860);
   assert.ok(Math.abs(annual.scenarios[1].percent-monthly.scenarios[1].percent)<1e-10);
-  assert.equal(annual.scenarios[0].snapshot.beds.total,388);
+  assert.equal(annual.scenarios[0].snapshot.beds.total,406);
 });
 test('Filtro de diferenças remove categorias iguais sem alterar os totais',()=>{
   const all=buildComparison(scenarios,{differencesOnly:false}),filtered=buildComparison(scenarios);

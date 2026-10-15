@@ -22,7 +22,7 @@ test('As 64 combinações da base HUGO incluem adequações separadas de UI e UT
     const selected = model.increments.filter((item, index) => mask & (1 << index));
     const result = model.snapshot({ base:'new', selected:selected.map(item => item.id), edits:{} }, policy);
     assert.equal(cents(result.total), 2866520156 + selected.filter(item=>!item.addedBeds).reduce((sum,item) => sum + item.amountCents,0) + [0,121483137,191641855,313171091][mask >> 4]);
-    assert.equal(result.beds.total, 388 + (mask & 16 ? 35 : 0) + (mask & 32 ? 20 : 0));
+    assert.equal(result.beds.total, 406 + (mask & 16 ? 35 : 0) + (mask & 32 ? 20 : 0));
     assert.equal(cents(result.totals.reduce((sum,item) => sum + item.total,0)), cents(result.total));
   }
 });
@@ -34,8 +34,8 @@ test('A base HUGO usa preços próprios e preserva a referência após editar um
   assert.equal(result.state['hugo-new-16'].unit,3069.99);
   assert.equal(hugoSource.bases.new.length,52);
   assert.deepEqual(config.selected,[]);
-  assert.equal(model.snapshot({...config,edits:{'hugo-new-6':{qty:50}}},policy).beds.total,382);
-  assert.equal(model.snapshot(config,policy).beds.total,388);
+  assert.equal(model.snapshot({...config,edits:{'hugo-new-6':{qty:50}}},policy).beds.total,400);
+  assert.equal(model.snapshot(config,policy).beds.total,406);
   assert.equal(hugoSource.bases.new[0].qty,56);
 });
 
@@ -44,6 +44,6 @@ test('A revisão HUGO inclui a UI do 2º andar no subtotal sem alterar a capacid
   assert.equal(hugoSource.subtotalIssue,null);
   assert.equal(result.values['hugo-new-11'],1094156.85);
   assert.equal(result.excludedAmount,0);
-  assert.deepEqual(result.beds,{ward:318,icu:70,total:388});
+  assert.deepEqual(result.beds,{ward:336,icu:70,total:406});
   assert.equal(result.total,28665201.56);
 });

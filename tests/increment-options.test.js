@@ -20,7 +20,7 @@ for (const [basis,model] of Object.entries({HUGOL:hugol,HUGO:hugo})) {
     const legacy={base:'new',selected:['mri','beds'],edits:{}};
     const migrated=model.normalizeConfig(legacy);
     assert.deepEqual(migrated.selected,['mri','wardBeds','icuBeds']);
-    assert.deepEqual(model.snapshot(legacy,policy).beds,{ward:353,icu:90,total:443});
+    assert.deepEqual(model.snapshot(legacy,policy).beds,{ward:371,icu:90,total:461});
     assert.equal(model.snapshot(legacy,policy).total,model.snapshot(migrated,policy).total);
     const row=model.snapshot(migrated,policy).rows.find(item=>item.name==='Análises clínicas');
     const changed=model.setIncrement({...migrated,edits:{[row.id]:{qty:1}}},'wardBeds',false);

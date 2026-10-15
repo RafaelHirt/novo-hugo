@@ -28,7 +28,7 @@ test('As 64 combinações dos seis incrementos fecham, inclusive adequações is
     const snapshot = hugolSnapshot({base:'new',selected:selected.map(item=>item.id),edits:{}},policy);
     const serviceCost = selected.filter(item=>!item.addedBeds).reduce((sum,item)=>sum+item.amountCents,0);
     assert.equal(cents(snapshot.total),2738361279 + serviceCost + bedCosts[mask >> 4],`mask ${mask}`);
-    assert.deepEqual(snapshot.beds,{ward:318+(mask&16?35:0),icu:70+(mask&32?20:0),total:388+(mask&16?35:0)+(mask&32?20:0)});
+    assert.deepEqual(snapshot.beds,{ward:336+(mask&16?35:0),icu:70+(mask&32?20:0),total:406+(mask&16?35:0)+(mask&32?20:0)});
     assert.equal(cents(snapshot.totals.reduce((sum,item)=>sum+item.total,0)),cents(snapshot.total));
   }
 });
@@ -59,10 +59,10 @@ test('Adequações separadas alteram apenas seus leitos e recalculam SADT pela f
   assert.equal(icuOption.bedAmountCents,143906685);
 });
 
-test('A capacidade física é 318 UI + 70 UTI sem alterar as quantidades financeiras', () => {
+test('A capacidade inclui os 18 de PS Observação, com 336 enfermaria + 70 UTI', () => {
   for (const id of ['same','new-0']) {
     const snapshot=hugolSnapshot(presetState(id),policy);
-    assert.deepEqual(snapshot.beds,{ward:318,icu:70,total:388});
+    assert.deepEqual(snapshot.beds,{ward:336,icu:70,total:406});
   }
   const snapshot=hugolSnapshot(presetState('new-0'),policy);
   assert.equal(snapshot.rows.filter(row=>row.bedType==='ward').reduce((sum,row)=>sum+snapshot.state[row.id].qty,0),336);
@@ -71,12 +71,12 @@ test('A capacidade física é 318 UI + 70 UTI sem alterar as quantidades finance
 
 test('Editar ou retirar linhas atualiza custo e capacidade; alternar pacote preserva outras edições', () => {
   let config={base:'new',selected:['blood'],edits:{'new-6':{qty:50},'new-83':{qty:900}}};
-  assert.equal(hugolSnapshot(config,policy).beds.ward,312);
+  assert.equal(hugolSnapshot(config,policy).beds.ward,330);
   config=setIncrement(config,'blood',false);
   assert.deepEqual(config.edits,{'new-6':{qty:50}});
   assert.equal(hugolSnapshot(config,policy).state['new-83'].enabled,false);
   const disabled=hugolSnapshot({...config,edits:{'new-6':{enabled:false}}},policy);
-  assert.equal(disabled.beds.total,332);
+  assert.equal(disabled.beds.total,350);
   assert.equal(disabled.values['new-6'],0);
 });
 

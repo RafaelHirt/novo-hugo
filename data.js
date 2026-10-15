@@ -32,13 +32,13 @@ export function cost(row, state) {
   return row.total * (state.qty / row.qty) * (state.unit / row.unit) * (row.factor === undefined ? 1 : state.factor / row.factor);
 }
 export function initial(){return rows.map(r=>({enabled:true,qty:r.qty,unit:r.unit,factor:r.factor}));}
-// Shared by every scenario: observation positions affect costs, never bed counts.
+// Ward totals include UI and PS observation beds; ICU remains separate.
 export function bedTotals(state, scenarioRows = rows) {
   let ward = 0, icu = 0;
   for (const row of scenarioRows) {
     if (!state[row.id].enabled) continue;
     if (row.bedType === 'icu') icu += state[row.id].qty;
-    if (row.bedType === 'ward') ward += state[row.id].qty;
+    if (row.bedType === 'ward' || row.bedType === 'observation') ward += state[row.id].qty;
   }
   return { ward, icu, total: ward + icu };
 }

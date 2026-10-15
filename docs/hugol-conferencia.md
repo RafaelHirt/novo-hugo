@@ -5,7 +5,7 @@ Fonte atual: `01 NOVO HUGO - BASE HUGOL.xlsx`. Importação dos valores armazena
 | Aba de origem | Cenário | Planilha e dashboard — mensal |
 | --- | --- | ---: |
 | HUGO - BASE HUGOL | Base HUGOL sem aumento | R$ 25.964.532,96 |
-| HUGO - SEM BANCO DE SANGUE | Novo prédio — sem incrementos | R$ 27.383.612,79 |
+| HUGO - SEM BANCO DE SANGUE | Novo Prédio - Base | R$ 27.383.612,79 |
 | HUGO - SEM RESSONÂNCIA | + Banco de sangue | R$ 27.564.052,29 |
 | HUGO - SEM SAD E HEMODINÂMICA | + Banco e ressonância | R$ 27.706.552,29 |
 | HUGO - SEM HEMODINÂMICA | + Banco, ressonância e SAD | R$ 27.939.946,29 |
@@ -23,16 +23,16 @@ A fórmula P12 desta versão é `SUM(P6:P11)`, incluindo a UI do 2º andar (R$ 1
 
 Com as duas adequações, o acréscimo é **R$ 2.984.323,04**, dos quais R$ 401.344,52 em SADT. Essa combinação reproduz a planilha. Os efeitos isolados não são somados diretamente: o índice de SADT e as quantidades de cada linha têm arredondamentos.
 
-A capacidade física de enfermaria foi definida pelo usuário como **318**, sem alterar o custeio ou as quantidades financeiras distribuídas nas seis UI. Os indicadores usam essa capacidade inicial e acompanham os acréscimos de leitos:
+A contagem de enfermaria inclui **318 UI + 18 PS Observação = 336**, conforme a decisão atual do usuário. O custeio permanece igual. Os indicadores acompanham essa capacidade inicial e os acréscimos selecionados:
 
 | Adequação | Enfermaria | UTI | Total físico |
 | --- | ---: | ---: | ---: |
-| Sem adequação | 318 | 70 | 388 |
-| Somente UI | 353 | 70 | 423 |
-| Somente UTI | 318 | 90 | 408 |
-| UI e UTI | 353 | 90 | 443 |
+| Sem adequação | 336 | 70 | 406 |
+| Somente UI | 371 | 70 | 441 |
+| Somente UTI | 336 | 90 | 426 |
+| UI e UTI | 371 | 90 | 461 |
 
-A distribuição de custeio da planilha soma 336 posições de UI na base e 371 com adequação. Esse número não é substituído no cálculo financeiro. Edições manuais de quantidade acompanham a variação da capacidade, limitada a zero quando todas as UI são retiradas. PS Observação, hospital dia e escritório de gestão de altas não entram no indicador de internação.
+A distribuição da planilha soma 336 posições na base e 371 com adequação de UI. O desconto anterior de 18 no indicador foi retirado; os valores financeiros permanecem intactos. Edições manuais de quantidade acompanham a capacidade ativa. Hospital dia e escritório de gestão de altas permanecem fora do indicador de internação.
 
 ## Outros incrementos
 
