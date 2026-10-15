@@ -4,7 +4,7 @@ const raw=[
 ['Enfermarias','UI Clínica Cirúrgica (3º Andar)',999.23,3198535.23,117,90,3201],
 ['Enfermarias','UI Clínica Cirúrgica (4º andar)',999.23,2870787.79,105,90,2873],
 ['Enfermarias','UI Pop. Privad. Liberd. (4º andar)',1340.88,122020.08,6,50,91],
-['Enfermarias','PS Observação',784.58,214974.92,18,50,274],
+['Enfermarias','PS Observação',784.58,214974.92,18,50,274,'observation'],
 ...[[10,887227.11],[20,1774454.22],[10,887227.11],[20,1774454.22],[10,887227.11]].map(([beds,total],i)=>['UTI',`UTI Adulto ${i+1}`,3069.99,total,beds,95,beds===10?289:578]),
 ['Emergência','Pronto Atendimento',1175.08,3041107.04,2588],
 ['Hospital dia','Leito-dia',308,112420,365],
@@ -19,16 +19,17 @@ const raw=[
 ...[[ 'Colonoscopia',100,570.20,57020],['Ecodoppler',80,203.58,16286.40],['Endoscopia',100,570.20,57020],['Tomografia Computadorizada',125,169.10,21137.50],['Ultrassonografia',60,109.41,6564.60]].map(([name,qty,unit,total])=>['SADT externo',name,unit,total,qty]),
 ['Escritório de gestão de altas','Escritório de gestão de altas',5153.41,25767.05,5]
 ];
-export const rows=raw.map(([group,name,unit,total,qty,factor,patientDays],id)=>({id,group,name,unit,total,qty,factor,patientDays,kind:patientDays?'bed':group==='Cirurgias'?'surgery':'service'}));
+export const rows=raw.map(([group,name,unit,total,qty,factor,patientDays,bedType],id)=>({id,group,name,unit,total,qty,factor,patientDays,kind:patientDays?'bed':group==='Cirurgias'?'surgery':'service',bedType:patientDays?(bedType??(group==='UTI'?'icu':'ward')):null}));
 export const reference=27261236.24;
 export function cost(row,state){if(!state.enabled)return 0;return row.total*(state.qty/row.qty)*(state.unit/row.unit)*(row.factor===undefined?1:state.factor/row.factor);}
 export function initial(){return rows.map(r=>({enabled:true,qty:r.qty,unit:r.unit,factor:r.factor}));}
-export function bedTotals(state) {
+// Shared by every scenario: observation positions affect costs, never bed counts.
+export function bedTotals(state, scenarioRows = rows) {
   let ward = 0, icu = 0;
-  for (const row of rows) {
-    if (row.kind !== 'bed' || !state[row.id].enabled) continue;
-    if (row.group === 'UTI') icu += state[row.id].qty;
-    else ward += state[row.id].qty;
+  for (const row of scenarioRows) {
+    if (!state[row.id].enabled) continue;
+    if (row.bedType === 'icu') icu += state[row.id].qty;
+    if (row.bedType === 'ward') ward += state[row.id].qty;
   }
   return { ward, icu, total: ward + icu };
 }

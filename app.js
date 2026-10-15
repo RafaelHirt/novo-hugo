@@ -81,7 +81,7 @@ function tables() {
           <tbody>${groupRows.map(row => `<tr data-row="${row.id}">
             <td><div class="service-cell"><label class="service-name">
               <input class="service-switch" type="checkbox" aria-label="Incluir ${row.name}" data-id="${row.id}" data-key="enabled" ${state[row.id].enabled ? 'checked' : ''}>
-              <span>${row.name}<small>${row.kind === 'bed' ? 'Paciente-dia · referência ' + number(row.patientDays) : row.kind === 'surgery' ? 'Hora cirúrgica' : row.group === 'Escritório de gestão de altas' ? 'Nº de leitos' : 'Produção mensal'}</small></span>
+              <span>${row.name}<small>${row.kind === 'bed' ? 'Paciente-dia · referência ' + number(row.patientDays) : row.kind === 'surgery' ? 'Hora cirúrgica' : row.group === 'Escritório de gestão de altas' ? 'Nº de leitos' : 'Produção mensal'}${row.bedType === 'observation' ? ' · Fora da contagem de leitos' : ''}</small></span>
             </label><span class="row-badge" data-badge="${row.id}"></span></div></td>
             <td data-label="${qtyLabel}">${field(row, 'qty', qtyLabel)}</td>
             ${withFactor ? `<td data-label="${factorLabel}"><span class="factor-field">${field(row, 'factor', row.kind === 'bed' ? 'Ocupação (%)' : factorLabel)}<span>${row.kind === 'bed' ? '%' : 'h'}</span></span></td>` : ''}

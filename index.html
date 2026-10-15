@@ -22,15 +22,15 @@
       <div class="hero-content">
         <h1 id="page-title">Novo HUGO</h1>
         <p>Demonstração de custeio</p>
-        <span class="hero-status"><span></span>4º Termo Aditivo em trâmite</span>
       </div>
       <div class="hero-caption"><span data-icon="hospital"></span>Hospital Estadual de Urgências de Goiás</div>
     </section>
 
     <nav class="tabs" role="tablist" aria-label="Bases da simulação">
-      <button id="tab-hugo" class="tab active" data-tab="hugo" role="tab" aria-selected="true" aria-controls="hugo"><span data-icon="document"></span>Dados 4º T.A</button>
-      <button id="tab-hugol" class="tab" data-tab="hugol" role="tab" aria-selected="false" aria-controls="hugol" tabindex="-1"><span data-icon="document"></span>4º T.A HUGO (Base de valores HUGOL)<span class="tab-badge">Em breve</span></button>
-      <button id="tab-comparison" class="tab" data-tab="comparison" role="tab" aria-selected="false" aria-controls="comparison" tabindex="-1"><span data-icon="chart"></span>Comparativo</button>
+      <button id="tab-hugo" class="tab active" data-tab="hugo" role="tab" aria-selected="true" aria-controls="hugo"><span data-icon="document"></span><span class="tab-label">T.A Atual</span></button>
+      <button id="tab-hugol" class="tab" data-tab="hugol" role="tab" aria-selected="false" aria-controls="hugol" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Incremento de serviços <small>(Base R$ HUGOL)</small></span></button>
+      <button id="tab-hugo-increment" class="tab" data-tab="hugo-increment" role="tab" aria-selected="false" aria-controls="hugo-increment" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Incremento de serviços <small>(Base R$ HUGO)</small></span></button>
+      <button id="tab-comparison" class="tab" data-tab="comparison" role="tab" aria-selected="false" aria-controls="comparison" tabindex="-1"><span data-icon="chart"></span><span class="tab-label">Comparativo</span></button>
     </nav>
 
     <section id="hugo" role="tabpanel" aria-labelledby="tab-hugo">
@@ -52,8 +52,8 @@
         </article>
         <article class="metric metric-beds">
           <div class="metric-heading"><small>LEITOS DE INTERNAÇÃO ATIVOS</small><span class="metric-icon" data-icon="bed"></span></div>
-          <div class="bed-counters"><div><span title="Leitos de Enfermaria: UI e PS Observação">Enfermaria</span><strong id="ward-beds"></strong></div><div><span>UTI</span><strong id="icu-beds"></strong></div><div class="bed-total"><span>Total</span><strong id="beds"></strong></div></div>
-          <span class="bed-note">Enfermaria: UI e PS Observação</span>
+          <div class="bed-counters"><div><span title="Leitos de enfermaria: somente UI">Enfermaria</span><strong id="ward-beds"></strong></div><div><span>UTI</span><strong id="icu-beds"></strong></div><div class="bed-total"><span>Total</span><strong id="beds"></strong></div></div>
+          <span class="bed-note">PS Observação fora da contagem</span>
         </article>
         <article class="metric metric-reference">
           <div class="metric-heading"><small>CUSTEIO MENSAL DE REFERÊNCIA</small><span class="metric-icon" data-icon="document"></span></div>
@@ -85,23 +85,32 @@
       <div class="panel empty">
         <span class="empty-icon" data-icon="clock"></span>
         <span class="section-eyebrow">PRÓXIMA BASE DE SIMULAÇÃO</span>
-        <h2>4º T.A HUGO (Base de valores HUGOL)</h2>
+        <h2>5º T.A HUGO - Incremento de serviços (Base R$ HUGOL)</h2>
         <p>Esta aba está preparada para receber os dados.</p>
         <p>Para as linhas de UTI, PS e Cirurgias, serão utilizados os valores atualmente previstos no HUGOL.</p>
         <span class="empty-status">Aguardando planilha</span>
       </div>
     </section>
-    <section id="comparison" role="tabpanel" aria-labelledby="tab-comparison" hidden>
-      <div class="context"><div><span class="section-eyebrow">VISÃO COMPARATIVA</span><h2>Comparação de cenários</h2><p>Dados 4º T.A × 4º T.A HUGO (Base de valores HUGOL)</p></div></div>
-      <div class="comparison-metrics">
-        <article class="metric metric-primary"><div class="metric-heading"><small>HUGO · CENÁRIO ATUAL</small><span class="metric-icon" data-icon="wallet"></span></div><strong id="comparison-current-total"></strong><span id="comparison-beds"></span></article>
-        <article class="metric"><div class="metric-heading"><small>BASE DE VALORES HUGOL</small><span class="metric-icon" data-icon="document"></span></div><strong class="pending-value">Aguardando dados</strong><span>UTI, PS e Cirurgias: valores previstos no HUGOL.</span></article>
-        <article class="metric"><div class="metric-heading"><small>DIFERENÇA ENTRE OS CENÁRIOS</small><span class="metric-icon" data-icon="trend"></span></div><strong>—</strong><span>Disponível após a inclusão da base HUGOL.</span></article>
+    <section id="hugo-increment" role="tabpanel" aria-labelledby="tab-hugo-increment" hidden>
+      <div class="panel empty">
+        <span class="empty-icon" data-icon="clock"></span>
+        <span class="section-eyebrow">PRÓXIMA BASE DE SIMULAÇÃO</span>
+        <h2>5º T.A HUGO - Incremento de serviços (Base R$ HUGO)</h2>
+        <p>Esta aba está preparada para receber os dados do incremento de serviços com base nos valores do HUGO.</p>
+        <span class="empty-status">Aguardando planilha</span>
       </div>
-      <section class="panel comparison-panel" aria-labelledby="comparison-title"><div class="panel-heading"><div><span class="section-eyebrow">RESUMO POR CATEGORIA</span><h2 id="comparison-title">Custeio mensal lado a lado</h2><p>A coluna HUGO acompanha os ajustes feitos em Dados 4º T.A.</p></div></div>
-        <div class="table-scroll"><table class="comparison-table"><thead><tr><th>Categoria</th><th>HUGO</th><th>Base HUGOL</th><th>Diferença</th></tr></thead><tbody id="comparison-groups"></tbody><tfoot><tr><th>Total mensal</th><td id="comparison-footer-total"></td><td>—</td><td>—</td></tr></tfoot></table></div>
+    </section>
+    <section id="comparison" role="tabpanel" aria-labelledby="tab-comparison" hidden>
+      <div class="context"><div><span class="section-eyebrow">VISÃO COMPARATIVA</span><h2>Comparação de cenários</h2><p>T.A Atual × 5º T.A com base R$ HUGOL × 5º T.A com base R$ HUGO</p></div></div>
+      <div class="comparison-metrics">
+        <article class="metric metric-primary"><div class="metric-heading"><small>T.A ATUAL · CENÁRIO AJUSTADO</small><span class="metric-icon" data-icon="wallet"></span></div><strong id="comparison-current-total"></strong><span id="comparison-beds"></span></article>
+        <article class="metric"><div class="metric-heading"><small>5º T.A · BASE R$ HUGOL</small><span class="metric-icon" data-icon="document"></span></div><strong class="pending-value">Aguardando dados</strong><span>Incremento de serviços. UTI, PS e Cirurgias: valores previstos no HUGOL.</span></article>
+        <article class="metric"><div class="metric-heading"><small>5º T.A · BASE R$ HUGO</small><span class="metric-icon" data-icon="document"></span></div><strong class="pending-value">Aguardando dados</strong><span>Incremento de serviços com base nos valores do HUGO.</span></article>
+      </div>
+      <section class="panel comparison-panel" aria-labelledby="comparison-title"><div class="panel-heading"><div><span class="section-eyebrow">RESUMO POR CATEGORIA</span><h2 id="comparison-title">Custeio mensal lado a lado</h2><p>A coluna T.A Atual acompanha os serviços ativos e os valores ajustados nessa aba. As duas bases do 5º T.A aguardam dados.</p></div></div>
+        <div class="table-scroll"><table class="comparison-table"><thead><tr><th scope="col">Categoria</th><th scope="col">T.A Atual</th><th scope="col">5º T.A<small>Base R$ HUGOL</small></th><th scope="col">5º T.A<small>Base R$ HUGO</small></th></tr></thead><tbody id="comparison-groups"></tbody><tfoot><tr><th scope="row">Total mensal</th><td id="comparison-footer-total" data-label="T.A Atual"></td><td data-label="5º T.A · Base R$ HUGOL" aria-label="Dados do 5º T.A com base HUGOL pendentes">—</td><td data-label="5º T.A · Base R$ HUGO" aria-label="Dados do 5º T.A com base HUGO pendentes">—</td></tr></tfoot></table></div>
         <details class="comparison-details"><summary><span class="category-icon" data-icon="document"></span><span class="category-label"><strong>Ver serviços detalhados</strong><small>Quantidades e custeio mensal</small></span><span class="category-chevron" data-icon="chevron"></span></summary>
-          <div class="table-scroll"><table class="comparison-table comparison-service-table"><thead><tr><th>Serviço</th><th>Quantidade / leitos</th><th>HUGO</th><th>Base HUGOL</th><th>Diferença</th></tr></thead><tbody id="comparison-services"></tbody></table></div>
+          <div class="table-scroll"><table class="comparison-table comparison-service-table"><thead><tr><th scope="col">Serviço</th><th scope="col">Quantidade<small>T.A Atual</small></th><th scope="col">T.A Atual</th><th scope="col">5º T.A<small>Base R$ HUGOL</small></th><th scope="col">5º T.A<small>Base R$ HUGO</small></th></tr></thead><tbody id="comparison-services"></tbody></table></div>
         </details>
       </section>
     </section>

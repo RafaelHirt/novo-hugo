@@ -5,13 +5,14 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 ## Interface
 
 - Indicadores financeiros e projeção anual, com resumo fixo e compacto durante a rolagem.
-- Leitos de enfermaria (UI e PS Observação), UTI e total: originalmente 336 + 70 = 406.
+- Leitos de enfermaria (somente UI), UTI e total: originalmente 318 + 70 = 388. PS Observação participa do custeio, mas nunca dos indicadores de leitos, inclusive nas próximas bases de cenário.
 - Busca com ou sem acentos, filtro por categoria e opção de mostrar somente serviços alterados.
 - Categorias recolhíveis, destaque das alterações e restauração de valores por serviço.
 - Resumo financeiro fixo durante a edição e composição do custeio abaixo dos serviços.
-- Barra inferior compacta durante a rolagem, com total e variação atualizados e botão para voltar ao resumo. Aparece na aba Dados 4º T.A e prioriza o total nas telas menores.
+- Barra inferior compacta durante a rolagem, com total e variação atualizados e botão para voltar ao resumo. Aparece na aba T.A Atual e prioriza o total nas telas menores.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
-- Aba Comparativo com resumo por categoria e serviços detalhados opcionais, sem coluna de ocupação. Os valores HUGOL e as diferenças permanecem pendentes até o recebimento da base.
+- Abas T.A Atual, 5º T.A HUGO - Incremento de serviços (Base R$ HUGOL), 5º T.A HUGO - Incremento de serviços (Base R$ HUGO) e Comparativo. As duas bases do 5º T.A aguardam os dados de incremento.
+- Aba Comparativo com os três cenários, resumo por categoria e serviços detalhados opcionais, sem coluna de ocupação. A coluna T.A Atual acompanha os serviços ativos, as quantidades e os custos editados, incluindo o efeito da ocupação. Os valores das duas bases do 5º T.A permanecem pendentes até o recebimento dos dados.
 - Indicador de conexão com animação suave, respeitando a preferência por movimentos reduzidos.
 - Sem dependências de imagens, fontes ou scripts externos durante o uso.
 
@@ -45,8 +46,10 @@ Se aparecer **Acesso indisponível** depois de cadastrar a senha, confira o nome
 
 `data.js` transcreve os dados da imagem HOSPITAL: HUGO — 4º TA ao TC 97/2024. Referência mensal: R$ 27.261.236,24. Identificação no dashboard: 4º Termo Aditivo em trâmite. A soma das linhas foi conferida em centavos e coincide com o total da imagem. Internação (enfermarias + UTI): R$ 15.077.012,05.
 
-Os totais de linha da imagem são preservados como base, pois quantidades e custos unitários exibidos podem conter arredondamentos. Fórmula: total original × quantidade atual / original × custo unitário atual / original; internação também multiplica ocupação atual / original e cirurgia multiplica horas médias atuais / originais. A ocupação é percentual de 0 a 100. Os 406 leitos incluem somente enfermarias e UTI. Valores são mensais; o anual é uma projeção de 12 meses iguais. Não é uma proposta contratual e não incorpora inflação ou modelagem de custos fixos.
+Os totais de linha da imagem são preservados como base, pois quantidades e custos unitários exibidos podem conter arredondamentos. Fórmula: total original × quantidade atual / original × custo unitário atual / original; internação também multiplica ocupação atual / original e cirurgia multiplica horas médias atuais / originais. A ocupação é percentual de 0 a 100. Exemplo: a UI Clínica Médica passa de R$ 2.460.104,26 a R$ 2.186.759,34 quando a ocupação muda de 90% para 80%, mantendo os demais campos: total original × 80 / 90.
+
+A contagem de leitos usa a mesma função `bedTotals` em qualquer base: soma apenas UI e UTI ativas, com suas quantidades ajustadas, independentemente da ocupação. Na base original são 318 UI + 70 UTI = 388 leitos. Os 18 lugares de PS Observação, Hospital dia e escritório de gestão de altas não entram nos indicadores de leitos; seus serviços continuam no cálculo financeiro. A planilha original exibe 406 por incluir PS Observação. Sua transcrição e seus totais financeiros foram preservados. Valores são mensais; o anual é uma projeção de 12 meses iguais. O modelo é proporcional e não separa custos fixos e variáveis.
 
 Valores monetários usam o padrão brasileiro (R$ 1.234,56), com duas casas decimais e totais somados em centavos. Custos unitários podem ser digitados com vírgula decimal ou colados com R$. O CSV usa ponto e vírgula como separador, vírgula decimal e duas casas nos valores monetários.
 
-Os ajustes ficam no localStorage do navegador e podem ser restaurados ou exportados em CSV. A aba “4º T.A HUGO (Base de valores HUGOL)” aguarda dados; UTI, PS e Cirurgias utilizarão os valores atualmente previstos no HUGOL. Validar os dados com a planilha original antes de decisões financeiras.
+Os ajustes da T.A Atual ficam no localStorage do navegador e podem ser restaurados ou exportados em CSV. As abas do 5º T.A aguardam os dados de incremento; na base R$ HUGOL, UTI, PS e Cirurgias utilizarão os valores atualmente previstos no HUGOL. A nova aba com base R$ HUGO está preparada separadamente. Validar os dados com a planilha original antes de decisões financeiras.
