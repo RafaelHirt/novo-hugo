@@ -11,7 +11,7 @@ test('Página e dados exigem login; somente imagens institucionais e script do l
   const guard = createAccessGuard({ password: randomUUID() });
   const page = await guard(request(), context);
   assert.match(await page.text(), /Senha de acesso/);
-  for (const path of ['/data.js', '/app.js', '/comparison.js', '/hugol-source.js', '/hugol-model.js', '/hugol-ui.js', '/hugo-source.js', '/hugo-model.js', '/increment-model.js', '/comparison-model.js', '/index.html?download=1']) {
+  for (const path of ['/data.js', '/app.js', '/comparison.js', '/hugol-source.js', '/hugol-model.js', '/hugol-ui.js', '/hugo-source.js', '/hugo-model.js', '/updated-source.js', '/updated-model.js', '/increment-model.js', '/comparison-model.js', '/index.html?download=1']) {
     const result = await guard(request(path), context);
     assert.equal((await result.text()).includes('protected-data'), false);
     if (path.endsWith('.js')) assert.equal(result.status, 401);

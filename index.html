@@ -30,6 +30,7 @@
       <button id="tab-hugo" class="tab active" data-tab="hugo" role="tab" aria-selected="true" aria-controls="hugo"><span data-icon="document"></span><span class="tab-label">4 T.A (Atual)</span></button>
       <button id="tab-hugol" class="tab" data-tab="hugol" role="tab" aria-selected="false" aria-controls="hugol" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Incremento de serviços <small>(Base R$ HUGOL)</small></span></button>
       <button id="tab-hugo-increment" class="tab" data-tab="hugo-increment" role="tab" aria-selected="false" aria-controls="hugo-increment" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Incremento de serviços <small>(Base R$ HUGO)</small></span></button>
+      <button id="tab-hugo-updated" class="tab" data-tab="hugo-updated" role="tab" aria-selected="false" aria-controls="hugo-updated" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Atualização de valores e quantitativo<small>Agosto/2025 a julho/2026</small></span></button>
       <button id="tab-comparison" class="tab" data-tab="comparison" role="tab" aria-selected="false" aria-controls="comparison" tabindex="-1"><span data-icon="chart"></span><span class="tab-label">Comparativo</span></button>
     </nav>
 
@@ -135,10 +136,37 @@
       </section>
       <details class="panel workbook-audit"><summary><span class="category-icon" data-icon="check"></span><span class="category-label"><strong>Conferência com a planilha</strong><small>Os seis cenários originais, antes dos ajustes manuais</small></span><span class="category-chevron" data-icon="chevron"></span></summary><div class="audit-content"><p>Valores extraídos das abas solicitadas. As abas HUGO ATUAL e AZUL não compõem esta nova base.</p><div class="table-scroll"><table class="audit-table"><thead><tr><th>Cenário</th><th>Planilha</th><th>Dashboard</th><th>Conferência</th></tr></thead><tbody id="hugo-base-audit"></tbody></table></div></div></details>
     </section>
+    <section id="hugo-updated" role="tabpanel" aria-labelledby="tab-hugo-updated" hidden>
+      <div class="context">
+        <div><span class="section-eyebrow">5º TERMO ADITIVO · VALORES E QUANTITATIVO</span><h2>5º T.A HUGO - Atualização de valores e quantitativo</h2><p>Custo Total Estimado · Custos de agosto/2025 a julho/2026, conforme os percentis utilizados na planilha.</p></div>
+        <div class="context-actions"><button id="updated-reset" class="button secondary"><span data-icon="reset"></span>Restaurar base</button><button id="updated-export" class="button primary"><span data-icon="download"></span>Exportar cenário CSV</button></div>
+      </div>
+      <div id="updated-summary-sentinel" class="summary-sentinel" data-summary-sentinel="hugo-updated" aria-hidden="true"></div>
+      <div id="updated-metrics-dock" class="metrics-dock" data-summary-panel="hugo-updated" role="region" aria-label="Resumo financeiro da base HUGO atualizada"><div class="metrics">
+        <article class="metric metric-primary"><div class="metric-heading"><small>CUSTEIO MENSAL DO CENÁRIO</small><span class="metric-icon" data-icon="wallet"></span></div><strong id="updated-total" aria-live="polite"></strong><span id="updated-annual"></span></article>
+        <article class="metric metric-delta" id="updated-delta-card"><div class="metric-heading"><small>VARIAÇÃO SOBRE A BASE</small><span class="metric-icon" data-icon="trend"></span></div><strong id="updated-delta"></strong><span id="updated-delta-caption"></span></article>
+        <article class="metric metric-beds"><div class="metric-heading"><small>LEITOS DE INTERNAÇÃO ATIVOS</small><span class="metric-icon" data-icon="bed"></span></div><div class="bed-counters"><div><span>Enfermaria</span><strong id="updated-ward-beds"></strong></div><div><span>UTI</span><strong id="updated-icu-beds"></strong></div><div class="bed-total"><span>Total</span><strong id="updated-beds"></strong></div></div></article>
+        <article class="metric"><div class="metric-heading"><small>BASE SEM INCREMENTOS</small><span class="metric-icon" data-icon="document"></span></div><strong id="updated-base-total"></strong><span id="updated-base-name"></span></article>
+      </div></div>
+      <section class="panel increments-panel" aria-labelledby="updated-increments-title">
+        <div class="panel-heading"><div><span class="section-eyebrow">MONTE O CENÁRIO</span><h2 id="updated-increments-title">Escolha os incrementos</h2><p>As caixas são independentes. Você pode selecionar qualquer combinação.</p></div><span id="updated-save-status" class="save-status" role="status"></span></div>
+        <label class="scenario-preset" for="updated-preset"><span>Cenários da planilha</span><select id="updated-preset"></select></label>
+        <p id="updated-base-instruction" class="scenario-instruction" hidden>Para combinar incrementos, escolha um cenário de Novo Prédio na lista acima.</p>
+        <fieldset id="updated-increment-fieldset" class="increment-fieldset"><legend class="sr-only">Incrementos de serviços</legend><div id="updated-increments" class="increment-grid"></div></fieldset>
+        <div class="selection-footer"><span id="updated-selection-summary"></span><div><button id="updated-select-all" class="text-button">Selecionar todos</button><button id="updated-clear-increments" class="text-button">Limpar incrementos</button></div></div>
+        <p class="increment-method-note">Nos leitos, os valores dos cartões são isolados; o SADT do total é recalculado para a combinação selecionada.</p>
+      </section>
+      <section class="panel services" aria-labelledby="updated-services-title">
+        <div class="panel-heading"><div><span class="section-eyebrow">COMPOSIÇÃO DO CENÁRIO</span><h2 id="updated-services-title">Serviços e capacidade</h2><p>Ajuste quantidades, ocupação e custos por serviço. Ajustes manuais afetam apenas a linha editada.</p></div><span id="updated-change-count" class="composition-badge"></span></div>
+        <label class="search updated-search"><span class="sr-only">Buscar serviço na base HUGO atualizada</span><span data-icon="search"></span><input id="updated-search" type="search" placeholder="Buscar serviço ou exame"></label>
+        <div id="updated-tables"></div>
+      </section>
+      <details class="panel workbook-audit"><summary><span class="category-icon" data-icon="check"></span><span class="category-label"><strong>Conferência com a planilha</strong><small>Os seis cenários originais, antes dos ajustes manuais</small></span><span class="category-chevron" data-icon="chevron"></span></summary><div class="audit-content"><p>Totais da coluna Custo Total Estimado, preservando as fórmulas e os percentis de cada linha. As abas HUGO ATUAL e AZUL não compõem esta base.</p><div class="table-scroll"><table class="audit-table"><thead><tr><th>Cenário</th><th>Planilha</th><th>Dashboard</th><th>Conferência</th></tr></thead><tbody id="updated-audit"></tbody></table></div></div></details>
+    </section>
     <section id="comparison" role="tabpanel" aria-labelledby="tab-comparison" hidden>
       <div class="context"><div><span class="section-eyebrow">VISÃO COMPARATIVA</span><h2>Compare os cenários selecionados</h2><p>Valores e serviços acompanham os ajustes salvos em cada aba.</p></div><button id="comparison-export" class="button secondary"><span data-icon="download"></span>Exportar comparativo</button></div>
       <div class="comparison-toolbar">
-        <label for="comparison-reference"><span>Referência das diferenças</span><select id="comparison-reference"><option value="current">4 T.A (Atual)</option><option value="hugol">5º T.A · Base R$ HUGOL</option><option value="hugoBase">5º T.A · Base R$ HUGO</option></select></label>
+        <label for="comparison-reference"><span>Referência das diferenças</span><select id="comparison-reference"><option value="current">4 T.A (Atual)</option><option value="hugol">5º T.A · Base R$ HUGOL</option><option value="hugoBase">5º T.A · Base R$ HUGO</option><option value="updated">5º T.A · Valores atualizados</option></select></label>
         <div class="period-switch" role="group" aria-label="Período da comparação"><button type="button" data-comparison-period="monthly" aria-pressed="true">Mensal</button><button type="button" data-comparison-period="annual" aria-pressed="false">Anual</button></div>
         <label class="comparison-differences"><input id="comparison-differences" type="checkbox" checked>Mostrar apenas diferenças</label>
       </div>
@@ -147,7 +175,7 @@
         <div class="panel-heading"><div><span class="section-eyebrow">ONDE O CUSTO MUDA</span><h2 id="comparison-title">Diferenças por categoria</h2><p id="comparison-caption"></p></div><span id="comparison-group-count" class="composition-badge"></span></div>
         <div class="table-scroll"><table class="comparison-table"><thead id="comparison-group-head"></thead><tbody id="comparison-groups"></tbody><tfoot id="comparison-footer"></tfoot></table></div>
       </section>
-      <details class="panel comparison-details"><summary><span class="category-icon" data-icon="document"></span><span class="category-label"><strong>Comparar serviços e quantidades</strong><small>Quantidades e custeio dos três cenários</small></span><span class="category-chevron" data-icon="chevron"></span></summary>
+      <details class="panel comparison-details"><summary><span class="category-icon" data-icon="document"></span><span class="category-label"><strong>Comparar serviços e quantidades</strong><small>Quantidades e custeio dos cenários selecionados</small></span><span class="category-chevron" data-icon="chevron"></span></summary>
         <div class="comparison-detail-content"><label class="search"><span class="sr-only">Buscar serviço no comparativo</span><span data-icon="search"></span><input id="comparison-search" type="search" placeholder="Buscar serviço ou categoria"></label><div class="table-scroll"><table class="comparison-table comparison-service-table"><thead id="comparison-service-head"></thead><tbody id="comparison-services"></tbody></table></div></div>
       </details>
     </section>

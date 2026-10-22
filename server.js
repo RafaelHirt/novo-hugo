@@ -10,6 +10,7 @@ const files = {
   '/icons.js': 'icons.js', '/comparison.js': 'comparison.js', '/login.js': 'login.js',
   '/hugol-source.js': 'hugol-source.js', '/hugol-model.js': 'hugol-model.js', '/hugol-ui.js': 'hugol-ui.js',
   '/hugo-source.js': 'hugo-source.js', '/hugo-model.js': 'hugo-model.js', '/increment-model.js': 'increment-model.js', '/comparison-model.js': 'comparison-model.js',
+  '/updated-source.js': 'updated-source.js', '/updated-model.js': 'updated-model.js',
   '/assets/novo-hugo.webp': 'assets/novo-hugo.webp', '/assets/ses-goias.webp': 'assets/ses-goias.webp',
 };
 

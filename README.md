@@ -14,7 +14,7 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 - Ocupação de 0% a 100%, com controles em passos de 0,5 ponto percentual nas UI, UTI e PS Observação.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
 - Abas 5º T.A HUGO com bases R$ HUGOL e R$ HUGO: seis opções independentes (UI e UTI separadas) e edição dos serviços em cada base. Sete cenários originais na HUGOL e seis na HUGO.
-- Comparativo dos três cenários salvos, com referência escolhida pelo usuário, diferenças em reais e percentual, visão mensal ou anual e filtro de diferenças. Os cartões mostram os incrementos selecionados e a capacidade de leitos. Serviços e quantidades ficam em detalhe opcional, sem coluna de ocupação; exportação do comparativo em CSV.
+- Comparativo dos quatro cenários salvos, com referência escolhida pelo usuário, diferenças em reais e percentual, visão mensal ou anual e filtro de diferenças. Os cartões mostram os incrementos selecionados e a capacidade de leitos. Serviços e quantidades ficam em detalhe opcional, sem coluna de ocupação; exportação do comparativo em CSV.
 - Indicador de conexão com animação suave, respeitando a preferência por movimentos reduzidos.
 - Sem dependências de imagens, fontes ou scripts externos durante o uso.
 
@@ -58,7 +58,7 @@ A função `bedTotals` soma UI e PS Observação na enfermaria e mantém UTI sep
 
 Valores monetários usam o padrão brasileiro (R$ 1.234,56), com duas casas decimais e totais somados em centavos. Custos unitários podem ser digitados com vírgula decimal ou colados com R$. O CSV usa ponto e vírgula como separador, vírgula decimal e duas casas nos valores monetários.
 
-Os ajustes da 4 T.A (Atual), da base R$ HUGOL e da base R$ HUGO ficam em três chaves distintas do localStorage e podem ser restaurados ou exportados em CSV. O comparativo acompanha esses estados; seus filtros não alteram os cenários nem os totais gerais.
+Os ajustes da 4 T.A (Atual), da base R$ HUGOL, da base R$ HUGO e da atualização de valores e quantitativo ficam em quatro chaves distintas do localStorage e podem ser restaurados ou exportados em CSV. O comparativo acompanha esses estados; seus filtros não alteram os cenários nem os totais gerais.
 
 ## Incrementos com base R$ HUGOL
 
@@ -70,7 +70,7 @@ Banco de sangue, ressonância, SAD, hemodinâmica, adequação de enfermaria e a
 
 A adequação de enfermaria acrescenta 35 UI; a de UTI, 20 leitos. Os cartões mostram o acréscimo financeiro da opção isolada e distinguem custo dos leitos e ajuste de SADT. O SADT acompanha a fórmula da planilha: índice de leitos arredondado a duas casas, seguido do arredondamento da quantidade de cada serviço. Os efeitos conjuntos podem diferir da soma dos efeitos isolados por causa desses arredondamentos; com ambas as opções, o cenário final coincide com o arquivo.
 
-A capacidade inicial das duas bases é 336 enfermaria + 70 UTI = 406; somente UI ampliada resulta em 441, somente UTI em 426 e ambas em 461. As quantidades usadas no custeio permanecem iguais às da planilha. A seleção antiga de adequação é migrada para as duas opções, preservando outros ajustes salvos. Alternar uma opção de leitos restaura suas linhas e as linhas de SADT relacionadas, preservando os demais serviços.
+A capacidade inicial das bases do novo prédio é 336 enfermaria + 70 UTI = 406; somente UI ampliada resulta em 441, somente UTI em 426 e ambas em 461. As quantidades usadas no custeio permanecem iguais às da planilha. A seleção antiga de adequação é migrada para as duas opções, preservando outros ajustes salvos. Alternar uma opção de leitos restaura suas linhas e as linhas de SADT relacionadas, preservando os demais serviços.
 
 Confira [os totais, os incrementos e as fórmulas](docs/hugol-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis hugol` reproduz `hugol-source.js`, usando `openpyxl` somente durante a importação.
 
@@ -80,6 +80,16 @@ Fonte atual: `02 NOVO HUGO - BASE HUGO VIGENTE (3).xlsx`, das seis abas de HUGO 
 
 A revisão inclui a UI do 2º andar no subtotal (`P12 = SUM(P6:P11)`): R$ 28.665.201,56 sem incrementos e R$ 33.469.980,97 no cenário completo com 250 hemodinâmicas. Com 450, o completo passa a R$ 34.363.368,97. Os seis cenários originais fecham em centavos. A interface já oferece as adequações separadas, capacidade inicial de 336 enfermaria (UI + PS Observação) e opção de 450 hemodinâmicas, com estados e salvamento separados da base HUGOL.
 
-As abas do novo prédio usam `ROUNDUP` para paciente-dia (leitos × ocupação × 30,4). A base HUGOL sem aumento e a 4 T.A (Atual) usam o arredondamento ao inteiro mais próximo. Cirurgias do novo prédio preservam horas fracionadas. As duas bases de incremento compartilham `increment-model.js` e `hugol-ui.js`.
+As abas do novo prédio usam `ROUNDUP` para paciente-dia (leitos × ocupação × 30,4). A base HUGOL sem aumento e a 4 T.A (Atual) usam o arredondamento ao inteiro mais próximo. Cirurgias do novo prédio preservam horas fracionadas. As bases de incremento e de atualização compartilham `increment-model.js` e `hugol-ui.js`.
 
 Confira [a conferência da fonte HUGO](docs/hugo-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis hugo` reproduz `hugo-source.js` a partir do arquivo correspondente. As 64 combinações de cada base, a opção de 450 e a migração dos ajustes salvos têm testes.
+
+## Atualização de valores e quantitativo
+
+A aba **5º T.A HUGO - Atualização de valores e quantitativo** usa `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26.xlsx`, somente das seis abas de cenários de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL. O período dos custos é agosto/2025 a julho/2026. HUGO - ATUAL, Azul e RESUMO não são fontes de cenários importados.
+
+A referência financeira é a coluna S, **Custo Total Estimado**. A importação lê a fórmula de cada linha para selecionar o custo unitário correspondente em P50 ou P75; valores contratuais das colunas Q/T e valores da coluna BASE não substituem essa seleção. Os seis totais e todas as linhas fecham em centavos: R$ 30.729.611,55 no Novo Prédio - Base e R$ 35.595.648,39 com todos os incrementos e 250 hemodinâmicas. Com 450, o completo passa a R$ 36.326.474,39.
+
+São mantidas as seis opções independentes, a edição por serviço, ocupação em passos de 0,5, resumo fixo, salvamento próprio (`novo-hugo-updated-v1`) e exportação CSV. O comparativo inclui essa quarta base, com seus ajustes atuais e possibilidade de selecioná-la como referência. Os dados das demais abas permanecem separados.
+
+Confira [a conferência da atualização](docs/atualizacao-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis updated` reproduz `updated-source.js`; o SHA-256 da fonte, as células de custo unitário e os percentis usados ficam registrados no arquivo gerado. As fórmulas não são executadas durante a importação.

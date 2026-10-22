@@ -122,6 +122,7 @@ export function createIncrementModel(source, basisName) {
       ...snapshot, baseTotal: base.total, delta: roundCurrency(snapshot.total - base.total),
       selected: increments.filter(item => config.selected.includes(item.id)),
       baseName: config.base === 'new' ? 'Novo Prédio - Base' : `HUGO · Base ${basisName} (sem aumento)`,
+      periodLabel: source.periodLabel,
       preset: matchingPreset, modifiedIds: modified.map(row => row.id), includeOmittedWard,
       excludedAmount: rows.reduce((cents, row) => cents + Math.round((snapshot.rawValues[row.id] - snapshot.values[row.id]) * 100), 0) / 100,
     };

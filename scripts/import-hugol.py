@@ -1,6 +1,6 @@
 """Extract only approved scenario sheets; never evaluate workbook formulas.
 
-Usage: python scripts/import-hugol.py /path/to/workbook.xlsx [--basis hugol|hugo]
+Usage: python scripts/import-hugol.py /path/to/workbook.xlsx [--basis hugol|hugo|updated]
 Requires openpyxl for this one-time import, not for running the dashboard.
 """
 import argparse
@@ -49,12 +49,13 @@ def cents(value):
     return int(Decimal(str(value)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP) * 100)
 
 
-def extract(values, formulas, same=False, prefix=''):
+def extract(values, formulas, same=False, prefix='', updated=False):
     result = []
     groups = SAME_GROUPS if same else NEW_GROUPS
+    total_column = 'I' if same else 'S' if updated else 'P'
     if not same:
-        subtotal_formula = formulas['P12'].value.replace(' ', '').upper()
-        subtotal_range = re.fullmatch(r'=SUM\(P(\d+):P(\d+)\)', subtotal_formula)
+        subtotal_formula = formulas[f'{total_column}12'].value.replace(' ', '').upper()
+        subtotal_range = re.fullmatch(rf'=SUM\({total_column}(\d+):{total_column}(\d+)\)', subtotal_formula)
         if not subtotal_range:
             raise ValueError(f'Unsupported ward subtotal: {subtotal_formula}')
         financial_ward_rows = range(int(subtotal_range[1]), int(subtotal_range[2]) + 1)
@@ -66,18 +67,27 @@ def extract(values, formulas, same=False, prefix=''):
             criterion = str(cell('D')).strip()
             kind = 'bed' if criterion == 'Paciente-dia' else 'surgery' if criterion == 'Hora Cirúrgica' else 'service'
             qty_column = ('E' if same else 'I') if kind in ('bed', 'surgery') else ('G' if same else 'K')
-            total_column, volume_column = ('I', 'G') if same else ('P', 'K')
+            volume_column = 'G' if same else 'K'
+            unit_cell = f"{'H' if same else 'M'}{index}"
+            if updated:
+                price_formula = formulas[f'S{index}'].value.replace(' ', '').upper()
+                unit_reference = re.fullmatch(rf'=K{index}\*([MNO]\d+)', price_formula)
+                if not unit_reference:
+                    raise ValueError(f'Unsupported estimated cost formula at {values.title}!S{index}: {price_formula}')
+                unit_cell = unit_reference[1]
             factor = cell('F' if same else 'J') if kind in ('bed', 'surgery') else None
             if kind == 'bed':
                 factor = float(Decimal(str(factor)) * 100)
             item = {
                 'id': f"{prefix}{'same' if same else 'new'}-{index}",
                 'name': name, 'group': group, 'criterion': criterion, 'kind': kind,
-                'qty': cell(qty_column), 'unit': cell('H' if same else 'M'),
+                'qty': cell(qty_column), 'unit': values[unit_cell].value,
                 'sourceVolume': cell(volume_column), 'sourceTotalCents': cents(cell(total_column)),
                 'sourceRow': index, 'sourceCell': f'{total_column}{index}',
                 'countedInWorkbook': same or group != 'Enfermarias' or index in financial_ward_rows,
             }
+            if updated:
+                item.update(sourceUnitCell=unit_cell, unitBasis={'M': 'P25', 'N': 'P50', 'O': 'P75'}[unit_cell[0]], sourceFormula=price_formula)
             if factor is not None:
                 item['factor'] = factor
             if kind == 'bed':
@@ -91,18 +101,20 @@ def extract(values, formulas, same=False, prefix=''):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('workbook')
-parser.add_argument('--basis', choices=['hugol', 'hugo'], default='hugol')
+parser.add_argument('--basis', choices=['hugol', 'hugo', 'updated'], default='hugol')
 args = parser.parse_args()
 is_hugol = args.basis == 'hugol'
-prefix = '' if is_hugol else 'hugo-'
+is_updated = args.basis == 'updated'
+prefix = '' if is_hugol else 'updated-' if is_updated else 'hugo-'
+new_total_column = 'S' if is_updated else 'P'
 path = Path(args.workbook)
 values = openpyxl.load_workbook(path, data_only=True)
 formulas = openpyxl.load_workbook(path, data_only=False)
 SHEETS = [next(name for name in alternatives if name in values.sheetnames) for alternatives in HUGOL_SHEETS] if is_hugol else HUGO_SHEETS
 same = extract(values[SHEETS[0]], formulas[SHEETS[0]], same=True) if is_hugol else []
 new_sheets = SHEETS[1:] if is_hugol else SHEETS
-versions = [extract(values[name], formulas[name], prefix=prefix) for name in new_sheets]
-new_totals = [cents(values[name]['P89'].value) for name in new_sheets]
+versions = [extract(values[name], formulas[name], prefix=prefix, updated=is_updated) for name in new_sheets]
+new_totals = [cents(values[name][f'{new_total_column}89'].value) for name in new_sheets]
 sheet_totals = ([cents(values[SHEETS[0]]['I71'].value)] if is_hugol else []) + new_totals
 increments = []
 for index, (key, label, description) in enumerate(INCREMENTS):
@@ -127,7 +139,7 @@ for index, (name, rows) in enumerate(zip(new_sheets, versions)):
     presets.append({
         'id': f'new-{index}', 'name': labels[index], 'base': 'new',
         'selected': [item[0] for item in INCREMENTS[:index]],
-        'sourceSheet': name, 'sourceCell': 'P89', 'sourceTotalCents': new_totals[index],
+        'sourceSheet': name, 'sourceCell': f'{new_total_column}89', 'sourceTotalCents': new_totals[index],
     })
 
 payload = {
@@ -135,10 +147,10 @@ payload = {
     'bases': ({'same': same} if is_hugol else {}) | {'new': versions[0]}, 'increments': increments,
     'presets': presets,
     'bedAdequacy': {
-        'referenceBeds': values[new_sheets[0]]['U4'].value,
-        'baseBeds': values[new_sheets[0]]['V4'].value,
+        'referenceBeds': values[new_sheets[0]]['X4' if is_updated else 'U4'].value,
+        'baseBeds': values[new_sheets[0]]['Y4' if is_updated else 'V4'].value,
         'sadtBaseQuantities': {
-            row['id']: values[new_sheets[0]][f"S{row['sourceRow']}"].value
+            row['id']: values[new_sheets[0]][f"{'V' if is_updated else 'S'}{row['sourceRow']}"].value
             for row in versions[0] if row['id'] in increments[-1]['patches'] and row['group'].startswith('SADT')
         },
     },
@@ -147,6 +159,8 @@ payload = {
         'beds': 40, 'amountCents': next(row['sourceTotalCents'] for row in versions[0] if row['sourceRow'] == 11), 'formulaCell': 'P12', 'formula': '=SUM(P6:P10)',
     } if any(not row['countedInWorkbook'] for row in versions[0]) else None),
 }
+if is_updated:
+    payload.update(periodLabel='Agosto/2025 a julho/2026', pricingLabel='Custo Total Estimado', totalColumn='S')
 for preset in presets:
     rows = same if preset['base'] == 'same' else versions[int(preset['id'].split('-')[1])]
     expected = sum(row['sourceTotalCents'] for row in rows if row['countedInWorkbook'])
