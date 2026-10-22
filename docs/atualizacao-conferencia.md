@@ -1,9 +1,10 @@
 # Conferência da atualização de valores e quantitativo
 
-Fonte: `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26.xlsx`. Período dos custos: agosto/2025 a julho/2026. São importadas as seis abas de cenários, preservando os valores armazenados e as referências da coluna **S — Custo Total Estimado**. HUGO - ATUAL, Azul e RESUMO não são fontes importadas. O SHA-256 está em `updated-source.js`; a planilha completa não é publicada.
+Fonte: `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26.xlsx`. Período dos custos: agosto/2025 a julho/2026. A base inicial e referência financeira é **HUGO - ATUAL!P71 = R$ 29.144.610,37**, conforme indicação do usuário. Seus quantitativos atualizados estão em H/J, e os preços efetivamente utilizados estão em L/M. As seis abas do novo prédio preservam os valores e referências da coluna **S — Custo Total Estimado**. Azul e RESUMO não são importadas como cenários. O SHA-256 está em `updated-source.js`; a planilha completa não é publicada.
 
 | Aba de origem | Cenário | Planilha e dashboard — mensal |
 | --- | --- | ---: |
+| HUGO - ATUAL | HUGO - Base atualizada (P71) | R$ 29.144.610,37 |
 | HUGO - SEM BANCO DE SANGUE | Novo Prédio - Base | R$ 30.729.611,55 |
 | HUGO - SEM RESSONÂNCIA | + Banco de sangue | R$ 30.975.378,30 |
 | HUGO - SEM SAD E HEMODINÂMICA | + Banco e ressonância | R$ 31.132.986,30 |
@@ -11,11 +12,13 @@ Fonte: `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26.xlsx`. P
 | HUGO - MENOS LEITOS | + Banco, ressonância, SAD e hemodinâmica | R$ 32.235.250,00 |
 | HUGO - FINAL | + Todos e adequação de leitos | R$ 35.595.648,39 |
 
-Os totais monetários são somados em centavos. Frações inferiores a um centavo em células de horas cirúrgicas são arredondadas na linha; os seis totais resultantes coincidem com S89 arredondado a duas casas.
+Os totais monetários são somados em centavos. As 42 linhas de HUGO - ATUAL fecham em P71. Frações inferiores a um centavo em células de horas cirúrgicas do novo prédio são arredondadas na linha; os seis totais resultantes coincidem com S89 arredondado a duas casas. A variação desta aba usa sempre a base atualizada de R$ 29.144.610,37: por exemplo, o Novo Prédio - Base representa +R$ 1.585.001,18, e o cenário completo com 250 hemodinâmicas, +R$ 6.451.038,02.
 
 ## Preços e quantitativos
 
 Cada fórmula S da planilha determina o preço efetivamente usado, em geral P50, com P75 nas UTI, cirurgias eletivas de alto custo e hemodinâmica. A nova aba identifica o percentil de referência por linha. As colunas de contrato anterior e os percentuais da coluna BASE são referências auxiliares da planilha.
+
+Na base HUGO - ATUAL, cada fórmula P determina o preço: UI clínica/cirúrgica usa L (P50), UI da população privada de liberdade usa M (P75), PS Observação usa L (P50), UTI usa M (P75). O pronto atendimento referencia M23 (R$ 1.175,34), e não M22. Paciente-dia e horas cirúrgicas da base atualizada são arredondados ao inteiro mais próximo, conforme os volumes J da planilha. A base tem 1.083 cirurgias, 2.181 horas cirúrgicas, 5 na gestão de altas e 336 enfermaria (incluindo 18 PS Observação) + 70 UTI = 406 leitos. Os quantitativos maiores descritos abaixo pertencem aos cenários do novo prédio.
 
 | Serviço | Referência de preço | Valor unitário |
 | --- | --- | ---: |
@@ -51,9 +54,9 @@ Com ambas, o acréscimo é **R$ 3.360.398,39**, dos quais R$ 422.349,28 em SADT.
 
 ## Validação e isolamento
 
-- Todas as 52 linhas dos seis cenários e os totais S89 são conferidos.
+- Todas as 42 linhas da base atualizada e as 52 linhas dos seis cenários do novo prédio são conferidas, com totais P71 e S89.
 - As 64 combinações, com adequações separadas e alternativa de 450 hemodinâmicas, são verificadas em centavos.
-- Paciente-dia segue `ROUNDUP(leitos × ocupação × 30,4;0)`; cirurgias preservam horas fracionadas. A ocupação continua editável de 0,5 em 0,5 ponto percentual.
+- No novo prédio, paciente-dia segue `ROUNDUP(leitos × ocupação × 30,4;0)`; cirurgias preservam horas fracionadas. Na base atualizada, ambos são arredondados ao inteiro mais próximo. A ocupação continua editável de 0,5 em 0,5 ponto percentual.
 - A capacidade inicial é 406 leitos; apenas UI ampliada, 441; apenas UTI, 426; ambas, 461.
-- Ajustes desta aba usam `novo-hugo-updated-v1`, separados das três bases anteriores. O comparativo e seus CSVs incluem a quarta base e seus ajustes atuais.
+- Ajustes desta aba usam `novo-hugo-updated-v1`, separados das três bases anteriores. A versão 2 migra apenas a seleção inicial antiga sem alterações, preservando incrementos e ajustes manuais salvos. O comparativo e seus CSVs usam o cenário selecionado, inicialmente R$ 29.144.610,37 (anual R$ 349.735.324,44).
 - Os arquivos de dados e modelo novos exigem autenticação tanto no servidor local quanto no Netlify.

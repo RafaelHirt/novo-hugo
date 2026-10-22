@@ -4,7 +4,7 @@ import { icon } from './icons.js';
 import { renderComparison, setHugolComparison, setHugoComparison, setUpdatedComparison } from './comparison.js';
 import { initHugol, initIncrementScenario } from './hugol-ui.js';
 import { model as hugoIncrementModel } from './hugo-model.js';
-import { model as updatedModel } from './updated-model.js';
+import { model as updatedModel, migrateSavedConfig as migrateUpdatedConfig } from './updated-model.js';
 
 const $ = selector => document.querySelector(selector);
 const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -324,4 +324,4 @@ $('#export').addEventListener('click', () => {
 tables();
 initHugol({ onChange: setHugolComparison });
 initIncrementScenario({ model: hugoIncrementModel, panelId: 'hugo-increment', prefix: 'hugo-base', basisName: 'HUGO', storageKey: 'novo-hugo-hugo-v1', onChange: setHugoComparison });
-initIncrementScenario({ model: updatedModel, panelId: 'hugo-updated', prefix: 'updated', basisName: 'HUGO atualizado', storageKey: 'novo-hugo-updated-v1', exportFileName: 'novo-hugo-atualizacao-valores-quantitativo.csv', onChange: setUpdatedComparison });
+initIncrementScenario({ model: updatedModel, panelId: 'hugo-updated', prefix: 'updated', basisName: 'HUGO atualizado', storageKey: 'novo-hugo-updated-v1', defaultPreset: 'same', storageVersion: 2, migrateSavedConfig: migrateUpdatedConfig, exportFileName: 'novo-hugo-atualizacao-valores-quantitativo.csv', onChange: setUpdatedComparison });

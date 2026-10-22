@@ -112,7 +112,9 @@ export function createIncrementModel(source, basisName) {
     if (config.selected.some(id => !incrementById.has(id)) || config.base === 'same' && config.selected.length) throw new Error('Seleção de incrementos inválida para esta base.');
     const rows = buildRows(config);
     const snapshot = priceRows(rows, config.edits || {}, includeOmittedWard);
-    const base = priceRows(buildRows({ base: config.base, selected: [] }), {}, includeOmittedWard);
+    const referenceBase = source.referenceBase || config.base;
+    const base = priceRows(buildRows({ base: referenceBase, selected: [] }), {}, includeOmittedWard);
+    const baseName = key => source.baseNames?.[key] || (key === 'new' ? 'Novo Prédio - Base' : `HUGO · Base ${basisName} (sem aumento)`);
     const matchingPreset = presets.find(item => item.base === config.base && item.selected.length === config.selected.length && item.selected.every(id => config.selected.includes(id)));
     const modified = rows.filter(row => {
       const original = { enabled: row.available && row.qty > 0, qty: row.qty, unit: row.unit, factor: row.factor };
@@ -121,7 +123,8 @@ export function createIncrementModel(source, basisName) {
     return {
       ...snapshot, baseTotal: base.total, delta: roundCurrency(snapshot.total - base.total),
       selected: increments.filter(item => config.selected.includes(item.id)),
-      baseName: config.base === 'new' ? 'Novo Prédio - Base' : `HUGO · Base ${basisName} (sem aumento)`,
+      baseName: baseName(config.base), referenceName: baseName(referenceBase),
+      referenceCaption: source.referenceCaption || 'Sobre a base sem incrementos',
       periodLabel: source.periodLabel,
       preset: matchingPreset, modifiedIds: modified.map(row => row.id), includeOmittedWard,
       excludedAmount: rows.reduce((cents, row) => cents + Math.round((snapshot.rawValues[row.id] - snapshot.values[row.id]) * 100), 0) / 100,

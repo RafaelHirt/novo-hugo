@@ -6,7 +6,7 @@ export function initHugol(options = {}) {
   return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', ...options });
 }
 
-export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false, exportFileName = 'novo-hugo-base-' + basisName.toLowerCase() + '.csv' }) {
+export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false, storageVersion = 1, migrateSavedConfig = value => value, exportFileName = 'novo-hugo-base-' + basisName.toLowerCase() + '.csv' }) {
   const { increments, presets, presetState, setIncrement, setHemodynamicsVolume, snapshot: hugolSnapshot, volume: hugolVolume, workbookAudit } = model;
   const root = document.getElementById(panelId);
   const $ = selector => root.querySelector(selector.replaceAll('#hugol-', '#' + prefix + '-'));
@@ -15,7 +15,7 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
   let config = presetState(defaultPreset), snapshot;
   const openGroups = new Map([['Enfermarias', true], ['UTI', true]]);
   try {
-    const saved = JSON.parse(localStorage.getItem(storageKey));
+    const saved = migrateSavedConfig(JSON.parse(localStorage.getItem(storageKey)));
     if (saved) {
       const restored = model.normalizeConfig({ base: saved.base, selected: saved.selected, edits: saved.edits && typeof saved.edits === 'object' && !Array.isArray(saved.edits) ? saved.edits : {} });
       hugolSnapshot(restored, policy); config = restored;
@@ -51,12 +51,12 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     $('#hugol-annual').textContent = currency(snapshot.total * 12) + ' / ano';
     $('#hugol-delta').textContent = signedCurrency(snapshot.delta);
     $('#hugol-delta-card').dataset.direction = snapshot.delta > 0 ? 'increase' : snapshot.delta < 0 ? 'decrease' : 'neutral';
-    $('#hugol-delta-caption').textContent = 'Sobre a base sem incrementos';
+    $('#hugol-delta-caption').textContent = snapshot.referenceCaption;
     $('#hugol-ward-beds').textContent = number(snapshot.beds.ward);
     $('#hugol-icu-beds').textContent = number(snapshot.beds.icu);
     $('#hugol-beds').textContent = number(snapshot.beds.total);
     $('#hugol-base-total').textContent = currency(snapshot.baseTotal);
-    $('#hugol-base-name').textContent = snapshot.baseName;
+    $('#hugol-base-name').textContent = snapshot.referenceName;
     $('#hugol-preset').value = snapshot.modifiedIds.length ? 'custom' : snapshot.preset?.id || 'custom';
     $('#hugol-increment-fieldset').disabled = config.base !== 'new';
     $('#hugol-base-instruction').hidden = config.base === 'new';
@@ -93,7 +93,7 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
       element.querySelector('[data-h-restore]').disabled = !modified;
       for (const field of element.querySelectorAll('input:not([type=checkbox])')) field.disabled = !state.enabled || !row.available;
     }
-    try { localStorage.setItem(storageKey, JSON.stringify(config)); $('#hugol-save-status').textContent = 'Salvo neste navegador'; }
+    try { localStorage.setItem(storageKey, JSON.stringify({ ...config, version: storageVersion })); $('#hugol-save-status').textContent = 'Salvo neste navegador'; }
     catch { $('#hugol-save-status').textContent = 'Salvamento automático indisponível'; }
     onChange?.(snapshot);
   }

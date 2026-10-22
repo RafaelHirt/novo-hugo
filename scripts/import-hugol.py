@@ -52,7 +52,7 @@ def cents(value):
 def extract(values, formulas, same=False, prefix='', updated=False):
     result = []
     groups = SAME_GROUPS if same else NEW_GROUPS
-    total_column = 'I' if same else 'S' if updated else 'P'
+    total_column = ('P' if updated else 'I') if same else 'S' if updated else 'P'
     if not same:
         subtotal_formula = formulas[f'{total_column}12'].value.replace(' ', '').upper()
         subtotal_range = re.fullmatch(rf'=SUM\({total_column}(\d+):{total_column}(\d+)\)', subtotal_formula)
@@ -66,16 +66,19 @@ def extract(values, formulas, same=False, prefix='', updated=False):
             name = str(cell('C')).strip()
             criterion = str(cell('D')).strip()
             kind = 'bed' if criterion == 'Paciente-dia' else 'surgery' if criterion == 'Hora Cirúrgica' else 'service'
-            qty_column = ('E' if same else 'I') if kind in ('bed', 'surgery') else ('G' if same else 'K')
-            volume_column = 'G' if same else 'K'
+            quantity_column = ('H' if updated else 'E') if same else 'I'
+            volume_column = ('J' if updated else 'G') if same else 'K'
+            qty_column = quantity_column if kind in ('bed', 'surgery') else volume_column
             unit_cell = f"{'H' if same else 'M'}{index}"
             if updated:
-                price_formula = formulas[f'S{index}'].value.replace(' ', '').upper()
-                unit_reference = re.fullmatch(rf'=K{index}\*([MNO]\d+)', price_formula)
+                price_formula = formulas[f'{total_column}{index}'].value.replace(' ', '').upper()
+                pattern = rf'=ROUND\(J{index}\*([KLM]\d+),2\)' if same else rf'=K{index}\*([MNO]\d+)'
+                unit_reference = re.fullmatch(pattern, price_formula)
                 if not unit_reference:
-                    raise ValueError(f'Unsupported estimated cost formula at {values.title}!S{index}: {price_formula}')
+                    raise ValueError(f'Unsupported estimated cost formula at {values.title}!{total_column}{index}: {price_formula}')
                 unit_cell = unit_reference[1]
-            factor = cell('F' if same else 'J') if kind in ('bed', 'surgery') else None
+            factor_column = ('I' if updated else 'F') if same else 'J'
+            factor = cell(factor_column) if kind in ('bed', 'surgery') else None
             if kind == 'bed':
                 factor = float(Decimal(str(factor)) * 100)
             item = {
@@ -87,7 +90,8 @@ def extract(values, formulas, same=False, prefix='', updated=False):
                 'countedInWorkbook': same or group != 'Enfermarias' or index in financial_ward_rows,
             }
             if updated:
-                item.update(sourceUnitCell=unit_cell, unitBasis={'M': 'P25', 'N': 'P50', 'O': 'P75'}[unit_cell[0]], sourceFormula=price_formula)
+                percentiles = dict(zip('KLM' if same else 'MNO', ['P25', 'P50', 'P75']))
+                item.update(sourceUnitCell=unit_cell, unitBasis=percentiles[unit_cell[0]], sourceFormula=price_formula)
             if factor is not None:
                 item['factor'] = factor
             if kind == 'bed':
@@ -111,11 +115,13 @@ path = Path(args.workbook)
 values = openpyxl.load_workbook(path, data_only=True)
 formulas = openpyxl.load_workbook(path, data_only=False)
 SHEETS = [next(name for name in alternatives if name in values.sheetnames) for alternatives in HUGOL_SHEETS] if is_hugol else HUGO_SHEETS
-same = extract(values[SHEETS[0]], formulas[SHEETS[0]], same=True) if is_hugol else []
+same_sheet = SHEETS[0] if is_hugol else 'HUGO - ATUAL' if is_updated else None
+same = extract(values[same_sheet], formulas[same_sheet], same=True, prefix=prefix, updated=is_updated) if same_sheet else []
+same_total_cell = 'P71' if is_updated else 'I71'
 new_sheets = SHEETS[1:] if is_hugol else SHEETS
 versions = [extract(values[name], formulas[name], prefix=prefix, updated=is_updated) for name in new_sheets]
 new_totals = [cents(values[name][f'{new_total_column}89'].value) for name in new_sheets]
-sheet_totals = ([cents(values[SHEETS[0]]['I71'].value)] if is_hugol else []) + new_totals
+sheet_totals = ([cents(values[same_sheet][same_total_cell].value)] if same_sheet else []) + new_totals
 increments = []
 for index, (key, label, description) in enumerate(INCREMENTS):
     patches = {}
@@ -131,9 +137,9 @@ for index, (key, label, description) in enumerate(INCREMENTS):
     })
 
 presets = [{
-    'id': 'same', 'name': 'HUGO · Base HUGOL (sem aumento)', 'base': 'same',
-    'selected': [], 'sourceSheet': SHEETS[0], 'sourceCell': 'I71', 'sourceTotalCents': sheet_totals[0],
-}] if is_hugol else []
+    'id': 'same', 'name': 'HUGO - Base atualizada' if is_updated else 'HUGO · Base HUGOL (sem aumento)', 'base': 'same',
+    'selected': [], 'sourceSheet': same_sheet, 'sourceCell': same_total_cell, 'sourceTotalCents': sheet_totals[0],
+}] if same_sheet else []
 labels = ['Novo Prédio - Base', '+ Banco de sangue', '+ Banco e ressonância', '+ Banco, ressonância e SAD', '+ Banco, ressonância, SAD e hemodinâmica', '+ Todos e adequação de leitos']
 for index, (name, rows) in enumerate(zip(new_sheets, versions)):
     presets.append({
@@ -144,7 +150,7 @@ for index, (name, rows) in enumerate(zip(new_sheets, versions)):
 
 payload = {
     'fileName': path.name, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
-    'bases': ({'same': same} if is_hugol else {}) | {'new': versions[0]}, 'increments': increments,
+    'bases': ({'same': same} if same_sheet else {}) | {'new': versions[0]}, 'increments': increments,
     'presets': presets,
     'bedAdequacy': {
         'referenceBeds': values[new_sheets[0]]['X4' if is_updated else 'U4'].value,
@@ -160,7 +166,9 @@ payload = {
     } if any(not row['countedInWorkbook'] for row in versions[0]) else None),
 }
 if is_updated:
-    payload.update(periodLabel='Agosto/2025 a julho/2026', pricingLabel='Custo Total Estimado', totalColumn='S')
+    payload.update(periodLabel='Agosto/2025 a julho/2026', pricingLabel='Custo Total Estimado', totalColumn='S',
+                   referenceBase='same', baseNames={'same': 'HUGO - Base atualizada'},
+                   referenceCaption='Sobre a base HUGO atualizada')
 for preset in presets:
     rows = same if preset['base'] == 'same' else versions[int(preset['id'].split('-')[1])]
     expected = sum(row['sourceTotalCents'] for row in rows if row['countedInWorkbook'])
