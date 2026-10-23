@@ -1,11 +1,11 @@
-# Conferência da atualização de valores e quantitativo
+# Conferência da atualização de valores
 
 Fonte: `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26.xlsx`. Período dos custos: agosto/2025 a julho/2026. A base inicial e referência financeira é **HUGO - ATUAL!P71 = R$ 29.144.610,37**, conforme indicação do usuário. Seus quantitativos atualizados estão em H/J, e os preços efetivamente utilizados estão em L/M. As seis abas do novo prédio preservam os valores e referências da coluna **S — Custo Total Estimado**. Azul e RESUMO não são importadas como cenários. O SHA-256 está em `updated-source.js`; a planilha completa não é publicada.
 
 | Aba de origem | Cenário | Planilha e dashboard — mensal |
 | --- | --- | ---: |
 | HUGO - ATUAL | HUGO - Base atualizada (P71) | R$ 29.144.610,37 |
-| HUGO - SEM BANCO DE SANGUE | Novo Prédio - Base | R$ 30.729.611,55 |
+| HUGO - SEM BANCO DE SANGUE | Novo Prédio - Base Ago/25 - Jul/26 | R$ 30.729.611,55 |
 | HUGO - SEM RESSONÂNCIA | + Banco de sangue | R$ 30.975.378,30 |
 | HUGO - SEM SAD E HEMODINÂMICA | + Banco e ressonância | R$ 31.132.986,30 |
 | HUGO - SEM HEMODINÂMICA | + Banco, ressonância e SAD | R$ 31.321.717,50 |

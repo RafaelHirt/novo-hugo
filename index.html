@@ -30,7 +30,8 @@
       <button id="tab-hugo" class="tab active" data-tab="hugo" role="tab" aria-selected="true" aria-controls="hugo"><span data-icon="document"></span><span class="tab-label">4 T.A (Atual)</span></button>
       <button id="tab-hugol" class="tab" data-tab="hugol" role="tab" aria-selected="false" aria-controls="hugol" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Incremento de serviços <small>(Base R$ HUGOL)</small></span></button>
       <button id="tab-hugo-increment" class="tab" data-tab="hugo-increment" role="tab" aria-selected="false" aria-controls="hugo-increment" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Incremento de serviços <small>(Base R$ HUGO)</small></span></button>
-      <button id="tab-hugo-updated" class="tab" data-tab="hugo-updated" role="tab" aria-selected="false" aria-controls="hugo-updated" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Atualização de valores e quantitativo<small>Agosto/2025 a julho/2026</small></span></button>
+      <button id="tab-hugo-updated" class="tab" data-tab="hugo-updated" role="tab" aria-selected="false" aria-controls="hugo-updated" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Atualização de valores<small>Agosto/2025 a julho/2026</small></span></button>
+      <button id="tab-hugo-production" class="tab" data-tab="hugo-production" role="tab" aria-selected="false" aria-controls="hugo-production" tabindex="-1"><span data-icon="document"></span><span class="tab-label">5º T.A HUGO - Atualização de valores e produção<small>Agosto/2025 a julho/2026</small></span></button>
       <button id="tab-comparison" class="tab" data-tab="comparison" role="tab" aria-selected="false" aria-controls="comparison" tabindex="-1"><span data-icon="chart"></span><span class="tab-label">Comparativo</span></button>
     </nav>
 
@@ -138,7 +139,7 @@
     </section>
     <section id="hugo-updated" role="tabpanel" aria-labelledby="tab-hugo-updated" hidden>
       <div class="context">
-        <div><span class="section-eyebrow">5º TERMO ADITIVO · VALORES E QUANTITATIVO</span><h2>5º T.A HUGO - Atualização de valores e quantitativo</h2><p>Custo Total Estimado · Custos de agosto/2025 a julho/2026, conforme os percentis utilizados na planilha.</p></div>
+        <div><span class="section-eyebrow">5º TERMO ADITIVO · VALORES ATUALIZADOS</span><h2>5º T.A HUGO - Atualização de valores</h2><p>Custo Total Estimado · Custos de agosto/2025 a julho/2026, conforme os percentis utilizados na planilha.</p></div>
         <div class="context-actions"><button id="updated-reset" class="button secondary"><span data-icon="reset"></span>Restaurar base</button><button id="updated-export" class="button primary"><span data-icon="download"></span>Exportar cenário CSV</button></div>
       </div>
       <div id="updated-summary-sentinel" class="summary-sentinel" data-summary-sentinel="hugo-updated" aria-hidden="true"></div>
@@ -163,10 +164,29 @@
       </section>
       <details class="panel workbook-audit"><summary><span class="category-icon" data-icon="check"></span><span class="category-label"><strong>Conferência com a planilha</strong><small>A base HUGO atualizada e os seis cenários do novo prédio</small></span><span class="category-chevron" data-icon="chevron"></span></summary><div class="audit-content"><p>A base de referência é HUGO - ATUAL, célula P71. Os cenários do novo prédio usam Custo Total Estimado, célula S89, preservando as fórmulas e os percentis de cada linha.</p><div class="table-scroll"><table class="audit-table"><thead><tr><th>Cenário</th><th>Planilha</th><th>Dashboard</th><th>Conferência</th></tr></thead><tbody id="updated-audit"></tbody></table></div></div></details>
     </section>
+    <section id="hugo-production" role="tabpanel" aria-labelledby="tab-hugo-production" hidden>
+      <div class="context">
+        <div><span class="section-eyebrow">5º TERMO ADITIVO · VALORES E PRODUÇÃO</span><h2>5º T.A HUGO - Atualização de valores e produção</h2><p>HUGO - ATUAL · Agosto/2025 a julho/2026. Custos dos percentis selecionados em verde na planilha.</p></div>
+        <div class="context-actions"><button id="production-reset" class="button secondary"><span data-icon="reset"></span>Restaurar base</button><button id="production-export" class="button primary"><span data-icon="download"></span>Exportar cenário CSV</button></div>
+      </div>
+      <div id="production-summary-sentinel" class="summary-sentinel" data-summary-sentinel="hugo-production" aria-hidden="true"></div>
+      <div id="production-metrics-dock" class="metrics-dock" data-summary-panel="hugo-production" role="region" aria-label="Resumo financeiro de valores e produção"><div class="metrics">
+        <article class="metric metric-primary"><div class="metric-heading"><small>CUSTEIO MENSAL DO CENÁRIO</small><span class="metric-icon" data-icon="wallet"></span></div><strong id="production-total" aria-live="polite"></strong><span id="production-annual"></span></article>
+        <article class="metric metric-delta" id="production-delta-card"><div class="metric-heading"><small>VARIAÇÃO SOBRE A BASE</small><span class="metric-icon" data-icon="trend"></span></div><strong id="production-delta"></strong><span id="production-delta-caption"></span></article>
+        <article class="metric metric-beds"><div class="metric-heading"><small>LEITOS DE INTERNAÇÃO ATIVOS</small><span class="metric-icon" data-icon="bed"></span></div><div class="bed-counters"><div><span>Enfermaria</span><strong id="production-ward-beds"></strong></div><div><span>UTI</span><strong id="production-icu-beds"></strong></div><div class="bed-total"><span>Total</span><strong id="production-beds"></strong></div></div></article>
+        <article class="metric"><div class="metric-heading"><small>BASE DE VALORES E PRODUÇÃO</small><span class="metric-icon" data-icon="document"></span></div><strong id="production-base-total"></strong><span id="production-base-name"></span></article>
+      </div></div>
+      <section class="panel services" aria-labelledby="production-services-title">
+        <div class="panel-heading"><div><span class="section-eyebrow">COMPOSIÇÃO DO CENÁRIO</span><h2 id="production-services-title">Serviços, valores e produção</h2><p>Ajuste a ocupação por bloco ou por serviço. O percentil de origem aparece junto ao custo unitário.</p></div><span id="production-save-status" class="save-status" role="status"></span></div>
+        <div class="service-toolbar"><label class="search production-search"><span class="sr-only">Buscar serviço de valores e produção</span><span data-icon="search"></span><input id="production-search" type="search" placeholder="Buscar serviço ou exame"></label><span id="production-change-count" class="composition-badge"></span></div>
+        <div id="production-tables"></div>
+      </section>
+      <details class="panel workbook-audit"><summary><span class="category-icon" data-icon="check"></span><span class="category-label"><strong>Conferência com a planilha</strong><small>HUGO - ATUAL · Valores e produção atualizados</small></span><span class="category-chevron" data-icon="chevron"></span></summary><div class="audit-content"><p>As 42 linhas usam o percentil marcado em verde, conferido com a fórmula de custo. Total de referência: célula P71. As ocupações e a produção foram preservadas conforme a planilha.</p><div class="table-scroll"><table class="audit-table"><thead><tr><th>Cenário</th><th>Planilha</th><th>Dashboard</th><th>Conferência</th></tr></thead><tbody id="production-audit"></tbody></table></div></div></details>
+    </section>
     <section id="comparison" role="tabpanel" aria-labelledby="tab-comparison" hidden>
       <div class="context"><div><span class="section-eyebrow">VISÃO COMPARATIVA</span><h2>Compare os cenários selecionados</h2><p>Valores e serviços acompanham os ajustes salvos em cada aba.</p></div><button id="comparison-export" class="button secondary"><span data-icon="download"></span>Exportar comparativo</button></div>
       <div class="comparison-toolbar">
-        <label for="comparison-reference"><span>Referência das diferenças</span><select id="comparison-reference"><option value="current">4 T.A (Atual)</option><option value="hugol">5º T.A · Base R$ HUGOL</option><option value="hugoBase">5º T.A · Base R$ HUGO</option><option value="updated">5º T.A · Valores atualizados</option></select></label>
+        <label for="comparison-reference"><span>Referência das diferenças</span><select id="comparison-reference"><option value="current">4 T.A (Atual)</option><option value="hugol">5º T.A · Base R$ HUGOL</option><option value="hugoBase">5º T.A · Base R$ HUGO</option><option value="updated">5º T.A · Atualização de valores</option><option value="production">5º T.A · Valores e produção</option></select></label>
         <div class="period-switch" role="group" aria-label="Período da comparação"><button type="button" data-comparison-period="monthly" aria-pressed="true">Mensal</button><button type="button" data-comparison-period="annual" aria-pressed="false">Anual</button></div>
         <label class="comparison-differences"><input id="comparison-differences" type="checkbox" checked>Mostrar apenas diferenças</label>
       </div>

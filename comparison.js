@@ -7,7 +7,8 @@ const definitions = [
   { id:'current', label:'4 T.A (Atual)', title:'4 T.A (Atual)', subtitle:'Contrato vigente', totalId:'comparison-current-total', footerId:'comparison-footer-total' },
   { id:'hugol', label:'5º T.A · Base R$ HUGOL', title:'5º T.A HUGO', subtitle:'Base R$ HUGOL', totalId:'comparison-hugol-total', footerId:'comparison-hugol-footer-total' },
   { id:'hugoBase', label:'5º T.A · Base R$ HUGO', title:'5º T.A HUGO', subtitle:'Base R$ HUGO', totalId:'comparison-hugo-total', footerId:'comparison-hugo-footer-total' },
-  { id:'updated', label:'5º T.A · Atualização de valores e quantitativo', title:'5º T.A HUGO', subtitle:'Atualização de valores e quantitativo', totalId:'comparison-updated-total', footerId:'comparison-updated-footer-total' },
+  { id:'updated', label:'5º T.A · Atualização de valores', title:'5º T.A HUGO', subtitle:'Atualização de valores', totalId:'comparison-updated-total', footerId:'comparison-updated-footer-total' },
+  { id:'production', label:'5º T.A · Atualização de valores e produção', title:'5º T.A HUGO', subtitle:'Atualização de valores e produção', totalId:'comparison-production-total', footerId:'comparison-production-footer-total' },
 ];
 let referenceId = 'current', annual = false, initialized = false;
 const $ = selector => document.querySelector(selector);
@@ -19,6 +20,7 @@ export function renderComparison(snapshot) { snapshots.current=snapshot; refresh
 export function setHugolComparison(snapshot) { snapshots.hugol=snapshot; refresh(); }
 export function setHugoComparison(snapshot) { snapshots.hugoBase=snapshot; refresh(); }
 export function setUpdatedComparison(snapshot) { snapshots.updated=snapshot; refresh(); }
+export function setProductionComparison(snapshot) { snapshots.production=snapshot; refresh(); }
 
 function init() {
   if (initialized) return;
@@ -65,6 +67,6 @@ function refresh() {
   $('#comparison-services').innerHTML=view.services.map(row=>`<tr><th scope="row">${h(row.name)}<small>${h(row.group)}</small></th>${row.cells.map(cell=>{
     const quantityLabel=cell.row?.bedType==='observation'?'Leitos de observação':cell.row?.kind==='bed'?'Leitos':'Quantidade';
     const caption=!cell.present?'Sem este serviço':`${quantityLabel}: ${number(cell.quantity)}${cell.enabled?'':cell.row?.available===false?' · Não selecionado':' · Retirado'}${cell.excluded?' · Fora do subtotal':''}`;
-    return `<td data-label="${h(view.scenarios.find(item=>item.id===cell.id).label)}" class="compare-value ${cell.isReference?'reference-column':''}"><span class="compare-cell-main">${cell.present?currency(cell.amount):'—'}</span><small class="comparison-quantity">${h(caption)}</small>${deltaMarkup(cell)}</td>`;
+    return `<td data-label="${h(view.scenarios.find(item=>item.id===cell.id).label)}" class="compare-value ${cell.isReference?'reference-column':''}"><span class="compare-cell-main">${cell.present?currency(cell.amount):'—'}</span><small class="comparison-quantity">${h(caption)}${cell.row?.unitBasis ? `<br>Percentil de origem: ${h(cell.row.unitBasis)}` : ''}</small>${deltaMarkup(cell)}</td>`;
   }).join('')}</tr>`).join('') || `<tr class="comparison-empty"><td colspan="${view.scenarios.length+1}">Nenhum serviço encontrado para os filtros selecionados.</td></tr>`;
 }

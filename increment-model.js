@@ -1,5 +1,6 @@
 import { bedTotals, DAYS_PER_MONTH } from './data.js';
 import { roundCurrency } from './format.js';
+import { validOccupancy } from './occupancy.js';
 
 export function createIncrementModel(source, basisName) {
   const bedPackage = source.increments.find(item => item.id === 'beds');
@@ -8,7 +9,7 @@ export function createIncrementModel(source, basisName) {
   const sadtRows = bedPackageRows.filter(row => row.group.startsWith('SADT'));
   const referenceBeds = source.bedAdequacy?.referenceBeds || newBase.filter(row => row.kind === 'bed').reduce((sum, row) => sum + row.qty, 0);
   const baseBeds = source.bedAdequacy?.baseBeds || referenceBeds;
-  const bedOptions = [['wardBeds', 'ward', 'Enfermaria (UI)'], ['icuBeds', 'icu', 'UTI']].map(([id, type, label]) => {
+  const bedOptions = (bedPackage ? [['wardBeds', 'ward', 'Enfermaria (UI)'], ['icuBeds', 'icu', 'UTI']] : []).map(([id, type, label]) => {
     const rows = bedPackageRows.filter(row => row.bedType === type);
     const addedBeds = rows.reduce((sum, row) => sum + bedPackage.patches[row.id].qty - row.qty, 0);
     return { id, name: `Adequação · ${label}`, description: `+${addedBeds} leitos de ${label}, com o ajuste de SADT correspondente.`, addedBeds, sourceSheet: bedPackage?.sourceSheet, patches: Object.fromEntries(rows.map(row => [row.id, bedPackage.patches[row.id]])) };
@@ -95,7 +96,7 @@ export function createIncrementModel(source, basisName) {
         factor: row.factor,
       };
       if (row.factor !== undefined && Number.isFinite(candidate.factor) && candidate.factor >= 0
-        && (row.kind !== 'bed' || candidate.factor <= 100 && Number.isInteger(candidate.factor * 2))) state[row.id].factor = candidate.factor;
+        && (row.kind !== 'bed' || validOccupancy(candidate.factor))) state[row.id].factor = candidate.factor;
       rawValues[row.id] = rowCost(row, state[row.id]);
       values[row.id] = includeOmittedWard || row.countedInWorkbook ? rawValues[row.id] : 0;
     }

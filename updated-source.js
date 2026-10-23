@@ -1866,7 +1866,7 @@ export const updatedSource = {
     },
     {
       "id": "new-0",
-      "name": "Novo Prédio - Base",
+      "name": "Novo Prédio - Base Ago/25 - Jul/26",
       "base": "new",
       "selected": [],
       "sourceSheet": "HUGO - SEM BANCO DE SANGUE",
@@ -1969,7 +1969,8 @@ export const updatedSource = {
   "totalColumn": "S",
   "referenceBase": "same",
   "baseNames": {
-    "same": "HUGO - Base atualizada"
+    "same": "HUGO - Base atualizada",
+    "new": "Novo Prédio - Base Ago/25 - Jul/26"
   },
   "referenceCaption": "Sobre a base HUGO atualizada"
 };

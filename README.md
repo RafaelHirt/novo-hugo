@@ -11,10 +11,11 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 - Resumo financeiro fixo durante a edição e composição do custeio abaixo dos serviços.
 - Indicadores fixos somente no topo durante a rolagem, sem duplicar o resumo na parte inferior.
 - Paciente-dia projetado atualizado em cada linha de internação, com base em 30,4 dias por mês.
-- Ocupação de 0% a 100%, com controles em passos de 0,5 ponto percentual nas UI, UTI e PS Observação.
+- Ocupação em passos de 0,5 ponto percentual nas UI, UTI e PS Observação, preservando inclusive ocupações superiores a 100% presentes na fonte.
+- Controle de ocupação por bloco nas cinco bases: aplica às linhas ativas de Enfermarias ou UTI, preservando o outro bloco. Enfermarias inclui PS Observação; filtros de busca não reduzem o alcance do bloco.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
 - Abas 5º T.A HUGO com bases R$ HUGOL e R$ HUGO: seis opções independentes (UI e UTI separadas) e edição dos serviços em cada base. Sete cenários originais na HUGOL e seis na HUGO.
-- Comparativo dos quatro cenários salvos, com referência escolhida pelo usuário, diferenças em reais e percentual, visão mensal ou anual e filtro de diferenças. Os cartões mostram os incrementos selecionados e a capacidade de leitos. Serviços e quantidades ficam em detalhe opcional, sem coluna de ocupação; exportação do comparativo em CSV.
+- Comparativo dos cinco cenários salvos, com referência escolhida pelo usuário, diferenças em reais e percentual, visão mensal ou anual e filtro de diferenças. Os cartões mostram os incrementos selecionados e a capacidade de leitos. Serviços e quantidades ficam em detalhe opcional, sem coluna de ocupação; percentis de origem aparecem nas linhas que os têm. Exportação do comparativo em CSV.
 - Indicador de conexão com animação suave, respeitando a preferência por movimentos reduzidos.
 - Sem dependências de imagens, fontes ou scripts externos durante o uso.
 
@@ -58,7 +59,7 @@ A função `bedTotals` soma UI e PS Observação na enfermaria e mantém UTI sep
 
 Valores monetários usam o padrão brasileiro (R$ 1.234,56), com duas casas decimais e totais somados em centavos. Custos unitários podem ser digitados com vírgula decimal ou colados com R$. O CSV usa ponto e vírgula como separador, vírgula decimal e duas casas nos valores monetários.
 
-Os ajustes da 4 T.A (Atual), da base R$ HUGOL, da base R$ HUGO e da atualização de valores e quantitativo ficam em quatro chaves distintas do localStorage e podem ser restaurados ou exportados em CSV. O comparativo acompanha esses estados; seus filtros não alteram os cenários nem os totais gerais.
+Os ajustes da 4 T.A (Atual), da base R$ HUGOL, da base R$ HUGO, da atualização de valores e da atualização de valores e produção ficam em cinco chaves distintas do localStorage e podem ser restaurados ou exportados em CSV. O comparativo acompanha esses estados; seus filtros não alteram os cenários nem os totais gerais.
 
 ## Incrementos com base R$ HUGOL
 
@@ -84,12 +85,20 @@ As abas do novo prédio usam `ROUNDUP` para paciente-dia (leitos × ocupação �
 
 Confira [a conferência da fonte HUGO](docs/hugo-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis hugo` reproduz `hugo-source.js` a partir do arquivo correspondente. As 64 combinações de cada base, a opção de 450 e a migração dos ajustes salvos têm testes.
 
-## Atualização de valores e quantitativo
+## Atualização de valores
 
-A aba **5º T.A HUGO - Atualização de valores e quantitativo** usa `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26.xlsx`. Sua base inicial e referência financeira é **R$ 29.144.610,37**, de `HUGO - ATUAL!P71`, conforme indicação do usuário. As 42 linhas preservam os quantitativos atualizados das colunas H/J e os preços usados em cada fórmula da coluna P. Azul e RESUMO não são importadas como cenários. O período dos custos é agosto/2025 a julho/2026.
+A aba **5º T.A HUGO - Atualização de valores** usa `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26.xlsx`. Sua base inicial e referência financeira é **R$ 29.144.610,37**, de `HUGO - ATUAL!P71`, conforme indicação do usuário. As 42 linhas preservam os quantitativos atualizados das colunas H/J e os preços usados em cada fórmula da coluna P. Azul e RESUMO não são importadas como cenários. O período dos custos é agosto/2025 a julho/2026. O cenário do novo prédio é identificado como **Novo Prédio - Base Ago/25 - Jul/26**.
 
 Os seis cenários do novo prédio continuam disponíveis, de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL, com totais da coluna S, **Custo Total Estimado**. A importação lê a fórmula de cada linha para selecionar o custo unitário correspondente em P50 ou P75; valores contratuais das colunas Q/T e valores da coluna BASE não substituem essa seleção. Os sete totais e todas as linhas fecham em centavos. O Novo Prédio - Base custa R$ 30.729.611,55, variação de +R$ 1.585.001,18 sobre a base atualizada. Com todos os incrementos e 250 hemodinâmicas, custa R$ 35.595.648,39; com 450, R$ 36.326.474,39.
 
 Na seleção HUGO - Base atualizada, o usuário pode editar os 42 serviços. Para combinar os seis incrementos, seleciona um cenário do novo prédio; a referência de variação permanece R$ 29.144.610,37. São mantidos ocupação em passos de 0,5, resumo fixo, salvamento próprio (`novo-hugo-updated-v1`) e exportação CSV. O salvamento versão 2 corrige apenas a seleção inicial antiga sem ajustes; seleções de incrementos e edições existentes são preservadas. O comparativo inclui o cenário efetivamente selecionado nessa quarta aba. Os dados das demais abas permanecem separados.
 
 Confira [a conferência da atualização](docs/atualizacao-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis updated` reproduz `updated-source.js`; o SHA-256 da fonte, as células de custo unitário e os percentis usados ficam registrados no arquivo gerado. As fórmulas não são executadas durante a importação.
+
+## Atualização de valores e produção
+
+A aba **5º T.A HUGO - Atualização de valores e produção** usa somente `HUGO - ATUAL` do arquivo `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (4).xlsx`, conforme esclarecimento do usuário. O total inicial é **R$ 26.618.281,37/mês** (P71), com 336 enfermaria + 70 UTI = 406 leitos. As 42 linhas preservam a produção H/J, as ocupações I e os custos escolhidos em verde: 34 linhas P50 e 8 P75. A importação verifica cada célula verde contra a fórmula P; Azul não é importada como cenário.
+
+O paciente-dia segue `ROUND(leitos × ocupação × 30,4;0)`, inclusive os 120% do PS Observação e os 101% da UTI Adulto 1. Horas cirúrgicas também são arredondadas ao inteiro conforme a fonte. A ocupação pode ser editada por linha ou por bloco em passos de 0,5; aplicar ao bloco modifica somente linhas ativas e mantém quantidades e preços. O percentil aparece abaixo de cada custo unitário, no detalhe do comparativo e no CSV. Preços editados são identificados como edição com percentil de origem; valores contratuais das bases antigas não recebem um percentil inferido.
+
+O salvamento próprio usa `novo-hugo-production-v1`; a aba não altera a base de atualização de valores de R$ 29.144.610,37. Não há incrementos nesta fonte; apenas seus serviços são apresentados. `python scripts/import-production.py /caminho/arquivo.xlsx` reproduz `production-source.js`. Confira [a conferência de valores e produção](docs/producao-conferencia.md).

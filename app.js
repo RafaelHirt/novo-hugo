@@ -1,10 +1,12 @@
 import { rows, reference, cost, initial, bedTotals, projectedPatientDays, DAYS_PER_MONTH } from './data.js';
 import { currency, signedCurrency, number, parseCurrency, roundCurrency } from './format.js';
 import { icon } from './icons.js';
-import { renderComparison, setHugolComparison, setHugoComparison, setUpdatedComparison } from './comparison.js';
+import { renderComparison, setHugolComparison, setHugoComparison, setUpdatedComparison, setProductionComparison } from './comparison.js';
 import { initHugol, initIncrementScenario } from './hugol-ui.js';
 import { model as hugoIncrementModel } from './hugo-model.js';
 import { model as updatedModel, migrateSavedConfig as migrateUpdatedConfig } from './updated-model.js';
+import { occupancyControl, syncOccupancyControls, bindOccupancyControls, validOccupancy } from './occupancy.js';
+import { model as productionModel } from './production-model.js';
 
 const $ = selector => document.querySelector(selector);
 const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -20,7 +22,7 @@ try {
         qty: Number.isFinite(s.qty) && s.qty >= 0 ? s.qty : rows[i].qty,
         unit: Number.isFinite(s.unit) && s.unit >= 0 ? s.unit : rows[i].unit,
         factor: rows[i].factor === undefined ? undefined
-          : Number.isFinite(s.factor) && s.factor >= 0 && (rows[i].kind !== 'bed' || s.factor <= 100)
+          : Number.isFinite(s.factor) && s.factor >= 0 && (rows[i].kind !== 'bed' || validOccupancy(s.factor))
             ? s.factor : rows[i].factor,
       };
     });
@@ -51,7 +53,7 @@ function field(row, key, label) {
   }
   const occupancy = key === 'factor' && row.kind === 'bed';
   const step = key === 'qty' ? 1 : occupancy ? 0.5 : 0.01;
-  return `<input ${common} type="number" min="0" ${occupancy ? 'max="100"' : ''} step="${step}" value="${state[row.id][key]}">`;
+  return `<input ${common} type="number" min="0" step="${step}" value="${state[row.id][key]}">`;
 }
 
 function tables() {
@@ -80,6 +82,7 @@ function tables() {
         <span class="category-cost" data-group="${group}" title="Custo total da categoria"></span>
         <span class="category-chevron">${icon('chevron')}</span>
       </summary>
+      ${kind === 'bed' ? occupancyControl(group) : ''}
       <div class="table-scroll" tabindex="0" role="region" aria-label="Serviços de ${group}">
         <table class="${withFactor ? 'with-factor' : 'without-factor'}">
           <thead><tr><th scope="col">Ativo / serviço</th><th scope="col">${qtyLabel}</th>${withFactor ? `<th scope="col">${factorLabel}</th>` : ''}<th scope="col">${kind === 'surgery' ? 'Custo / hora' : 'Custo unitário'}</th><th scope="col">Total mensal</th><th scope="col"><span class="sr-only">Restaurar serviço</span></th></tr></thead>
@@ -90,7 +93,7 @@ function tables() {
             </label><span class="row-badge" data-badge="${row.id}"></span></div></td>
             <td data-label="${qtyLabel}">${field(row, 'qty', qtyLabel)}</td>
             ${withFactor ? `<td data-label="${factorLabel}"><span class="factor-field">${field(row, 'factor', row.kind === 'bed' ? 'Ocupação (%)' : factorLabel)}<span>${row.kind === 'bed' ? '%' : 'h'}</span></span></td>` : ''}
-            <td data-label="${kind === 'surgery' ? 'Custo / hora' : 'Custo unitário'}">${field(row, 'unit', 'Custo unitário')}</td>
+            <td data-label="${kind === 'surgery' ? 'Custo / hora' : 'Custo unitário'}"><span class="unit-value">${field(row, 'unit', 'Custo unitário')}<small class="unit-source" data-unit-reference="${row.id}">Referência contratual</small></span></td>
             <td class="row-total" data-label="Total mensal" data-total="${row.id}"></td>
             <td class="row-actions"><button class="icon-button row-reset" data-restore="${row.id}" aria-label="Restaurar ${row.name}" title="Restaurar valores deste serviço">${icon('reset')}</button></td>
           </tr>`).join('')}</tbody>
@@ -150,7 +153,9 @@ function update() {
     const restore = el.querySelector('[data-restore]');
     restore.disabled = !isChanged;
     el.querySelectorAll('input:not([type=checkbox])').forEach(input => input.disabled = !enabled);
+    el.querySelector('[data-unit-reference]').textContent = state[id].unit === rows[id].unit ? 'Referência contratual' : 'Preço editado · ref. contratual';
   });
+  syncOccupancyControls($('#tables'), rows, state);
   try {
     localStorage.setItem('novo-hugo-v1', JSON.stringify(state));
     $('#save-status').innerHTML = `${icon('check')}Salvo neste navegador`;
@@ -166,6 +171,10 @@ function clearFilters() {
   tables();
 }
 const tableContainer = $('#tables');
+bindOccupancyControls(tableContainer, () => ({ rows, state }), changes => {
+  for (const [id, patch] of Object.entries(changes)) Object.assign(state[id], patch);
+  tables();
+});
 tableContainer.addEventListener('toggle', event => {
   if (event.target.tagName === 'DETAILS') openGroups.set(event.target.dataset.category, event.target.open);
 }, true);
@@ -324,4 +333,5 @@ $('#export').addEventListener('click', () => {
 tables();
 initHugol({ onChange: setHugolComparison });
 initIncrementScenario({ model: hugoIncrementModel, panelId: 'hugo-increment', prefix: 'hugo-base', basisName: 'HUGO', storageKey: 'novo-hugo-hugo-v1', onChange: setHugoComparison });
-initIncrementScenario({ model: updatedModel, panelId: 'hugo-updated', prefix: 'updated', basisName: 'HUGO atualizado', storageKey: 'novo-hugo-updated-v1', defaultPreset: 'same', storageVersion: 2, migrateSavedConfig: migrateUpdatedConfig, exportFileName: 'novo-hugo-atualizacao-valores-quantitativo.csv', onChange: setUpdatedComparison });
+initIncrementScenario({ model: updatedModel, panelId: 'hugo-updated', prefix: 'updated', basisName: 'HUGO atualizado', storageKey: 'novo-hugo-updated-v1', defaultPreset: 'same', storageVersion: 2, migrateSavedConfig: migrateUpdatedConfig, exportFileName: 'novo-hugo-atualizacao-valores.csv', onChange: setUpdatedComparison });
+initIncrementScenario({ model: productionModel, panelId: 'hugo-production', prefix: 'production', basisName: 'HUGO · valores e produção', storageKey: 'novo-hugo-production-v1', defaultPreset: 'production', exportFileName: 'novo-hugo-atualizacao-valores-producao.csv', onChange: setProductionComparison });

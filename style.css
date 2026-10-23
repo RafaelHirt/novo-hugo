@@ -34,7 +34,7 @@ h1 { font-size: 46px; letter-spacing: -1.3px; margin: 16px 0 8px; line-height: 1
 .hero p { color: #d9e9eb; font-size: 16px; margin: 0 0 24px; }
 .hero-caption { position: absolute; bottom: 17px; right: 20px; font-size: 10px; color: white; display: flex; align-items: center; gap: 7px; background: #0a273f8c; padding: 8px 10px; border-radius: 6px; backdrop-filter: blur(6px); }
 .hero-caption .icon { width: 14px; height: 14px; }
-.tabs { display: grid; grid-template-columns: minmax(95px, .7fr) repeat(3, minmax(0, 1.6fr)) minmax(100px, .8fr); align-items: stretch; gap: 8px; border-bottom: 1px solid var(--border); padding-top: 22px; margin-bottom: 24px; }
+.tabs { display: grid; grid-template-columns: minmax(95px, .7fr) repeat(4, minmax(0, 1.6fr)) minmax(100px, .8fr); align-items: stretch; gap: 8px; border-bottom: 1px solid var(--border); padding-top: 22px; margin-bottom: 24px; }
 .tab { display: flex; gap: 9px; align-items: center; min-width: 0; padding: 16px 14px; border: 0; border-bottom: 3px solid transparent; background: transparent; font-size: 12px; font-weight: 600; color: #6b808c; text-align: left; }
 .tab-label { min-width: 0; line-height: 1.5; }
 .tab-label small { display: block; font-size: 11px; font-weight: 500; }
@@ -432,6 +432,14 @@ fieldset:disabled .increment-card { opacity: .55; cursor: default; }
 .hugol-search, .hugo-base-search, .updated-search { margin-bottom: 20px; max-width: 600px; }
 .unit-value { display: inline-flex; flex-direction: column; align-items: flex-end; max-width: 100%; }
 .unit-source { display: block; margin-top: 5px; font-size: 9px; color: #708991; }
+.group-occupancy { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; margin: 0; background: #f9fcfc; border-bottom: 1px solid #e4edef; }
+.group-occupancy > label { display: flex; align-items: center; gap: 12px; font-size: 11px; color: #456775; font-weight: 600; }
+.group-occupancy input { width: 112px; min-width: 0; height: 35px; padding: 7px 9px; border: 1px solid #d9e5ea; border-radius: 6px; background: white; color: #244e5d; font-size: 12px; font-weight: 400; }
+.group-occupancy .factor-field > span { color: #708991; font-size: 10px; }
+.group-occupancy .button { padding: 8px 12px; font-size: 11px; }
+.group-occupancy > small { color: #718995; font-size: 10px; line-height: 1.6; }
+.service-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.service-toolbar .search { width: 100%; max-width: 600px; }
 .workbook-audit { margin-top: 28px; padding: 0; overflow: hidden; }
 .workbook-audit > summary { border-radius: var(--radius); }
 .audit-content { padding: 0 24px 24px; }
@@ -530,17 +538,26 @@ fieldset:disabled .increment-card { opacity: .55; cursor: default; }
   .comparison-table tfoot td > span, .comparison-table tfoot td > small { grid-column: 2; }
 }
 
-/* Four scenario columns remain scrollable on tablets; mobile uses labeled rows. */
+/* Five scenario columns remain scrollable on tablets; mobile uses labeled rows. */
 @media (min-width: 601px) {
-  .comparison-table { min-width: 1000px; }
+  .comparison-table { min-width: 1200px; }
 }
 @media (min-width: 1280px) {
-  .compare-scenarios { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .compare-scenarios { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .compare-scenario { padding: 20px; }
-  .compare-scenario-heading { min-height: 72px; }
-  .compare-scenario-delta { min-height: 72px; }
-  .compare-scenario-total { font-size: clamp(20px, 1.65vw, 24px); }
+  .compare-scenario-heading { min-height: 88px; }
+  .compare-scenario-delta { min-height: 104px; }
+  .compare-scenario-total { font-size: clamp(18px, 1.4vw, 21px); }
 }
+@media (min-width: 801px) and (max-width: 1100px) { .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 800px) {
-  .tabs > .tab:last-child { grid-column: 1 / -1; }
+  .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .group-occupancy { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 10px; padding: 12px; }
+  .group-occupancy > label { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; min-width: 0; }
+  .group-occupancy .factor-field { justify-content: flex-start; }
+  .group-occupancy input { font-size: 16px; width: 100%; max-width: 150px; }
+  .group-occupancy > small { grid-column: 1 / -1; }
+  .service-toolbar { align-items: flex-start; flex-direction: column; }
 }

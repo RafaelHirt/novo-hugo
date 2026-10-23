@@ -141,6 +141,8 @@ presets = [{
     'selected': [], 'sourceSheet': same_sheet, 'sourceCell': same_total_cell, 'sourceTotalCents': sheet_totals[0],
 }] if same_sheet else []
 labels = ['Novo Prédio - Base', '+ Banco de sangue', '+ Banco e ressonância', '+ Banco, ressonância e SAD', '+ Banco, ressonância, SAD e hemodinâmica', '+ Todos e adequação de leitos']
+if is_updated:
+    labels[0] = 'Novo Prédio - Base Ago/25 - Jul/26'
 for index, (name, rows) in enumerate(zip(new_sheets, versions)):
     presets.append({
         'id': f'new-{index}', 'name': labels[index], 'base': 'new',
@@ -167,7 +169,7 @@ payload = {
 }
 if is_updated:
     payload.update(periodLabel='Agosto/2025 a julho/2026', pricingLabel='Custo Total Estimado', totalColumn='S',
-                   referenceBase='same', baseNames={'same': 'HUGO - Base atualizada'},
+                   referenceBase='same', baseNames={'same': 'HUGO - Base atualizada', 'new': 'Novo Prédio - Base Ago/25 - Jul/26'},
                    referenceCaption='Sobre a base HUGO atualizada')
 for preset in presets:
     rows = same if preset['base'] == 'same' else versions[int(preset['id'].split('-')[1])]
