@@ -1,12 +1,12 @@
 import { rows, reference, cost, initial, bedTotals, projectedPatientDays, DAYS_PER_MONTH } from './data.js';
 import { currency, signedCurrency, number, parseCurrency, roundCurrency } from './format.js';
 import { icon } from './icons.js';
-import { renderComparison, setHugolComparison, setHugoComparison, setUpdatedComparison, setProductionComparison, setRebalanceComparison } from './comparison.js';
+import { renderComparison, setHugolComparison, setHugoComparison, setProductionComparison, setRebalanceComparison } from './comparison.js';
 import { initHugol, initIncrementScenario } from './hugol-ui.js';
 import { model as hugoIncrementModel } from './hugo-model.js';
 import { model as updatedModel, migrateSavedConfig as migrateUpdatedConfig } from './updated-model.js';
 import { blockControls, syncBlockControls, bindBlockControls, validOccupancy, updateOccupancyComparison } from './occupancy.js';
-import { model as productionModel } from './production-model.js';
+import { model as productionModel, migrateSavedConfig as migrateProductionConfig } from './production-model.js';
 import { model as rebalanceModel } from './rebalance-model.js';
 
 const $ = selector => document.querySelector(selector);
@@ -275,7 +275,7 @@ addEventListener('offline', updateConnectionStatus);
 addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
 updateConnectionStatus();
 
-const tabButtons = [...document.querySelectorAll('[data-tab]')];
+const tabButtons = [...document.querySelectorAll('[data-tab]:not([hidden])')];
 function selectTab(button, persist = true) {
   for (const tab of tabButtons) {
     const selected = tab === button;
@@ -297,6 +297,7 @@ $('#scenario-picker').addEventListener('change', event => {
   if (button) selectTab(button);
 });
 addEventListener('hashchange', () => {
+  if (location.hash === '#hugo-updated') { selectTab(tabButtons.find(item => item.dataset.tab === 'hugo-production')); return; }
   const button = tabButtons.find(item => '#' + item.dataset.tab === location.hash);
   if (button) selectTab(button, false);
 });
@@ -342,8 +343,8 @@ $('#export').addEventListener('click', () => {
 
 tables();
 initHugol({ onChange: setHugolComparison });
-initIncrementScenario({ model: hugoIncrementModel, panelId: 'hugo-increment', prefix: 'hugo-base', basisName: 'HUGO', storageKey: 'novo-hugo-hugo-v1', onChange: setHugoComparison });
-initIncrementScenario({ model: updatedModel, panelId: 'hugo-updated', prefix: 'updated', basisName: 'HUGO atualizado', storageKey: 'novo-hugo-updated-v1', defaultPreset: 'same', storageVersion: 2, migrateSavedConfig: migrateUpdatedConfig, exportFileName: 'novo-hugo-atualizacao-valores.csv', onChange: setUpdatedComparison });
-initIncrementScenario({ model: productionModel, panelId: 'hugo-production', prefix: 'production', basisName: 'HUGO · valores e produção', storageKey: 'novo-hugo-production-v1', defaultPreset: 'production', exportFileName: 'novo-hugo-atualizacao-valores-producao.csv', onChange: setProductionComparison });
+initIncrementScenario({ model: hugoIncrementModel, panelId: 'hugo-increment', prefix: 'hugo-base', basisName: 'HUGO', storageKey: 'novo-hugo-hugo-v1', showUnitReferences: false, onChange: setHugoComparison });
+initIncrementScenario({ model: updatedModel, panelId: 'hugo-updated', prefix: 'updated', basisName: 'HUGO atualizado', storageKey: 'novo-hugo-updated-v1', defaultPreset: 'same', storageVersion: 2, migrateSavedConfig: migrateUpdatedConfig, exportFileName: 'novo-hugo-atualizacao-valores.csv' });
+initIncrementScenario({ model: productionModel, panelId: 'hugo-production', prefix: 'production', basisName: 'HUGO · valores e produção', storageKey: 'novo-hugo-production-v1', defaultPreset: 'production', storageVersion: 2, migrateSavedConfig: migrateProductionConfig, exportFileName: 'novo-hugo-atualizacao-valores-producao.csv', onChange: setProductionComparison });
 initIncrementScenario({ model: rebalanceModel, panelId: 'hugo-rebalance', prefix: 'rebalance', basisName: 'Reequilíbrio Jan/25 - Dez/25', storageKey: 'novo-hugo-rebalance-v1', defaultPreset: 'rebalance', exportFileName: 'novo-hugo-reequilibrio-jan25-dez25.csv', onChange: setRebalanceComparison });
-selectTab(tabButtons.find(button => '#' + button.dataset.tab === location.hash) || tabButtons[0], false);
+selectTab(tabButtons.find(button => '#' + button.dataset.tab === location.hash) || (location.hash === '#hugo-updated' ? tabButtons.find(button => button.dataset.tab === 'hugo-production') : tabButtons[0]), location.hash === '#hugo-updated');

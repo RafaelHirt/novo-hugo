@@ -14,6 +14,12 @@ export const escapeHtml = value => String(value).replace(/[&<>"']/g, character =
 // HUGOL percentiles come from the selected column in the user's image.
 // A matching price validates an explicit service reference; it never selects a P.
 export function describePriceReference(row, unit, fallback = '') {
+  if (row.unit === null) {
+    const provided = Number.isFinite(unit);
+    const label = provided ? 'Informado para simulação' : 'Custo atualizado pendente';
+    return { label, percentile: '', status: provided ? 'supplied' : 'pending', detail: '', edited: provided,
+      title: 'Este serviço não tem custo unitário na base de valores e produção.', exportLabel: label };
+  }
   const edited = roundCurrency(unit) !== roundCurrency(row.unit);
   const origin = `Valor de origem: ${currency(row.unit)}${row.sourceUnitCell ? ' · ' + row.sourceUnitCell : ''}`;
   const reference = row.priceReference;

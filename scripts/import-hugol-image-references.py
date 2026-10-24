@@ -72,6 +72,7 @@ def money(value):
 
 report = [
     '# Conferência dos percentis HUGOL', '',
+    'Registro técnico dos preços importados antes da correção confirmada pelo usuário. O modelo atual aplica R$ 4.948,21 à gestão de altas. As referências e etiquetas desta conferência não são exibidas na interface, no comparativo ou no CSV das bases HUGOL e HUGO.', '',
     f"Fonte das referências: {reference['source']}. A seleção usa a coluna verde da imagem, identificada por serviço, nunca a igualdade isolada de preços. A fonte financeira continua sendo `01 NOVO HUGO - BASE HUGOL.xlsx`.", '',
     '## Resultado', '',
     '- Novo Prédio (52 linhas, incluindo os serviços dos incrementos): 46 custos unitários conferem, 1 diverge e 5 não têm referência na imagem.',
@@ -82,7 +83,7 @@ report = [
     '## Correspondência entre os serviços', '',
     'As UI médicas e cirúrgicas gerais são conferidas com os itens 1.1.1 e 1.1.2; as UTI adultas com 1.2.1. Cirurgias de alto custo usam 3.4/P75; alto giro usa 3.1/P50, média e alta complexidade do HUGO usam 3.2/P50, e demais cirurgias usam 3.5/P50. O item 3.3/P75 da imagem é específico de cirurgias cardíacas neonatais e pediátricas, sem linha própria no cenário HUGO. Consulta Não Médica corresponde à Consulta Multiprofissional. Colonoscopia e Endoscopia usam o item agrupado 5.8; a Broncoscopia isolada usa 5.4, cujo preço é diferente.', '',
     'Quando a linha externa reutiliza um custo interno por fórmula explícita da planilha, a tabela registra esse vínculo. Ecodoppler não é tratado como Ecocardiograma. Semelhança de preço não permite atribuir percentil à UI de população privada de liberdade nem ao PS Observação, ausentes na imagem. P50 no banco de sangue e plaquetas vem do verde da imagem, mesmo quando os três preços são iguais.', '',
-    'Na tela e no CSV, referências confirmadas identificam a imagem HUGOL. Divergências mostram o preço de referência sem atribuir seu P ao preço divergente. Edições manuais são conferidas novamente contra a referência de cada serviço.', '',
+    'A tabela registra as correspondências da importação original com a imagem e mantém os serviços ausentes sem percentil. A correção de preço posterior é aplicada no modelo, separada deste registro da fonte.', '',
 ]
 for base, rows in source['bases'].items():
     report.extend([f"## {'Novo Prédio' if base == 'new' else 'Base HUGOL sem aumento'}", '',

@@ -11,15 +11,15 @@ const scenarios = [{id:'current',label:'4 T.A (Atual)',snapshot:current},{id:'hu
 
 test('Comparativo calcula diferenças reais entre os três cenários selecionados',()=>{
   const result=buildComparison(scenarios);
-  assert.deepEqual(result.scenarios.map(item=>Math.round(item.delta*100)),[0,12237655,140396532]);
+  assert.deepEqual(result.scenarios.map(item=>Math.round(item.delta*100)),[0,12032455,140396532]);
   assert.equal(result.scenarios[0].isReference,true);
   const changed=buildComparison(scenarios,{referenceId:'hugol'});
-  assert.equal(Math.round(changed.scenarios[2].delta*100),128158877);
+  assert.equal(Math.round(changed.scenarios[2].delta*100),128364077);
 });
 test('Visão anual multiplica custos e diferenças por 12 e preserva percentuais e leitos',()=>{
   const monthly=buildComparison(scenarios),annual=buildComparison(scenarios,{annual:true});
   assert.equal(annual.scenarios[0].amount,327134834.88);
-  assert.equal(Math.round(annual.scenarios[1].delta*100),146851860);
+  assert.equal(Math.round(annual.scenarios[1].delta*100),144389460);
   assert.ok(Math.abs(annual.scenarios[1].percent-monthly.scenarios[1].percent)<1e-10);
   assert.equal(annual.scenarios[0].snapshot.beds.total,406);
 });

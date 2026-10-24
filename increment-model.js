@@ -2,7 +2,18 @@ import { bedTotals, DAYS_PER_MONTH } from './data.js';
 import { roundCurrency } from './format.js';
 import { validOccupancy } from './occupancy.js';
 
-export function createIncrementModel(source, basisName) {
+// Keep imported workbook prices intact; explicit user corrections apply to the
+// scenario and remain traceable against the original worksheet totals.
+export function createIncrementModel(importedSource, basisName, { unitCorrections = [] } = {}) {
+  const source = structuredClone(importedSource);
+  for (const correction of unitCorrections) {
+    const row = Object.values(source.bases).flat().find(item => item.id === correction.id);
+    if (!row) throw new Error('Linha da correção de preço não encontrada: ' + correction.id);
+    row.unitCorrection = { originalUnit: row.unit, unit: correction.unit, reason: correction.reason };
+    row.unit = correction.unit;
+    if (correction.sourceUnitCell) row.sourceUnitCell = correction.sourceUnitCell;
+    for (const increment of source.increments) if (increment.patches[row.id]?.unit !== undefined) increment.patches[row.id].unit = correction.unit;
+  }
   const bedPackage = source.increments.find(item => item.id === 'beds');
   const newBase = source.bases.new;
   const bedPackageRows = newBase.filter(row => bedPackage?.patches[row.id]);
@@ -20,6 +31,7 @@ export function createIncrementModel(source, basisName) {
   const presets = source.presets.map(item => ({ ...item, selected: expandBedSelection(item.selected) }));
   const subtotalIssue = source.subtotalIssue;
   const incrementById = new Map(increments.map(item => [item.id, item]));
+  const priceInputs = source.priceInputs || [];
   const roundUp = value => Math.ceil(value - Math.abs(value) * Number.EPSILON * 4);
 
   function presetState(id) {
@@ -31,13 +43,44 @@ export function createIncrementModel(source, basisName) {
   function setIncrement(config, id, enabled) {
     config = normalizeConfig(config);
     if (config.base !== 'new' || !incrementById.has(id)) throw new Error('Incremento indisponível nesta base.');
+    if (enabled && !canSelectIncrement(config, id)) throw new Error('Informe os custos unitários pendentes deste incremento.');
     const selected = new Set(config.selected);
     if (enabled) selected.add(id); else selected.delete(id);
     const edits = { ...config.edits };
     // Toggling a package restores its own rows; unrelated manual changes remain.
-    for (const rowId of Object.keys(incrementById.get(id).patches)) delete edits[rowId];
+    for (const rowId of Object.keys(incrementById.get(id).patches)) {
+      const original = newBase.find(row => row.id === rowId);
+      if (original?.unit === null && Number.isFinite(edits[rowId]?.unit)) edits[rowId] = { unit: edits[rowId].unit };
+      else delete edits[rowId];
+    }
     if (bedOptions.some(item => item.id === id)) for (const row of sadtRows) delete edits[row.id];
     return { ...config, selected: increments.filter(item => selected.has(item.id)).map(item => item.id), edits };
+  }
+
+  function canSelectIncrement(config, id) {
+    const increment = incrementById.get(id);
+    return Boolean(increment) && Object.keys(increment.patches).every(rowId => {
+      const row = newBase.find(item => item.id === rowId);
+      const unit = config.edits?.[rowId]?.unit ?? row?.unit;
+      return Number.isFinite(unit) && unit >= 0;
+    });
+  }
+
+  function setIncrementPrice(config, key, value) {
+    const input = priceInputs.find(item => item.key === key);
+    if (!input || !Number.isFinite(value) || value < 0) throw new Error('Informe um custo unitário válido.');
+    const edits = { ...config.edits };
+    for (const id of input.rowIds) edits[id] = { ...edits[id], unit: roundCurrency(value) };
+    return { ...config, edits };
+  }
+
+  function incrementQuote(config, id, policy) {
+    if (!canSelectIncrement(config, id)) return null;
+    // Quotes use the source quantities and explicitly supplied missing prices.
+    const edits = {};
+    for (const input of priceInputs) for (const rowId of input.rowIds) if (Number.isFinite(config.edits?.[rowId]?.unit)) edits[rowId] = { unit: config.edits[rowId].unit };
+    const base = { base: 'new', selected: [], edits };
+    return roundCurrency(scenarioSnapshot({ ...base, selected: [id] }, policy).total - scenarioSnapshot(base, policy).total);
   }
 
   function setHemodynamicsVolume(config, quantity) {
@@ -51,8 +94,15 @@ export function createIncrementModel(source, basisName) {
 
   function restoreGroup(config, group) {
     config = normalizeConfig(config);
-    const ids = new Set(buildRows(config).filter(row => row.group === group).map(row => row.id));
-    return { ...config, edits: Object.fromEntries(Object.entries(config.edits || {}).filter(([id]) => !ids.has(id))) };
+    const rows = buildRows(config), ids = new Set(rows.filter(row => row.group === group).map(row => row.id));
+    const edits = {};
+    for (const [id, patch] of Object.entries(config.edits || {})) {
+      if (!ids.has(id)) edits[id] = patch;
+      // Missing source prices have no default to restore. Keep the supplied
+      // price so restoring quantities cannot silently remove an active cost.
+      else if (rows.find(row => row.id === id)?.unit === null && Number.isFinite(patch.unit)) edits[id] = { unit: patch.unit };
+    }
+    return { ...config, edits };
   }
 
   function volume(row, state) {
@@ -66,6 +116,8 @@ export function createIncrementModel(source, basisName) {
   }
 
   function rowCost(row, state) {
+    if (!state.enabled) return 0;
+    if (!Number.isFinite(state.unit)) throw new Error('Custo unitário pendente: ' + row.name);
     return roundCurrency(volume(row, state) * state.unit);
   }
 
@@ -117,6 +169,7 @@ export function createIncrementModel(source, basisName) {
     if (typeof includeOmittedWard !== 'boolean') throw new Error('Defina o tratamento do subtotal da UI do 2º andar.');
     if (!Object.hasOwn(source.bases, config.base) || !Array.isArray(config.selected)) throw new Error('Base de cenário inválida.');
     if (config.selected.some(id => !incrementById.has(id)) || config.base === 'same' && config.selected.length) throw new Error('Seleção de incrementos inválida para esta base.');
+    if (config.selected.some(id => !canSelectIncrement(config, id))) throw new Error('Informe os custos unitários pendentes dos incrementos selecionados.');
     const rows = buildRows(config);
     const snapshot = priceRows(rows, config.edits || {}, includeOmittedWard);
     const referenceBase = source.referenceBase || config.base;
@@ -125,7 +178,7 @@ export function createIncrementModel(source, basisName) {
     const matchingPreset = presets.find(item => item.base === config.base && item.selected.length === config.selected.length && item.selected.every(id => config.selected.includes(id)));
     const modified = rows.filter(row => {
       const original = { enabled: row.available && row.qty > 0, qty: row.qty, unit: row.unit, factor: row.factor };
-      return Object.keys(original).some(key => snapshot.state[row.id][key] !== original[key]);
+      return Object.keys(original).some(key => !(key === 'unit' && row.unit === null) && snapshot.state[row.id][key] !== original[key]);
     });
     return {
       ...snapshot, baseTotal: base.total, delta: roundCurrency(snapshot.total - base.total),
@@ -139,9 +192,9 @@ export function createIncrementModel(source, basisName) {
   }
 
   function workbookAudit(policy) {
-    return presets.map(preset => {
+    return presets.filter(preset => Number.isFinite(preset.sourceTotalCents)).map(preset => {
       const snapshot = scenarioSnapshot(presetState(preset.id), policy);
-      return { ...preset, dashboardTotal: snapshot.total, difference: roundCurrency(snapshot.total - preset.sourceTotalCents / 100) };
+      return { ...preset, dashboardTotal: snapshot.total, difference: roundCurrency(snapshot.total - preset.sourceTotalCents / 100), corrected: unitCorrections.some(item => snapshot.rows.some(row => row.id === item.id)) };
     });
   }
 
@@ -153,5 +206,5 @@ export function createIncrementModel(source, basisName) {
     option.sadtAmountCents = option.amountCents - option.bedAmountCents;
   }
 
-  return { increments, presets, subtotalIssue, presetState, setIncrement, setHemodynamicsVolume, restoreGroup, normalizeConfig, volume, rowCost, snapshot: scenarioSnapshot, workbookAudit };
+  return { increments, presets, subtotalIssue, priceInputs, canSelectIncrement, setIncrementPrice, incrementQuote, presetState, setIncrement, setHemodynamicsVolume, restoreGroup, normalizeConfig, volume, rowCost, snapshot: scenarioSnapshot, workbookAudit };
 }

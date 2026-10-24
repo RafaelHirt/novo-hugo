@@ -73,9 +73,9 @@ test('Valores e produção têm estado independente e integram o comparativo men
   const previous=updated.snapshot(updated.presetState('same'),policy),production=snapshot(initial());
   const scenarios=[{id:'updated',label:'Valores',snapshot:previous},{id:'production',label:'Valores e produção',snapshot:production}];
   const view=buildComparison(scenarios,{referenceId:'updated'});
-  assert.equal(view.scenarios[1].delta,-2526329);
+  assert.equal(view.scenarios[1].delta,-1101531.48);
   const annual=buildComparison(scenarios,{referenceId:'production',annual:true});
   assert.equal(annual.scenarios[1].amount,319419376.44);assert.equal(annual.scenarios[1].isReference,true);
   snapshot({...initial(),edits:{'production-6':{qty:50}}});
-  assert.equal(updated.snapshot(updated.presetState('same'),policy).total,29144610.37);
+  assert.equal(updated.snapshot(updated.presetState('same'),policy).total,27719812.85);
 });

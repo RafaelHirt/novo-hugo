@@ -450,7 +450,13 @@ fieldset:disabled .increment-card { opacity: .55; cursor: default; }
 .unit-source[data-percentile=P50] { border-color: #afd8c6; background: #e4f4eb; color: #176247; }
 .unit-source[data-percentile=P75] { border-color: #e6c694; background: #fff1dc; color: #86500c; }
 .unit-source[data-edited=true] { border-style: dashed; }
+.increment-price { display: flex; flex-direction: column; gap: 6px; margin: 0 20px 16px; padding-top: 12px; border-top: 1px solid #dce7eb; font-size: 12px; color: #365c7a; }
+.increment-price .money-input { width: 100%; max-width: none; height: 42px; margin: 0; padding: 9px 11px; border: 1px solid #cddfe3; border-radius: 7px; background: white; color: #284b5d; font-size: 14px; }
+.increment-card:has(.increment-price) .increment-amount { margin-top: 0; }
+.increment-price small { font-size: 10px; line-height: 1.5; color: #86500c; }
+.scenario-price-note { margin: 0 0 22px; padding: 14px 16px; border: 1px solid #e6c694; border-radius: 8px; background: #fff8ec; color: #79551e; font-size: 12px; line-height: 1.7; }
 .unit-source[data-reference-status=different] { border-color: #e6c694; background: #fff1dc; color: #86500c; }
+.unit-source[data-reference-status=pending] { border-color: #e6c694; background: #fff1dc; color: #86500c; }
 .unit-source[data-reference-status=not_listed] { border-color: #d6dfe5; background: #f3f6f8; color: #536879; }
 .reference-detail { margin-top: 5px; max-width: 145px; color: #86500c; font-size: 11px; line-height: 1.5; text-align: right; }
 .reference-summary { margin: 0 0 20px; padding: 12px 14px; border: 1px solid #cddce8; border-radius: 8px; background: #f5f9fb; color: #365c7a; font-size: 12px; line-height: 1.6; }

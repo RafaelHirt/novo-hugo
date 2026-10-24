@@ -4,10 +4,10 @@ import { icon } from './icons.js';
 import { blockControls, syncBlockControls, bindBlockControls, updateOccupancyComparison } from './occupancy.js';
 
 export function initHugol(options = {}) {
-  return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', ...options });
+  return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', showUnitReferences: false, ...options });
 }
 
-export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false, storageVersion = 1, migrateSavedConfig = value => value, exportFileName = 'novo-hugo-base-' + basisName.toLowerCase() + '.csv' }) {
+export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false, storageVersion = 1, migrateSavedConfig = value => value, showUnitReferences = true, exportFileName = 'novo-hugo-base-' + basisName.toLowerCase() + '.csv' }) {
   const { increments, presets, presetState, setIncrement, setHemodynamicsVolume, restoreGroup, snapshot: hugolSnapshot, volume: hugolVolume, workbookAudit } = model;
   const root = document.getElementById(panelId);
   const $ = selector => root.querySelector(selector.replaceAll('#hugol-', '#' + prefix + '-'));
@@ -23,17 +23,22 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     }
   } catch {}
   const hasIncrements = increments.length > 0;
+  const priceInputs = model.priceInputs || [];
   if (hasIncrements) {
     $('#hugol-preset').innerHTML = presets.map(item => `<option value="${item.id}">${h(item.name)}</option>`).join('') + '<option value="custom" disabled>Combinação personalizada</option>';
     const incrementIcons = { blood:'lab', mri:'activity', sad:'people', hemodynamics:'hospital', wardBeds:'bed', icuBeds:'activity' };
     $('#hugol-increments').innerHTML = increments.map(item => `<article class="increment-card"><label class="increment-card-choice"><input type="checkbox" data-increment="${item.id}"><span class="increment-card-body"><span class="increment-card-heading"><span class="increment-icon">${icon(incrementIcons[item.id])}</span><strong>${h(item.name)}</strong></span><span class="increment-description" data-increment-description="${item.id}">${h(item.description)}</span><span class="increment-amount" data-increment-amount="${item.id}">+ ${currency(item.amountCents / 100)}</span><small data-increment-caption="${item.id}">${item.addedBeds ? 'Acréscimo mensal desta opção isolada' : 'Referência mensal da planilha'}</small>${item.addedBeds ? `<small class="increment-breakdown">Leitos: ${currency(item.bedAmountCents / 100)}<br>SADT: ${currency(item.sadtAmountCents / 100)}</small>` : ''}</span></label>${item.id === 'hemodynamics' ? `<label class="increment-volume" for="${prefix}-hemodynamics-volume"><span>Procedimentos por mês</span><select id="${prefix}-hemodynamics-volume" aria-label="Procedimentos de hemodinâmica por mês na base ${basisName}"><option value="250">250 procedimentos</option><option value="450">450 procedimentos</option></select></label>` : ''}</article>`).join('');
+    for (const input of priceInputs) {
+      const card = root.querySelector(`[data-increment="${input.increment}"]`).closest('.increment-card');
+      card.insertAdjacentHTML('beforeend', `<label class="increment-price"><span>${h(input.label)} · custo unitário</span><input class="money-input" type="text" inputmode="decimal" data-increment-price="${input.key}" aria-label="${h('Custo atualizado: ' + input.label)}" placeholder="Informar custo em R$"><small data-price-status="${input.key}"></small></label>`);
+    }
   }
-  $('#hugol-audit').innerHTML = workbookAudit(policy).map(item => `<tr><th scope="row">${h(item.name)}</th><td data-label="Planilha">${currency(item.sourceTotalCents / 100)}</td><td data-label="Dashboard">${currency(item.dashboardTotal)}</td><td data-label="Conferência" class="audit-result">${item.difference === 0 ? 'Conferido' : signedCurrency(item.difference)}</td></tr>`).join('');
+  $('#hugol-audit').innerHTML = workbookAudit(policy).map(item => `<tr><th scope="row">${h(item.name)}</th><td data-label="Planilha">${currency(item.sourceTotalCents / 100)}</td><td data-label="Dashboard">${currency(item.dashboardTotal)}</td><td data-label="Conferência" class="audit-result">${item.difference === 0 ? 'Conferido' : `${item.corrected ? 'Preço corrigido · ' : ''}${signedCurrency(item.difference)}`}</td></tr>`).join('');
 
   function field(row, key, label) {
     const state = snapshot.state[row.id];
     const common = `data-h-id="${row.id}" data-h-key="${key}" aria-label="${h(label + ' — ' + row.name)}" ${state.enabled && row.available ? '' : 'disabled'}`;
-    if (key === 'unit') return `<input ${common} class="money-input" type="text" inputmode="decimal" value="${currency(state.unit)}">`;
+    if (key === 'unit') return `<input ${common} class="money-input" type="text" inputmode="decimal" placeholder="Custo pendente" value="${Number.isFinite(state.unit) ? currency(state.unit) : ''}">`;
     const occupancy = key === 'factor' && row.kind === 'bed';
     return `<input ${common} type="number" min="0" step="${key === 'qty' ? 1 : occupancy ? 0.5 : 0.01}" value="${state[key]}">`;
   }
@@ -65,9 +70,14 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
       $('#hugol-preset').value = snapshot.modifiedIds.length ? 'custom' : snapshot.preset?.id || 'custom';
       $('#hugol-increment-fieldset').disabled = config.base !== 'new';
       $('#hugol-base-instruction').hidden = config.base === 'new';
-      $('#hugol-select-all').disabled = config.base !== 'new' || config.selected.length === increments.length;
+      const ready = increments.filter(item => model.canSelectIncrement(config, item.id));
+      $('#hugol-select-all').disabled = config.base !== 'new' || ready.every(item => config.selected.includes(item.id));
+      $('#hugol-select-all').textContent = ready.length < increments.length ? 'Selecionar disponíveis' : 'Selecionar todos';
       $('#hugol-clear-increments').disabled = config.selected.length === 0;
-      for (const checkbox of root.querySelectorAll('[data-increment]')) checkbox.checked = config.selected.includes(checkbox.dataset.increment);
+      for (const checkbox of root.querySelectorAll('[data-increment]')) {
+        checkbox.checked = config.selected.includes(checkbox.dataset.increment);
+        checkbox.disabled = !model.canSelectIncrement(config, checkbox.dataset.increment);
+      }
       const hemodynamics = snapshot.rows.find(row => row.group === 'Hemodinâmica');
       const volumeSelect = $('#hugol-hemodynamics-volume');
       volumeSelect.disabled = !hemodynamics || !snapshot.state[hemodynamics.id].enabled;
@@ -86,15 +96,29 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
         $('[data-increment-caption="hemodynamics"]').textContent = 'Referência mensal da planilha';
       }
       $('#hugol-selection-summary').textContent = `${config.selected.length} de ${increments.length} incrementos selecionados${snapshot.modifiedIds.length ? ` · ${snapshot.modifiedIds.length} ${snapshot.modifiedIds.length === 1 ? 'serviço ajustado manualmente' : 'serviços ajustados manualmente'}` : ''}`;
+      if (priceInputs.length) {
+        const pending = increments.length - ready.length;
+        if (pending) $('#hugol-selection-summary').textContent += ` · ${pending} aguardam custo atualizado`;
+        for (const input of priceInputs) {
+          const field = root.querySelector(`[data-increment-price="${input.key}"]`), value = config.edits?.[input.rowIds[0]]?.unit;
+          if (document.activeElement !== field) field.value = Number.isFinite(value) ? currency(value) : '';
+          root.querySelector(`[data-price-status="${input.key}"]`).textContent = Number.isFinite(value) ? 'Preço informado para esta simulação' : 'Sem preço na base de valores e produção';
+        }
+        for (const item of increments.filter(item => priceInputs.some(input => input.increment === item.id))) {
+          const known = model.canSelectIncrement(config, item.id);
+          if (!known) {
+            $(`[data-increment-amount="${item.id}"]`).textContent = 'Custo a informar';
+            $(`[data-increment-caption="${item.id}"]`).textContent = 'Informe os preços abaixo para liberar a seleção';
+          } else if (item.id !== 'hemodynamics') {
+            $(`[data-increment-amount="${item.id}"]`).textContent = '+ ' + currency(model.incrementQuote(config, item.id, policy));
+            $(`[data-increment-caption="${item.id}"]`).textContent = 'Calculado com os preços informados';
+          }
+        }
+      }
     }
     $('#hugol-change-count').textContent = `${snapshot.rows.filter(row => snapshot.state[row.id].enabled).length} serviços ativos`;
-    const referenceSummary = root.querySelector('[data-price-reference-summary]');
-    if (referenceSummary) {
-      const counts = { match: 0, different: 0, not_listed: 0 };
-      for (const row of snapshot.rows) counts[describePriceReference(row, snapshot.state[row.id].unit).status]++;
-      referenceSummary.textContent = `Imagem HUGOL · Custos unitários: ${counts.match} conferem · ${counts.different} ${counts.different === 1 ? 'divergente' : 'divergentes'} · ${counts.not_listed} sem referência na imagem. Inclui os serviços dos incrementos.`;
-    }
     if (rebuild) renderTables();
+    if (!showUnitReferences) for (const reference of root.querySelectorAll('[data-h-unit-reference]')) reference.remove();
     for (const total of root.querySelectorAll('[data-h-group]')) total.textContent = currency(snapshot.totals.find(item => item.group === total.dataset.hGroup).total);
     for (const element of root.querySelectorAll('[data-h-row]')) {
       const row = snapshot.rows.find(item => item.id === element.dataset.hRow), state = snapshot.state[row.id], modified = snapshot.modifiedIds.includes(row.id);
@@ -103,18 +127,20 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
       element.querySelector('[data-h-volume]').textContent = !row.available ? 'Selecione o incremento para incluir este serviço' : row.kind === 'bed' ? `Paciente-dia projetado: ${number(hugolVolume(row, state))}${row.volumeRounding === 'up' ? ' · arredondado para cima' : ''}` : row.kind === 'surgery' ? `${number(hugolVolume(row, state))} horas cirúrgicas` : row.criterion;
       const badge = element.querySelector('[data-h-badge]'); badge.hidden = !modified; badge.textContent = state.enabled ? 'Alterado' : 'Retirado';
       const reference = element.querySelector('[data-h-unit-reference]');
-      const description = describePriceReference(row, state.unit, 'Base R$ ' + basisName);
-      reference.textContent = description.label;
-      reference.dataset.percentile = description.percentile;
-      reference.dataset.referenceStatus = description.status;
-      reference.dataset.edited = String(description.edited);
-      reference.title = description.title;
-      let detail = element.querySelector('[data-h-reference-detail]');
-      if (!detail) {
-        detail = document.createElement('small'); detail.className = 'reference-detail'; detail.dataset.hReferenceDetail = '';
-        reference.after(detail);
+      if (reference) {
+        const description = describePriceReference(row, state.unit, 'Base R$ ' + basisName);
+        reference.textContent = description.label;
+        reference.dataset.percentile = description.percentile;
+        reference.dataset.referenceStatus = description.status;
+        reference.dataset.edited = String(description.edited);
+        reference.title = description.title;
+        let detail = element.querySelector('[data-h-reference-detail]');
+        if (!detail) {
+          detail = document.createElement('small'); detail.className = 'reference-detail'; detail.dataset.hReferenceDetail = '';
+          reference.after(detail);
+        }
+        detail.textContent = description.detail; detail.hidden = !description.detail;
       }
-      detail.textContent = description.detail; detail.hidden = !description.detail;
       if (row.kind === 'bed') updateOccupancyComparison(element.querySelector('[data-occupancy-change]'), row.factor, state.factor);
       for (const field of element.querySelectorAll('input:not([type=checkbox])')) field.disabled = !state.enabled || !row.available;
     }
@@ -126,9 +152,25 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
   if (hasIncrements) {
     $('#hugol-increments').addEventListener('change', event => { if (event.target.dataset.increment) { config = setIncrement(config, event.target.dataset.increment, event.target.checked); refresh(); } });
     $('#hugol-hemodynamics-volume').addEventListener('change', event => { config = setHemodynamicsVolume(config, Number(event.target.value)); refresh(); });
-    $('#hugol-preset').addEventListener('change', event => { config = presetState(event.target.value); refresh(); });
-    $('#hugol-select-all').addEventListener('click', () => { for (const item of increments) config = setIncrement(config, item.id, true); refresh(); });
+    $('#hugol-preset').addEventListener('change', event => {
+      const next = presetState(event.target.value);
+      for (const input of priceInputs) for (const id of input.rowIds) if (Number.isFinite(config.edits?.[id]?.unit)) next.edits[id] = { unit: config.edits[id].unit };
+      config = next; refresh();
+    });
+    $('#hugol-select-all').addEventListener('click', () => { for (const item of increments) if (model.canSelectIncrement(config, item.id)) config = setIncrement(config, item.id, true); refresh(); });
     $('#hugol-clear-increments').addEventListener('click', () => { for (const item of increments) config = setIncrement(config, item.id, false); refresh(); });
+    $('#hugol-increments').addEventListener('input', event => {
+      const field = event.target, key = field.dataset.incrementPrice; if (!key) return;
+      const value = parseCurrency(field.value);
+      field.setAttribute('aria-invalid', value === null ? 'true' : 'false'); if (value === null) return;
+      config = model.setIncrementPrice(config, key, value); refresh();
+    });
+    $('#hugol-increments').addEventListener('focusin', event => {
+      const key = event.target.dataset.incrementPrice; if (!key) return;
+      const input = priceInputs.find(input => input.key === key), value = config.edits?.[input.rowIds[0]]?.unit;
+      event.target.value = Number.isFinite(value) ? value.toLocaleString('pt-BR', {useGrouping:false,minimumFractionDigits:2}) : ''; event.target.select();
+    });
+    $('#hugol-increments').addEventListener('focusout', event => { if (event.target.dataset.incrementPrice) { event.target.removeAttribute('aria-invalid'); refresh(false); } });
   }
   $('#hugol-reset').addEventListener('click', () => { config = presetState(defaultPreset); $('#hugol-search').value = ''; refresh(); });
   $('#hugol-search').addEventListener('input', () => refresh());
@@ -156,8 +198,9 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     const state = snapshot.state[field.dataset.hId]; field.value = key === 'unit' ? currency(state.unit) : state[key]; field.removeAttribute('aria-invalid');
   });
   $('#hugol-export').addEventListener('click', () => {
-    const decimal = value => value.toFixed(2).replace('.', ',');
+    const decimal = value => Number.isFinite(value) ? value.toFixed(2).replace('.', ',') : '';
     const lines = [['Categoria','Serviço','Ativo','Quantidade / leitos','Ocupação (%) / horas médias','Custo unitário (R$)','Referência do custo','Custo da linha (R$)','Custeio considerado (R$)'], ...snapshot.rows.map(row => [row.group, row.name, snapshot.state[row.id].enabled ? 'Sim' : 'Não', snapshot.state[row.id].qty, row.factor === undefined ? '' : String(snapshot.state[row.id].factor).replace('.', ','), decimal(snapshot.state[row.id].unit), describePriceReference(row, snapshot.state[row.id].unit, 'Base R$ ' + basisName).exportLabel, decimal(snapshot.rawValues[row.id]), decimal(snapshot.values[row.id])]), ['TOTAL','','','','','','','',decimal(snapshot.total)]];
+    if (!showUnitReferences) for (const line of lines) line.splice(6, 1);
     const csv = lines.map(row => row.map(value => '"' + String(value).replaceAll('"','""') + '"').join(';')).join('\r\n');
     const url = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a'); link.href = url; link.download = exportFileName; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);

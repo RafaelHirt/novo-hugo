@@ -1,5 +1,7 @@
 # Conferência da base HUGOL
 
+Correção posterior confirmada pelo usuário: gestão de altas usa **R$ 4.948,21 por unidade** em todos os cenários HUGOL. A base sem aumento passa a R$ 25.963.506,96 (5 unidades); o novo prédio base, R$ 27.381.560,79; o completo com 250 hemodinâmicas, R$ 32.038.952,33; com 450, R$ 32.932.340,33 (10 unidades). A alteração está explícita em `hugol-model.js`, preservando a importação original documentada abaixo. As etiquetas e os avisos de referência foram retirados da interface, do comparativo e do CSV das bases HUGOL e HUGO.
+
 Fonte atual: `01 NOVO HUGO - BASE HUGOL.xlsx`. Importação dos valores armazenados nas sete abas de cenários; HUGO - ATUAL, Azul e RESUMO não são fontes importadas. A assinatura SHA-256 consta em `hugol-source.js`.
 
 Os custos unitários foram também comparados à imagem corrigida de percentis HUGOL enviada pelo usuário em 24/10/2026, substituindo a anterior. Veja [a conferência das 94 linhas das duas bases](hugol-percentis-conferencia.md): gestão de altas diverge (R$ 5.153,41 na planilha contra P50 de R$ 4.948,21 na imagem); serviços sem referência permanecem sem P. Esta conferência não altera os totais abaixo.

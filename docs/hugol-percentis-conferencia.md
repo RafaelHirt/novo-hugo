@@ -1,5 +1,7 @@
 # Conferência dos percentis HUGOL
 
+Registro técnico dos preços importados antes da correção confirmada pelo usuário. O modelo atual aplica R$ 4.948,21 à gestão de altas. As referências e etiquetas desta conferência não são exibidas na interface, no comparativo ou no CSV das bases HUGOL e HUGO.
+
 Fonte das referências: Imagem corrigida de percentis HUGOL fornecida pelo usuário em 24/10/2026; substitui a imagem anterior. A seleção usa a coluna verde da imagem, identificada por serviço, nunca a igualdade isolada de preços. A fonte financeira continua sendo `01 NOVO HUGO - BASE HUGOL.xlsx`.
 
 ## Resultado
@@ -17,7 +19,7 @@ As UI médicas e cirúrgicas gerais são conferidas com os itens 1.1.1 e 1.1.2; 
 
 Quando a linha externa reutiliza um custo interno por fórmula explícita da planilha, a tabela registra esse vínculo. Ecodoppler não é tratado como Ecocardiograma. Semelhança de preço não permite atribuir percentil à UI de população privada de liberdade nem ao PS Observação, ausentes na imagem. P50 no banco de sangue e plaquetas vem do verde da imagem, mesmo quando os três preços são iguais.
 
-Na tela e no CSV, referências confirmadas identificam a imagem HUGOL. Divergências mostram o preço de referência sem atribuir seu P ao preço divergente. Edições manuais são conferidas novamente contra a referência de cada serviço.
+A tabela registra as correspondências da importação original com a imagem e mantém os serviços ausentes sem percentil. A correção de preço posterior é aplicada no modelo, separada deste registro da fonte.
 
 ## Base HUGOL sem aumento
 

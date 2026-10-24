@@ -1,7 +1,10 @@
 import { updatedSource } from './updated-source.js';
 import { createIncrementModel } from './increment-model.js';
 
-export const model = createIncrementModel(updatedSource, 'HUGO atualizado');
+export const model = createIncrementModel(updatedSource, 'HUGO atualizado', { unitCorrections: [
+  { id: 'updated-same-22', unit: 624.80, sourceUnitCell: 'M22', reason: 'Pronto Atendimento: usar o P75 de R$ 624,80, conforme correção do usuário.' },
+  { id: 'updated-new-23', unit: 624.80, sourceUnitCell: 'O23', reason: 'Pronto Atendimento: usar o P75 de R$ 624,80, conforme correção do usuário.' },
+] });
 
 export function migrateSavedConfig(saved) {
   // Replace only the untouched default from the first import. Keep chosen

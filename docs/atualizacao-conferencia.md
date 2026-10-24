@@ -1,5 +1,7 @@
 # Conferência da atualização de valores
 
+Esta aba está oculta da navegação e do comparativo. Os números abaixo documentam a importação original. A correção posterior em `updated-model.js` usa P75 = **R$ 624,80** para o Pronto Atendimento (M22/O23), substituindo R$ 1.175,34. Com 2.588 atendimentos, a linha passa a R$ 1.616.982,40 e reduz cada cenário em R$ 1.424.797,52. Os totais corrigidos são R$ 27.719.812,85 na base atual, R$ 29.304.814,03 no novo prédio sem incrementos e R$ 34.170.850,87 no completo com 250 hemodinâmicas. O arquivo importado e a comparação com os valores de origem foram preservados.
+
 Fonte: `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26.xlsx`. Período dos custos: agosto/2025 a julho/2026. A base inicial e referência financeira é **HUGO - ATUAL!P71 = R$ 29.144.610,37**, conforme indicação do usuário. Seus quantitativos atualizados estão em H/J, e os preços efetivamente utilizados estão em L/M. As seis abas do novo prédio preservam os valores e referências da coluna **S — Custo Total Estimado**. Azul e RESUMO não são importadas como cenários. O SHA-256 está em `updated-source.js`; a planilha completa não é publicada.
 
 | Aba de origem | Cenário | Planilha e dashboard — mensal |
