@@ -12,10 +12,11 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 - Indicadores fixos somente no topo durante a rolagem, sem duplicar o resumo na parte inferior.
 - Paciente-dia projetado atualizado em cada linha de internação, com base em 30,4 dias por mês.
 - Ocupação em passos de 0,5 ponto percentual nas UI, UTI e PS Observação, preservando inclusive ocupações superiores a 100% presentes na fonte.
-- Controle de ocupação por bloco nas cinco bases: aplica às linhas ativas de Enfermarias ou UTI, preservando o outro bloco. Enfermarias inclui PS Observação; filtros de busca não reduzem o alcance do bloco.
+- Controle de ocupação por bloco nas seis bases: aplica às linhas ativas de Enfermarias ou UTI, preservando o outro bloco. Enfermarias inclui PS Observação; filtros de busca não reduzem o alcance do bloco.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
 - Abas 5º T.A HUGO com bases R$ HUGOL e R$ HUGO: seis opções independentes (UI e UTI separadas) e edição dos serviços em cada base. Sete cenários originais na HUGOL e seis na HUGO.
-- Comparativo dos cinco cenários salvos, com referência escolhida pelo usuário, diferenças em reais e percentual, visão mensal ou anual e filtro de diferenças. Os cartões mostram os incrementos selecionados e a capacidade de leitos. Serviços e quantidades ficam em detalhe opcional, sem coluna de ocupação; percentis de origem aparecem nas linhas que os têm. Exportação do comparativo em CSV.
+- Navegação agrupada em Contrato atual, 5º T.A HUGO, Reequilíbrio e Análise. No celular e em telas até 1.100 px, um seletor com grupos substitui as abas. Links com `#hugo-rebalance` e os demais IDs preservam a base ao atualizar a página; o atalho aos serviços acompanha a base ativa. Teclas de seta, Home e End continuam disponíveis nas abas do computador.
+- Comparativo dos seis cenários salvos, com referência escolhida pelo usuário, diferenças em reais e percentual, visão mensal ou anual e filtro de diferenças. Cartões ficam em duas linhas de três no computador, com tabelas roláveis e categoria fixa. Serviços e quantidades ficam em detalhe opcional, sem coluna de ocupação; percentis de origem aparecem nas linhas que os têm. Exportação do comparativo em CSV.
 - Indicador de conexão com animação suave, respeitando a preferência por movimentos reduzidos.
 - Sem dependências de imagens, fontes ou scripts externos durante o uso.
 
@@ -59,7 +60,7 @@ A função `bedTotals` soma UI e PS Observação na enfermaria e mantém UTI sep
 
 Valores monetários usam o padrão brasileiro (R$ 1.234,56), com duas casas decimais e totais somados em centavos. Custos unitários podem ser digitados com vírgula decimal ou colados com R$. O CSV usa ponto e vírgula como separador, vírgula decimal e duas casas nos valores monetários.
 
-Os ajustes da 4 T.A (Atual), da base R$ HUGOL, da base R$ HUGO, da atualização de valores e da atualização de valores e produção ficam em cinco chaves distintas do localStorage e podem ser restaurados ou exportados em CSV. O comparativo acompanha esses estados; seus filtros não alteram os cenários nem os totais gerais.
+Os ajustes da 4 T.A (Atual), da base R$ HUGOL, da base R$ HUGO, da atualização de valores, da atualização de valores e produção e do Reequilíbrio ficam em seis chaves distintas do localStorage e podem ser restaurados ou exportados em CSV. O comparativo acompanha esses estados; seus filtros não alteram os cenários nem os totais gerais.
 
 ## Incrementos com base R$ HUGOL
 
@@ -102,3 +103,11 @@ A aba **5º T.A HUGO - Atualização de valores e produção** usa somente `HUGO
 O paciente-dia segue `ROUND(leitos × ocupação × 30,4;0)`, inclusive os 120% do PS Observação e os 101% da UTI Adulto 1. Horas cirúrgicas também são arredondadas ao inteiro conforme a fonte. A ocupação pode ser editada por linha ou por bloco em passos de 0,5; aplicar ao bloco modifica somente linhas ativas e mantém quantidades e preços. O percentil aparece abaixo de cada custo unitário, no detalhe do comparativo e no CSV. Preços editados são identificados como edição com percentil de origem; valores contratuais das bases antigas não recebem um percentil inferido.
 
 O salvamento próprio usa `novo-hugo-production-v1`; a aba não altera a base de atualização de valores de R$ 29.144.610,37. Não há incrementos nesta fonte; apenas seus serviços são apresentados. `python scripts/import-production.py /caminho/arquivo.xlsx` reproduz `production-source.js`. Confira [a conferência de valores e produção](docs/producao-conferencia.md).
+
+## Reequilíbrio · Jan/25 - Dez/25
+
+A aba **Reequilíbrio - Valores e Produção Jan/25 - Dez/25** usa somente `HUGO - ATUAL (PS 75%)` do arquivo `08 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - janeiro a dezembro 2025 (redução de leitos) (5).xlsx`, conforme escolha do usuário. Azul e HUGO - ATUAL (PS R$ 1175,34) não são importadas. O total P70 é **R$ 24.122.514,56/mês**, ou R$ 289.470.174,72/ano. A redução resulta em 306 enfermaria (incluindo 18 de PS Observação) + 60 UTI = 366 leitos; há quatro linhas de UTI.
+
+As 41 linhas preservam quantidades, ocupação, produção e preços da fonte. O Pronto Atendimento usa 2.770 atendimentos × R$ 600,15 (P75), somando R$ 1.662.415,50/mês. Os 34 preços P50 e 7 P75 são conferidos pelas fórmulas; 38 linhas têm seleção verde e três têm preenchimento rosa uniforme, com P50 identificado pela fórmula: Ecodoppler interno, externo e gestão de altas. O Ecodoppler interno tem produção zero e é mantido na lista sem custo inicial.
+
+O controle de ocupação por bloco, os ajustes por linha, a restauração e o CSV usam as mesmas regras da aba de produção. O salvamento é independente em `novo-hugo-rebalance-v1`, e o comparativo acompanha suas alterações. `python scripts/import-production.py /caminho/arquivo.xlsx --basis rebalance --sheet 'HUGO - ATUAL (PS 75%)'` reproduz `rebalance-source.js`. Confira [a conferência do Reequilíbrio](docs/reequilibrio-conferencia.md).

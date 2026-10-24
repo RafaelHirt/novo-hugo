@@ -1,12 +1,13 @@
 import { rows, reference, cost, initial, bedTotals, projectedPatientDays, DAYS_PER_MONTH } from './data.js';
 import { currency, signedCurrency, number, parseCurrency, roundCurrency } from './format.js';
 import { icon } from './icons.js';
-import { renderComparison, setHugolComparison, setHugoComparison, setUpdatedComparison, setProductionComparison } from './comparison.js';
+import { renderComparison, setHugolComparison, setHugoComparison, setUpdatedComparison, setProductionComparison, setRebalanceComparison } from './comparison.js';
 import { initHugol, initIncrementScenario } from './hugol-ui.js';
 import { model as hugoIncrementModel } from './hugo-model.js';
 import { model as updatedModel, migrateSavedConfig as migrateUpdatedConfig } from './updated-model.js';
 import { occupancyControl, syncOccupancyControls, bindOccupancyControls, validOccupancy } from './occupancy.js';
 import { model as productionModel } from './production-model.js';
+import { model as rebalanceModel } from './rebalance-model.js';
 
 const $ = selector => document.querySelector(selector);
 const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -280,7 +281,7 @@ addEventListener('pageshow', event => { if (event.persisted) location.reload(); 
 updateConnectionStatus();
 
 const tabButtons = [...document.querySelectorAll('[data-tab]')];
-function selectTab(button) {
+function selectTab(button, persist = true) {
   for (const tab of tabButtons) {
     const selected = tab === button;
     tab.classList.toggle('active', selected);
@@ -288,8 +289,22 @@ function selectTab(button) {
     tab.tabIndex = selected ? 0 : -1;
     $('#' + tab.dataset.tab).hidden = !selected;
   }
+  $('#scenario-picker').value = button.dataset.tab;
+  const services = $('#' + button.dataset.tab).querySelector('.services');
+  if (services && !services.id) services.id = button.dataset.tab + '-services';
+  $('.skip-link').href = '#' + (services?.id || button.dataset.tab);
+  $('.skip-link').textContent = services ? 'Ir para os serviços' : 'Ir para o comparativo';
+  if (persist) history.replaceState(null, '', '#' + button.dataset.tab);
   refreshSummaryVisibility();
 }
+$('#scenario-picker').addEventListener('change', event => {
+  const button = tabButtons.find(item => item.dataset.tab === event.target.value);
+  if (button) selectTab(button);
+});
+addEventListener('hashchange', () => {
+  const button = tabButtons.find(item => '#' + item.dataset.tab === location.hash);
+  if (button) selectTab(button, false);
+});
 for (const button of tabButtons) {
   button.addEventListener('click', () => selectTab(button));
   button.addEventListener('keydown', event => {
@@ -335,3 +350,5 @@ initHugol({ onChange: setHugolComparison });
 initIncrementScenario({ model: hugoIncrementModel, panelId: 'hugo-increment', prefix: 'hugo-base', basisName: 'HUGO', storageKey: 'novo-hugo-hugo-v1', onChange: setHugoComparison });
 initIncrementScenario({ model: updatedModel, panelId: 'hugo-updated', prefix: 'updated', basisName: 'HUGO atualizado', storageKey: 'novo-hugo-updated-v1', defaultPreset: 'same', storageVersion: 2, migrateSavedConfig: migrateUpdatedConfig, exportFileName: 'novo-hugo-atualizacao-valores.csv', onChange: setUpdatedComparison });
 initIncrementScenario({ model: productionModel, panelId: 'hugo-production', prefix: 'production', basisName: 'HUGO · valores e produção', storageKey: 'novo-hugo-production-v1', defaultPreset: 'production', exportFileName: 'novo-hugo-atualizacao-valores-producao.csv', onChange: setProductionComparison });
+initIncrementScenario({ model: rebalanceModel, panelId: 'hugo-rebalance', prefix: 'rebalance', basisName: 'Reequilíbrio Jan/25 - Dez/25', storageKey: 'novo-hugo-rebalance-v1', defaultPreset: 'rebalance', exportFileName: 'novo-hugo-reequilibrio-jan25-dez25.csv', onChange: setRebalanceComparison });
+selectTab(tabButtons.find(button => '#' + button.dataset.tab === location.hash) || tabButtons[0], false);
