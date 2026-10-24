@@ -28,20 +28,8 @@ test('Editar ou retirar serviços aparece como ajuste sem alterar a base de refe
   assert.equal(restored.calculation.adjustments,0);assert.equal(restored.total,32038952.33);
 });
 
-test('Novo Prédio usa sua própria base de cálculo, distinta da base atualizada usada na variação',()=>{
-  const config=production.presetState('new-0');config.selected=['wardBeds'];
-  const snapshot=production.snapshot(config,policy);
-  assert.equal(snapshot.baseTotal,26618281.37);
-  assert.deepEqual(snapshot.calculation,{base:29304814.03,increments:1303879.20,adjustments:0,total:30608693.23});
+test('Produção usa apenas o total real da planilha como base de cálculo',()=>{
+  const snapshot=production.snapshot(production.presetState('production'),policy);
+  assert.deepEqual(snapshot.calculation,{base:26618281.37,increments:0,adjustments:0,total:26618281.37});
   closes(snapshot);
-});
-
-test('Hemodinâmica 450 e custos informados compõem incrementos sem serem tratados como custo gratuito ou ajuste manual',()=>{
-  let config=production.setIncrementPrice(production.presetState('new-0'),'hemodynamics',500);
-  config=production.setHemodynamicsVolume(config,450);
-  const snapshot=production.snapshot(config,policy);
-  assert.deepEqual(snapshot.calculation,{base:29304814.03,increments:225000,adjustments:0,total:29529814.03});
-  closes(snapshot);
-  const base=production.snapshot(production.presetState('production'),policy);
-  assert.deepEqual(base.calculation,{base:26618281.37,increments:0,adjustments:0,total:26618281.37});
 });

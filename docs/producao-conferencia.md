@@ -1,6 +1,6 @@
 # Conferência de valores e produção
 
-Fonte: `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (3).xlsx`. Somente a aba **HUGO - ATUAL** é importada, conforme esclarecimento do usuário. O total P71 é **R$ 26.618.281,37 por mês**, ou R$ 319.419.376,44 por ano. A aba anterior de Atualização de valores está oculta e tem sua própria fonte, ajustes e correção de preço de PA. A aba de valores e produção também oferece a simulação do Novo Prédio com incrementos, descrita em [composição dos incrementos](producao-incrementos.md).
+Fonte: `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (3).xlsx`. Somente a aba **HUGO - ATUAL** é importada, conforme esclarecimento do usuário. O total P71 é **R$ 26.618.281,37 por mês**, ou R$ 319.419.376,44 por ano. A aba anterior de Atualização de valores está oculta e tem sua própria fonte, ajustes e correção de preço de PA. Por solicitação do usuário, a aba contém apenas os 42 serviços dessa fonte. A simulação de Novo Prédio e os incrementos foram retirados até o envio de uma planilha específica.
 
 | Categoria | Total mensal |
 | --- | ---: |
@@ -36,6 +36,8 @@ O botão “Aplicar ao bloco” altera as ocupações de todas as linhas ativas 
 
 O controle existe nas cinco bases financeiras. Estados são independentes; a nova aba salva em `novo-hugo-production-v1`. O comparativo recebe as cinco seleções visíveis atuais e permite escolher esta base como referência. O arquivo gerado registra SHA-256, linhas, células verdes e fórmulas de origem em `production-source.js`; esses dados exigem autenticação.
 
-## Escolha da possibilidade
+## Escopo e salvamento
 
-Dois controles compactos no início da aba permitem selecionar **Base atualizada** (R$ 26.618.281,37/mês) e **Novo Prédio — base de cálculo** (base sem incrementos de R$ 29.304.814,03/mês). A referência da primeira é o arquivo (3), com PA de R$ 624,80. Os incrementos aparecem apenas na segunda possibilidade; as duas mantêm ajustes e restaurações independentes, inclusive após recarregar. Campos de custos pendentes ficam em editores recolhidos nos cartões de serviço.
+A aba exibe diretamente os serviços e os indicadores da planilha, sem escolha de Novo Prédio, incrementos ou preços a informar. O bloco “Cenário atual” foi retirado de todas as abas.
+
+O salvamento usa versão 4. Ao migrar dados salvos da antiga simulação, recupera somente ajustes dos 42 serviços reais; linhas e preços simulados não podem reaparecer. Restaurar valores retorna à base de R$ 26.618.281,37. Novos serviços dependerão de uma planilha específica enviada pelo usuário.

@@ -69,28 +69,9 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
   function refresh(rebuild = true) {
     snapshot = hugolSnapshot(config, policy);
     for (const button of scenarioChoices) {
-      const previewConfig = presetState(button.dataset.scenarioChoice), preview = hugolSnapshot(previewConfig, policy);
+      const previewConfig = presetState(button.dataset.scenarioChoice);
       const sameSelection = config.selected.length === previewConfig.selected.length && config.selected.every(id => previewConfig.selected.includes(id));
       button.setAttribute('aria-pressed', String(config.base === previewConfig.base && (button.dataset.choiceKind !== 'preset' || sameSelection)));
-      const referencePrice = button.querySelector('[data-choice-total]');
-      if (referencePrice) referencePrice.textContent = currency(preview.total);
-      const baseServices = preview.rows.filter(row => preview.state[row.id].enabled).length;
-      button.querySelector('[data-choice-capacity]').textContent = `${baseServices} serviços de base · ${number(preview.beds.total)} leitos`;
-    }
-    const calculation = root.querySelector('[data-scenario-calculation]');
-    if (calculation) {
-      const values = snapshot.calculation;
-      calculation.querySelector('[data-calculation-base]').textContent = currency(values.base);
-      calculation.querySelector('[data-calculation-increments]').textContent = signedCurrency(values.increments);
-      calculation.querySelector('[data-calculation-adjustments]').textContent = signedCurrency(values.adjustments);
-      calculation.querySelector('[data-calculation-total]').textContent = currency(values.total);
-      calculation.querySelector('[data-current-base]').textContent = 'Base de cálculo: ' + snapshot.baseName;
-      calculation.querySelector('[data-increment-count]').textContent = snapshot.selected.length ? `${snapshot.selected.length} de ${increments.length} incrementos selecionados` : 'Sem incrementos selecionados';
-      calculation.querySelector('[data-selected-increments]').innerHTML = snapshot.selected.map(item => {
-        const hemodynamics = item.id === 'hemodynamics' ? snapshot.rows.find(row => row.group === 'Hemodinâmica') : null;
-        const label = hemodynamics ? `${item.name} · ${number(snapshot.state[hemodynamics.id].qty)}/mês` : `${item.name}${item.addedBeds ? ' · +' + item.addedBeds + ' leitos' : ''}`;
-        return `<span>${h(label)}</span>`;
-      }).join('');
     }
     for (const section of root.querySelectorAll('[data-increments-only]')) section.hidden = config.base !== 'new';
     $('#hugol-total').textContent = currency(snapshot.total);

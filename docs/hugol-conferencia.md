@@ -61,10 +61,8 @@ A distribuição da planilha soma 336 posições na base e 371 com adequação d
 
 Os testes verificam os sete cenários originais, todas as linhas, as 64 combinações com UI/UTI separadas, a alternativa de 450 hemodinâmicas e a migração dos estados salvos. O navegador foi verificado de 360 a 1440 pixels.
 
-## Base de cálculo e cenário atual
+## Fluxo simplificado da interface
 
-A seleção de base usa controles compactos sem valores monetários. **Novo Prédio — base de cálculo** seleciona a distribuição de partida; os incrementos são escolhidos separadamente. O resumo do cenário atual mostra sua base, a lista dos incrementos selecionados e quatro valores: base sem incrementos, incrementos selecionados, ajustes dos serviços e total mensal atual. Esse resumo acompanha escolhas, restaurações, edições e carregamento dos ajustes salvos.
+A barra **Base** permite alternar entre a base HUGOL sem aumento e o Novo Prédio. Em seguida aparecem os indicadores financeiros e as caixas dos serviços adicionais, sem um resumo duplicado. Os cenários prontos permanecem disponíveis na opção recolhida **Usar um cenário da planilha**. O bloco “Cenário atual” e sua composição visual foram removidos, assim como os cartões explicativos de escolha da base.
 
-No exemplo com os seis incrementos e sem edições, a composição é **R$ 27.381.560,79 + R$ 4.657.391,54 + R$ 0,00 = R$ 32.038.952,33**. O título da base não é apresentado como um cenário completo. O cenário predefinido completo pode ser carregado explicitamente na lista de cenários.
-
-`snapshot.calculation` calcula essa composição em centavos a partir da base da seleção corrente. Os preços informados para serviços sem preço de origem e o volume/custo de hemodinâmica escolhido compõem os incrementos. As demais edições entram nos ajustes de serviços. Em valores e produção, a base de cálculo do Novo Prédio (R$ 29.304.814,03) é distinta da referência para variação (R$ 26.618.281,37).
+A composição permanece disponível internamente em `snapshot.calculation`, com cobertura de testes financeiros. No exemplo com os seis incrementos e sem edições, **R$ 27.381.560,79 + R$ 4.657.391,54 + R$ 0,00 = R$ 32.038.952,33**. Os indicadores e a seleção de serviços continuam atualizados ao editar, restaurar ou recarregar.
