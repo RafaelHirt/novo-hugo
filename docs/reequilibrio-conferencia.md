@@ -37,4 +37,4 @@ Aplicar ocupação ao bloco altera somente suas linhas ativas, em passos de 0,5,
 
 ## Navegação
 
-No computador, os acessos são agrupados em Contrato atual, 5º T.A HUGO, Reequilíbrio e Análise, com rótulos curtos e período visível. Em telas de até 1.100 px, o seletor mantém esses grupos. A base ativa fica no endereço (`#hugo-rebalance`) e é restaurada ao atualizar a página. As abas aceitam setas, Home e End; o atalho aos serviços aponta para a base ativa. Os títulos completos permanecem nos painéis e nos nomes acessíveis das abas.
+No computador, os acessos são agrupados em Aditivo em trâmite, 5º T.A HUGO, Reequilíbrio e Análise, com rótulos curtos e período visível. Em telas de até 1.100 px, o seletor mantém esses grupos. A base ativa fica no endereço (`#hugo-rebalance`) e é restaurada ao atualizar a página. As abas aceitam setas, Home e End; o atalho aos serviços aponta para a base ativa. Os títulos completos permanecem nos painéis e nos nomes acessíveis das abas.

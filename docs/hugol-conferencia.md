@@ -4,17 +4,21 @@ Correção posterior confirmada pelo usuário: gestão de altas usa **R$ 4.948,2
 
 Fonte atual: `01 NOVO HUGO - BASE HUGOL.xlsx`. Importação dos valores armazenados nas sete abas de cenários; HUGO - ATUAL, Azul e RESUMO não são fontes importadas. A assinatura SHA-256 consta em `hugol-source.js`.
 
+O arquivo reenviado como `01 NOVO HUGO - BASE HUGOL (3).xlsx` é idêntico em bytes à fonte importada: SHA-256 `e4ae80ef5fac2f81f18982736ad1fef466fc74cfd8940b016688fbbf404cb223`. A conferência das 354 linhas nos sete cenários (42 na base sem aumento e 52 em cada cenário do novo prédio) confirma nomes, critérios, quantidades, ocupações, preços e totais, com uma única exceção: a correção de gestão de altas já autorizada pelo usuário. O reenvio não altera essa decisão. Estados editados e salvos no navegador podem apresentar outros totais; a comparação abaixo usa os cenários de referência sem edições manuais.
+
 Os custos unitários foram também comparados à imagem corrigida de percentis HUGOL enviada pelo usuário em 24/10/2026, substituindo a anterior. Veja [a conferência das 94 linhas das duas bases](hugol-percentis-conferencia.md): gestão de altas diverge (R$ 5.153,41 na planilha contra P50 de R$ 4.948,21 na imagem); serviços sem referência permanecem sem P. Esta conferência não altera os totais abaixo.
 
-| Aba de origem | Cenário | Planilha e dashboard — mensal |
-| --- | --- | ---: |
-| HUGO - BASE HUGOL | Base HUGOL sem aumento | R$ 25.964.532,96 |
-| HUGO - SEM BANCO DE SANGUE | Novo Prédio - Base | R$ 27.383.612,79 |
-| HUGO - SEM RESSONÂNCIA | + Banco de sangue | R$ 27.564.052,29 |
-| HUGO - SEM SAD E HEMODINÂMICA | + Banco e ressonância | R$ 27.706.552,29 |
-| HUGO - SEM HEMODINÂMICA | + Banco, ressonância e SAD | R$ 27.939.946,29 |
-| HUGO - MESMOS LEITOS | + Banco, ressonância, SAD e hemodinâmica | R$ 29.056.681,29 |
-| HUGO - FINAL | + Todos e adequação de leitos | R$ 32.041.004,33 |
+| Aba de origem | Cenário | Planilha — mensal | Dashboard com gestão de altas corrigida — mensal |
+| --- | --- | ---: | ---: |
+| HUGO - BASE HUGOL | Base HUGOL sem aumento | R$ 25.964.532,96 | R$ 25.963.506,96 |
+| HUGO - SEM BANCO DE SANGUE | Novo Prédio - Base | R$ 27.383.612,79 | R$ 27.381.560,79 |
+| HUGO - SEM RESSONÂNCIA | + Banco de sangue | R$ 27.564.052,29 | R$ 27.562.000,29 |
+| HUGO - SEM SAD E HEMODINÂMICA | + Banco e ressonância | R$ 27.706.552,29 | R$ 27.704.500,29 |
+| HUGO - SEM HEMODINÂMICA | + Banco, ressonância e SAD | R$ 27.939.946,29 | R$ 27.937.894,29 |
+| HUGO - MESMOS LEITOS | + Banco, ressonância, SAD e hemodinâmica | R$ 29.056.681,29 | R$ 29.054.629,29 |
+| HUGO - FINAL | + Todos e adequação de leitos | R$ 32.041.004,33 | R$ 32.038.952,33 |
+
+A planilha mantém R$ 5.153,41 por unidade em H69 (base sem aumento, cinco unidades) e M87 (novo prédio, dez unidades). O dashboard aplica R$ 4.948,21; a diferença total é de −R$ 1.026,00 e −R$ 2.052,00, respectivamente. As demais linhas coincidem, inclusive seus totais em centavos.
 
 A fórmula P12 desta versão é `SUM(P6:P11)`, incluindo a UI do 2º andar (R$ 1.308.864,45). O importador verifica o intervalo real da fórmula, em vez de reproduzir a exclusão da versão anterior. Todas as linhas e os sete totais foram conferidos em centavos.
 
@@ -48,7 +52,7 @@ A distribuição da planilha soma 336 posições na base e 371 com adequação d
 | Hemodinâmica original | 250 procedimentos × R$ 4.466,94 | R$ 1.116.735,00 |
 | Hemodinâmica alternativa | 450 procedimentos × R$ 4.466,94 | R$ 2.010.123,00 |
 
-250 e 450 são alternativas de uma única opção de hemodinâmica. O valor é recalculado com o custo unitário atual da linha; selecionar 450 não duplica o serviço. O cenário completo com 450 custa **R$ 32.934.392,33**.
+250 e 450 são alternativas de uma única opção de hemodinâmica. O valor é recalculado com o custo unitário atual da linha; selecionar 450 não duplica o serviço. O cenário completo com 450 custa **R$ 32.932.340,33**, já com a correção de gestão de altas.
 
 ## Regras de cálculo
 
