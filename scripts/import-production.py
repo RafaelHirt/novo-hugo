@@ -29,7 +29,7 @@ groups = [(6, 10, 'Enfermarias'), (13, 17, 'UTI'), (22, 22, 'Emergência'),
           (61, 65, 'SADT externo'), (69, 69, 'Escritório de gestão de altas')]
 total_cell = 'P71'
 period_label = 'Agosto/2025 a julho/2026'
-base_name = 'HUGO - Valores e produção Ago/25 - Jul/26'
+base_name = 'HUGO - Atualização valores e produção Ago/25 - Jul/26'
 reference_caption = 'Sobre a base de valores e produção'
 if args.basis == 'rebalance':
     groups = [(6, 10, 'Enfermarias'), (13, 16, 'UTI'), (21, 21, 'Emergência'),
@@ -38,7 +38,7 @@ if args.basis == 'rebalance':
               (60, 64, 'SADT externo'), (68, 68, 'Escritório de gestão de altas')]
     total_cell = 'P70'
     period_label = 'Janeiro a dezembro/2025'
-    base_name = 'Reequilíbrio - Valores e Produção Jan/25 - Dez/25'
+    base_name = 'Reequilíbrio - Atualização valores e produção Jan/25 - Dez/25'
     reference_caption = 'Sobre a base de reequilíbrio Jan/25 - Dez/25'
 
 

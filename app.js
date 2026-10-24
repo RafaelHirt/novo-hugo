@@ -5,7 +5,7 @@ import { renderComparison, setHugolComparison, setHugoComparison, setUpdatedComp
 import { initHugol, initIncrementScenario } from './hugol-ui.js';
 import { model as hugoIncrementModel } from './hugo-model.js';
 import { model as updatedModel, migrateSavedConfig as migrateUpdatedConfig } from './updated-model.js';
-import { occupancyControl, syncOccupancyControls, bindOccupancyControls, validOccupancy } from './occupancy.js';
+import { blockControls, syncBlockControls, bindBlockControls, validOccupancy, updateOccupancyComparison } from './occupancy.js';
 import { model as productionModel } from './production-model.js';
 import { model as rebalanceModel } from './rebalance-model.js';
 
@@ -83,20 +83,19 @@ function tables() {
         <span class="category-cost" data-group="${group}" title="Custo total da categoria"></span>
         <span class="category-chevron">${icon('chevron')}</span>
       </summary>
-      ${kind === 'bed' ? occupancyControl(group) : ''}
+      ${blockControls(group, kind === 'bed')}
       <div class="table-scroll" tabindex="0" role="region" aria-label="Serviços de ${group}">
         <table class="${withFactor ? 'with-factor' : 'without-factor'}">
-          <thead><tr><th scope="col">Ativo / serviço</th><th scope="col">${qtyLabel}</th>${withFactor ? `<th scope="col">${factorLabel}</th>` : ''}<th scope="col">${kind === 'surgery' ? 'Custo / hora' : 'Custo unitário'}</th><th scope="col">Total mensal</th><th scope="col"><span class="sr-only">Restaurar serviço</span></th></tr></thead>
+          <thead><tr><th scope="col">Ativo / serviço</th><th scope="col">${qtyLabel}</th>${withFactor ? `<th scope="col">${factorLabel}</th>` : ''}<th scope="col">${kind === 'surgery' ? 'Custo / hora' : 'Custo unitário'}</th><th scope="col">Total mensal</th></tr></thead>
           <tbody>${groupRows.map(row => `<tr data-row="${row.id}">
             <td><div class="service-cell"><label class="service-name">
               <input class="service-switch" type="checkbox" aria-label="Incluir ${row.name}" data-id="${row.id}" data-key="enabled" ${state[row.id].enabled ? 'checked' : ''}>
               <span>${row.name}<small>${row.kind === 'bed' ? `<span data-patient-days="${row.id}"></span> · ${number(DAYS_PER_MONTH)} dias/mês` : row.kind === 'surgery' ? 'Hora cirúrgica' : row.group === 'Escritório de gestão de altas' ? 'Nº de leitos' : 'Produção mensal'}</small></span>
             </label><span class="row-badge" data-badge="${row.id}"></span></div></td>
             <td data-label="${qtyLabel}">${field(row, 'qty', qtyLabel)}</td>
-            ${withFactor ? `<td data-label="${factorLabel}"><span class="factor-field">${field(row, 'factor', row.kind === 'bed' ? 'Ocupação (%)' : factorLabel)}<span>${row.kind === 'bed' ? '%' : 'h'}</span></span></td>` : ''}
+            ${withFactor ? `<td data-label="${factorLabel}"><span class="factor-field">${field(row, 'factor', row.kind === 'bed' ? 'Ocupação (%)' : factorLabel)}<span>${row.kind === 'bed' ? '%' : 'h'}</span></span>${row.kind === 'bed' ? '<span class="occupancy-change" data-occupancy-change hidden></span>' : ''}</td>` : ''}
             <td data-label="${kind === 'surgery' ? 'Custo / hora' : 'Custo unitário'}"><span class="unit-value">${field(row, 'unit', 'Custo unitário')}<small class="unit-source" data-unit-reference="${row.id}">Referência contratual</small></span></td>
             <td class="row-total" data-label="Total mensal" data-total="${row.id}"></td>
-            <td class="row-actions"><button class="icon-button row-reset" data-restore="${row.id}" aria-label="Restaurar ${row.name}" title="Restaurar valores deste serviço">${icon('reset')}</button></td>
           </tr>`).join('')}</tbody>
         </table>
       </div>
@@ -151,12 +150,13 @@ function update() {
     const badge = el.querySelector('[data-badge]');
     badge.textContent = enabled ? 'Alterado' : 'Retirado';
     badge.hidden = !isChanged;
-    const restore = el.querySelector('[data-restore]');
-    restore.disabled = !isChanged;
     el.querySelectorAll('input:not([type=checkbox])').forEach(input => input.disabled = !enabled);
-    el.querySelector('[data-unit-reference]').textContent = state[id].unit === rows[id].unit ? 'Referência contratual' : 'Preço editado · ref. contratual';
+    const reference = el.querySelector('[data-unit-reference]');
+    reference.textContent = state[id].unit === rows[id].unit ? 'Valor contratual' : 'Editado · valor contratual';
+    reference.dataset.edited = String(state[id].unit !== rows[id].unit);
+    if (rows[id].kind === 'bed') updateOccupancyComparison(el.querySelector('[data-occupancy-change]'), rows[id].factor, state[id].factor);
   });
-  syncOccupancyControls($('#tables'), rows, state);
+  syncBlockControls($('#tables'), rows, state, rows.filter(row => changed(row.id)).map(row => row.id));
   try {
     localStorage.setItem('novo-hugo-v1', JSON.stringify(state));
     $('#save-status').innerHTML = `${icon('check')}Salvo neste navegador`;
@@ -172,8 +172,11 @@ function clearFilters() {
   tables();
 }
 const tableContainer = $('#tables');
-bindOccupancyControls(tableContainer, () => ({ rows, state }), changes => {
+bindBlockControls(tableContainer, () => ({ rows, state }), changes => {
   for (const [id, patch] of Object.entries(changes)) Object.assign(state[id], patch);
+  tables();
+}, group => {
+  for (const row of rows) if (row.group === group) state[row.id] = { ...defaults[row.id] };
   tables();
 });
 tableContainer.addEventListener('toggle', event => {
@@ -215,14 +218,6 @@ tableContainer.addEventListener('focusout', event => {
   if ($('#changed-only').checked && !changed(+el.dataset.id)) tables();
 });
 tableContainer.addEventListener('click', event => {
-  const button = event.target.closest('[data-restore]');
-  if (button) {
-    const id = +button.dataset.restore;
-    state[id] = { ...defaults[id] };
-    tables();
-    const target = $(`[data-id="${id}"][data-key="enabled"]`) || $('#changed-only');
-    target.focus({ preventScroll: true });
-  }
   if (event.target.closest('#clear-filters')) clearFilters();
 });
 $('#search').addEventListener('input', tables);

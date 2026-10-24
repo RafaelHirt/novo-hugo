@@ -821,13 +821,13 @@ export const rebalanceSource = {
   "increments": [],
   "subtotalIssue": null,
   "baseNames": {
-    "new": "Reequilíbrio - Valores e Produção Jan/25 - Dez/25"
+    "new": "Reequilíbrio - Atualização valores e produção Jan/25 - Dez/25"
   },
   "referenceCaption": "Sobre a base de reequilíbrio Jan/25 - Dez/25",
   "presets": [
     {
       "id": "rebalance",
-      "name": "Reequilíbrio - Valores e Produção Jan/25 - Dez/25",
+      "name": "Reequilíbrio - Atualização valores e produção Jan/25 - Dez/25",
       "base": "new",
       "selected": [],
       "sourceSheet": "HUGO - ATUAL (PS 75%)",

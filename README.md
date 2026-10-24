@@ -7,12 +7,14 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 - Indicadores financeiros e projeção anual, com resumo fixo e compacto durante a rolagem.
 - Leitos de enfermaria (UI + PS Observação), UTI e total: inicialmente 336 + 70 = 406. Os 18 de PS Observação integram enfermaria por decisão do usuário; hospital dia e escritório de gestão de altas não entram nessa contagem.
 - Busca com ou sem acentos, filtro por categoria e opção de mostrar somente serviços alterados.
-- Categorias recolhíveis, destaque das alterações e restauração de valores por serviço.
+- Categorias recolhíveis, destaque das alterações e botão **Restaurar bloco** em cada categoria. Restaura ativação, quantidades, preços e ocupações daquele bloco, inclusive linhas ocultas por busca, preservando outros blocos e os incrementos selecionados.
 - Resumo financeiro fixo durante a edição e composição do custeio abaixo dos serviços.
 - Indicadores fixos somente no topo durante a rolagem, sem duplicar o resumo na parte inferior.
 - Paciente-dia projetado atualizado em cada linha de internação, com base em 30,4 dias por mês.
 - Ocupação em passos de 0,5 ponto percentual nas UI, UTI e PS Observação, preservando inclusive ocupações superiores a 100% presentes na fonte.
 - Controle de ocupação por bloco nas seis bases: aplica às linhas ativas de Enfermarias ou UTI, preservando o outro bloco. Enfermarias inclui PS Observação; filtros de busca não reduzem o alcance do bloco.
+- O campo de ocupação exibe **Digitar %** quando as taxas são diferentes. Linhas ajustadas mostram **Antes → Atual**, usando a ocupação original do cenário selecionado. A comparação permanece visível após recarregar ajustes salvos e desaparece quando o valor volta à referência.
+- Referências de preço aparecem em etiquetas com maior contraste: P25 azul, P50 verde, P75 âmbar, sempre com identificação textual. Preços editados mantêm o percentil de origem com indicação de edição; valores contratuais sem P ficam identificados.
 - Edição em cartões no celular e em tabelas no computador, com navegação por teclado.
 - Abas 5º T.A HUGO com bases R$ HUGOL e R$ HUGO: seis opções independentes (UI e UTI separadas) e edição dos serviços em cada base. Sete cenários originais na HUGOL e seis na HUGO.
 - Navegação agrupada em Contrato atual, 5º T.A HUGO, Reequilíbrio e Análise. No celular e em telas até 1.100 px, um seletor com grupos substitui as abas. Links com `#hugo-rebalance` e os demais IDs preservam a base ao atualizar a página; o atalho aos serviços acompanha a base ativa. Teclas de seta, Home e End continuam disponíveis nas abas do computador.
@@ -96,9 +98,9 @@ Na seleção HUGO - Base atualizada, o usuário pode editar os 42 serviços. Par
 
 Confira [a conferência da atualização](docs/atualizacao-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis updated` reproduz `updated-source.js`; o SHA-256 da fonte, as células de custo unitário e os percentis usados ficam registrados no arquivo gerado. As fórmulas não são executadas durante a importação.
 
-## Atualização de valores e produção
+## Atualização valores e produção
 
-A aba **5º T.A HUGO - Atualização de valores e produção** usa somente `HUGO - ATUAL` do arquivo `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (4).xlsx`, conforme esclarecimento do usuário. O total inicial é **R$ 26.618.281,37/mês** (P71), com 336 enfermaria + 70 UTI = 406 leitos. As 42 linhas preservam a produção H/J, as ocupações I e os custos escolhidos em verde: 34 linhas P50 e 8 P75. A importação verifica cada célula verde contra a fórmula P; Azul não é importada como cenário.
+A aba **5º T.A HUGO - Atualização valores e produção** usa somente `HUGO - ATUAL` do arquivo `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (4).xlsx`, conforme esclarecimento do usuário. O total inicial é **R$ 26.618.281,37/mês** (P71), com 336 enfermaria + 70 UTI = 406 leitos. As 42 linhas preservam a produção H/J, as ocupações I e os custos escolhidos em verde: 34 linhas P50 e 8 P75. A importação verifica cada célula verde contra a fórmula P; Azul não é importada como cenário.
 
 O paciente-dia segue `ROUND(leitos × ocupação × 30,4;0)`, inclusive os 120% do PS Observação e os 101% da UTI Adulto 1. Horas cirúrgicas também são arredondadas ao inteiro conforme a fonte. A ocupação pode ser editada por linha ou por bloco em passos de 0,5; aplicar ao bloco modifica somente linhas ativas e mantém quantidades e preços. O percentil aparece abaixo de cada custo unitário, no detalhe do comparativo e no CSV. Preços editados são identificados como edição com percentil de origem; valores contratuais das bases antigas não recebem um percentil inferido.
 
@@ -106,8 +108,14 @@ O salvamento próprio usa `novo-hugo-production-v1`; a aba não altera a base de
 
 ## Reequilíbrio · Jan/25 - Dez/25
 
-A aba **Reequilíbrio - Valores e Produção Jan/25 - Dez/25** usa somente `HUGO - ATUAL (PS 75%)` do arquivo `08 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - janeiro a dezembro 2025 (redução de leitos) (5).xlsx`, conforme escolha do usuário. Azul e HUGO - ATUAL (PS R$ 1175,34) não são importadas. O total P70 é **R$ 24.122.514,56/mês**, ou R$ 289.470.174,72/ano. A redução resulta em 306 enfermaria (incluindo 18 de PS Observação) + 60 UTI = 366 leitos; há quatro linhas de UTI.
+A aba **Reequilíbrio - Atualização valores e produção Jan/25 - Dez/25** usa somente `HUGO - ATUAL (PS 75%)` do arquivo `08 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - janeiro a dezembro 2025 (redução de leitos) (5).xlsx`, conforme escolha do usuário. Azul e HUGO - ATUAL (PS R$ 1175,34) não são importadas. O total P70 é **R$ 24.122.514,56/mês**, ou R$ 289.470.174,72/ano. A redução resulta em 306 enfermaria (incluindo 18 de PS Observação) + 60 UTI = 366 leitos; há quatro linhas de UTI.
 
 As 41 linhas preservam quantidades, ocupação, produção e preços da fonte. O Pronto Atendimento usa 2.770 atendimentos × R$ 600,15 (P75), somando R$ 1.662.415,50/mês. Os 34 preços P50 e 7 P75 são conferidos pelas fórmulas; 38 linhas têm seleção verde e três têm preenchimento rosa uniforme, com P50 identificado pela fórmula: Ecodoppler interno, externo e gestão de altas. O Ecodoppler interno tem produção zero e é mantido na lista sem custo inicial.
 
 O controle de ocupação por bloco, os ajustes por linha, a restauração e o CSV usam as mesmas regras da aba de produção. O salvamento é independente em `novo-hugo-rebalance-v1`, e o comparativo acompanha suas alterações. `python scripts/import-production.py /caminho/arquivo.xlsx --basis rebalance --sheet 'HUGO - ATUAL (PS 75%)'` reproduz `rebalance-source.js`. Confira [a conferência do Reequilíbrio](docs/reequilibrio-conferencia.md).
+
+## Referências dos incrementos com base R$ HUGO
+
+`02 NOVO HUGO - BASE HUGO VIGENTE CORRETA.xlsx` complementa a identificação dos preços, sem substituir quantidades, valores ou totais financeiros. A associação usa o preço contratual de cada categoria e sua referência explícita em `HUGO - ATUAL!O`, que aponta à célula escolhida em K/L/M. São **41 linhas P50, 4 P75 e 7 valores contratuais sem percentil definido**, incluindo os serviços dos incrementos.
+
+`K22:M22` é uma célula mesclada com o valor contratual do Pronto Atendimento, sem percentil específico. Ela não recebe rótulo P25 por estar ancorada em K. SAD, ressonância interna/externa, hemodinâmica e os dois serviços de hemoterapia também permanecem como valores contratuais. `python scripts/import-hugo-percentiles.py /caminho/arquivo.xlsx` acrescenta essas referências em `hugo-source.js`, depois da importação financeira; o SHA-256 desta fonte complementar é registrado em `percentileReference`. Os totais originais dos seis cenários permanecem conferidos.

@@ -6,6 +6,23 @@ import { hugoSource } from '../hugo-source.js';
 const policy = { includeOmittedWard: false };
 const cents = value => Math.round(value * 100);
 
+test('Referências HUGO usam os percentis do contrato e não atribuem P25 à célula mesclada do PS',()=>{
+  const rows=hugoSource.bases.new;
+  assert.deepEqual(rows.reduce((map,row)=>(map[row.unitBasis||'Contratual']=(map[row.unitBasis||'Contratual']||0)+1,map),{}),{P50:41,P75:4,Contratual:7});
+  const row=index=>rows.find(item=>item.id==='hugo-new-'+index);
+  assert.equal(row(6).unitBasis,'P50');assert.equal(row(6).unit,999.23);
+  assert.equal(row(16).unitBasis,'P75');assert.equal(row(16).unit,3069.99);
+  assert.equal(row(38).unitBasis,'P50');assert.equal(row(41).unitBasis,'P75');
+  assert.equal(row(23).unitBasis,null);assert.equal(row(23).unitReference,'Valor contratual');
+  assert.deepEqual(row(23).sourcePercentileCells,['K22']);
+  for(const index of [26,57,80,83,84])assert.equal(row(index).unitBasis,null);
+  assert.equal(hugoSource.percentileReference.fileName,'02 NOVO HUGO - BASE HUGO VIGENTE CORRETA.xlsx');
+  for(const preset of model.presets){
+    const snapshot=model.snapshot(model.presetState(preset.id),policy);
+    for(const item of snapshot.rows)assert.equal(item.unitBasis,row(item.sourceRow).unitBasis);
+  }
+});
+
 test('Os seis cenários da nova base HUGO reproduzem a planilha em centavos', () => {
   const audit = model.workbookAudit(policy);
   assert.deepEqual(audit.map(item => cents(item.dashboardTotal)), [2866520156,2884564106,2898814106,2922153506,3033827006,3346998097]);

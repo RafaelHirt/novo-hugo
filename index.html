@@ -30,7 +30,7 @@
       <div class="scenario-navigation-heading"><strong>Bases de custeio</strong><span>Selecione a base e o período para ajustar o cenário.</span></div>
       <label class="scenario-picker" for="scenario-picker"><span>Base selecionada</span><select id="scenario-picker">
         <optgroup label="Contrato atual"><option value="hugo">4 T.A (Atual)</option></optgroup>
-        <optgroup label="5º T.A HUGO"><option value="hugol">Incrementos · Base R$ HUGOL</option><option value="hugo-increment">Incrementos · Base R$ HUGO</option><option value="hugo-updated">Valores · Ago/25 - Jul/26</option><option value="hugo-production">Valores e produção · Ago/25 - Jul/26</option></optgroup>
+        <optgroup label="5º T.A HUGO"><option value="hugol">Incrementos · Base R$ HUGOL</option><option value="hugo-increment">Incrementos · Base R$ HUGO</option><option value="hugo-updated">Valores · Ago/25 - Jul/26</option><option value="hugo-production">Atualização valores e produção</option></optgroup>
         <optgroup label="Reequilíbrio"><option value="hugo-rebalance">Reequilíbrio · Jan/25 - Dez/25</option></optgroup>
         <optgroup label="Análise"><option value="comparison">Comparativo de cenários</option></optgroup>
       </select></label>
@@ -42,10 +42,10 @@
           <button id="tab-hugol" class="tab" data-tab="hugol" role="tab" aria-selected="false" aria-controls="hugol" tabindex="-1" aria-label="5º T.A HUGO - Incremento de serviços (Base R$ HUGOL)"><span data-icon="document"></span><span class="tab-label">Incremento de serviços<small>Base R$ HUGOL</small></span></button>
           <button id="tab-hugo-increment" class="tab" data-tab="hugo-increment" role="tab" aria-selected="false" aria-controls="hugo-increment" tabindex="-1" aria-label="5º T.A HUGO - Incremento de serviços (Base R$ HUGO)"><span data-icon="document"></span><span class="tab-label">Incremento de serviços<small>Base R$ HUGO</small></span></button>
           <button id="tab-hugo-updated" class="tab" data-tab="hugo-updated" role="tab" aria-selected="false" aria-controls="hugo-updated" tabindex="-1" aria-label="5º T.A HUGO - Atualização de valores"><span data-icon="document"></span><span class="tab-label">Atualização de valores<small>Ago/25 - Jul/26</small></span></button>
-          <button id="tab-hugo-production" class="tab" data-tab="hugo-production" role="tab" aria-selected="false" aria-controls="hugo-production" tabindex="-1" aria-label="5º T.A HUGO - Atualização de valores e produção"><span data-icon="document"></span><span class="tab-label">Valores e produção<small>Ago/25 - Jul/26</small></span></button>
+          <button id="tab-hugo-production" class="tab" data-tab="hugo-production" role="tab" aria-selected="false" aria-controls="hugo-production" tabindex="-1" aria-label="5º T.A HUGO - Atualização valores e produção"><span data-icon="document"></span><span class="tab-label">Atualização valores e produção<small>Ago/25 - Jul/26</small></span></button>
         </div></div>
         <div class="scenario-navigation-group" role="presentation"><span class="navigation-group-label">Reequilíbrio</span><div class="navigation-group-options" role="presentation">
-          <button id="tab-hugo-rebalance" class="tab" data-tab="hugo-rebalance" role="tab" aria-selected="false" aria-controls="hugo-rebalance" tabindex="-1" aria-label="Reequilíbrio - Valores e Produção Jan/25 - Dez/25"><span data-icon="document"></span><span class="tab-label">Valores e produção<small>Jan/25 - Dez/25</small></span></button>
+          <button id="tab-hugo-rebalance" class="tab" data-tab="hugo-rebalance" role="tab" aria-selected="false" aria-controls="hugo-rebalance" tabindex="-1" aria-label="Reequilíbrio - Atualização valores e produção Jan/25 - Dez/25"><span data-icon="document"></span><span class="tab-label">Atualização valores e produção<small>Jan/25 - Dez/25</small></span></button>
         </div></div>
         <div class="scenario-navigation-group" role="presentation"><span class="navigation-group-label">Análise</span><div class="navigation-group-options" role="presentation">
           <button id="tab-comparison" class="tab" data-tab="comparison" role="tab" aria-selected="false" aria-controls="comparison" tabindex="-1"><span data-icon="chart"></span><span class="tab-label">Comparativo<small>Cenários selecionados</small></span></button>
@@ -184,7 +184,7 @@
     </section>
     <section id="hugo-production" role="tabpanel" aria-labelledby="tab-hugo-production" hidden>
       <div class="context">
-        <div><span class="section-eyebrow">5º TERMO ADITIVO · VALORES E PRODUÇÃO</span><h2>5º T.A HUGO - Atualização de valores e produção</h2><p>HUGO - ATUAL · Agosto/2025 a julho/2026. Custos dos percentis selecionados em verde na planilha.</p></div>
+        <div><span class="section-eyebrow">5º TERMO ADITIVO · VALORES E PRODUÇÃO</span><h2>5º T.A HUGO - Atualização valores e produção</h2><p>HUGO - ATUAL · Agosto/2025 a julho/2026. Custos dos percentis selecionados em verde na planilha.</p></div>
         <div class="context-actions"><button id="production-reset" class="button secondary"><span data-icon="reset"></span>Restaurar base</button><button id="production-export" class="button primary"><span data-icon="download"></span>Exportar cenário CSV</button></div>
       </div>
       <div id="production-summary-sentinel" class="summary-sentinel" data-summary-sentinel="hugo-production" aria-hidden="true"></div>
@@ -203,7 +203,7 @@
     </section>
     <section id="hugo-rebalance" role="tabpanel" aria-labelledby="tab-hugo-rebalance" hidden>
       <div class="context">
-        <div><span class="section-eyebrow">REEQUILÍBRIO · JANEIRO A DEZEMBRO/2025</span><h2>Reequilíbrio - Valores e Produção Jan/25 - Dez/25</h2><p>HUGO - ATUAL (PS 75%) · Janeiro a dezembro/2025. Custos e produção conforme a planilha.</p></div>
+        <div><span class="section-eyebrow">REEQUILÍBRIO · JANEIRO A DEZEMBRO/2025</span><h2>Reequilíbrio - Atualização valores e produção Jan/25 - Dez/25</h2><p>HUGO - ATUAL (PS 75%) · Janeiro a dezembro/2025. Custos e produção conforme a planilha.</p></div>
         <div class="context-actions"><button id="rebalance-reset" class="button secondary"><span data-icon="reset"></span>Restaurar base</button><button id="rebalance-export" class="button primary"><span data-icon="download"></span>Exportar cenário CSV</button></div>
       </div>
       <div id="rebalance-summary-sentinel" class="summary-sentinel" data-summary-sentinel="hugo-rebalance" aria-hidden="true"></div>
@@ -223,7 +223,7 @@
     <section id="comparison" role="tabpanel" aria-labelledby="tab-comparison" hidden>
       <div class="context"><div><span class="section-eyebrow">VISÃO COMPARATIVA</span><h2>Compare os cenários selecionados</h2><p>Valores e serviços acompanham os ajustes salvos em cada aba.</p></div><button id="comparison-export" class="button secondary"><span data-icon="download"></span>Exportar comparativo</button></div>
       <div class="comparison-toolbar">
-        <label for="comparison-reference"><span>Referência das diferenças</span><select id="comparison-reference"><option value="current">4 T.A (Atual)</option><option value="hugol">5º T.A · Base R$ HUGOL</option><option value="hugoBase">5º T.A · Base R$ HUGO</option><option value="updated">5º T.A · Atualização de valores</option><option value="production">5º T.A · Valores e produção</option><option value="rebalance">Reequilíbrio · Jan/25 - Dez/25</option></select></label>
+        <label for="comparison-reference"><span>Referência das diferenças</span><select id="comparison-reference"><option value="current">4 T.A (Atual)</option><option value="hugol">5º T.A · Base R$ HUGOL</option><option value="hugoBase">5º T.A · Base R$ HUGO</option><option value="updated">5º T.A · Atualização de valores</option><option value="production">Atualização valores e produção</option><option value="rebalance">Reequilíbrio · Jan/25 - Dez/25</option></select></label>
         <div class="period-switch" role="group" aria-label="Período da comparação"><button type="button" data-comparison-period="monthly" aria-pressed="true">Mensal</button><button type="button" data-comparison-period="annual" aria-pressed="false">Anual</button></div>
         <label class="comparison-differences"><input id="comparison-differences" type="checkbox" checked>Mostrar apenas diferenças</label>
       </div>

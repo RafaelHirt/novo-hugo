@@ -843,13 +843,13 @@ export const productionSource = {
   "increments": [],
   "subtotalIssue": null,
   "baseNames": {
-    "new": "HUGO - Valores e produção Ago/25 - Jul/26"
+    "new": "HUGO - Atualização valores e produção Ago/25 - Jul/26"
   },
   "referenceCaption": "Sobre a base de valores e produção",
   "presets": [
     {
       "id": "production",
-      "name": "HUGO - Valores e produção Ago/25 - Jul/26",
+      "name": "HUGO - Atualização valores e produção Ago/25 - Jul/26",
       "base": "new",
       "selected": [],
       "sourceSheet": "HUGO - ATUAL",

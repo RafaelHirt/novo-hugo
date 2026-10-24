@@ -49,6 +49,12 @@ export function createIncrementModel(source, basisName) {
     return { ...next, edits: { ...next.edits, [row.id]: { ...next.edits[row.id], enabled: true, qty: quantity } } };
   }
 
+  function restoreGroup(config, group) {
+    config = normalizeConfig(config);
+    const ids = new Set(buildRows(config).filter(row => row.group === group).map(row => row.id));
+    return { ...config, edits: Object.fromEntries(Object.entries(config.edits || {}).filter(([id]) => !ids.has(id))) };
+  }
+
   function volume(row, state) {
     if (!state.enabled) return 0;
     let value = state.qty;
@@ -147,5 +153,5 @@ export function createIncrementModel(source, basisName) {
     option.sadtAmountCents = option.amountCents - option.bedAmountCents;
   }
 
-  return { increments, presets, subtotalIssue, presetState, setIncrement, setHemodynamicsVolume, normalizeConfig, volume, rowCost, snapshot: scenarioSnapshot, workbookAudit };
+  return { increments, presets, subtotalIssue, presetState, setIncrement, setHemodynamicsVolume, restoreGroup, normalizeConfig, volume, rowCost, snapshot: scenarioSnapshot, workbookAudit };
 }

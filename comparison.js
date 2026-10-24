@@ -8,8 +8,8 @@ const definitions = [
   { id:'hugol', label:'5º T.A · Base R$ HUGOL', title:'5º T.A HUGO', subtitle:'Base R$ HUGOL', totalId:'comparison-hugol-total', footerId:'comparison-hugol-footer-total' },
   { id:'hugoBase', label:'5º T.A · Base R$ HUGO', title:'5º T.A HUGO', subtitle:'Base R$ HUGO', totalId:'comparison-hugo-total', footerId:'comparison-hugo-footer-total' },
   { id:'updated', label:'5º T.A · Atualização de valores', title:'5º T.A HUGO', subtitle:'Atualização de valores', totalId:'comparison-updated-total', footerId:'comparison-updated-footer-total' },
-  { id:'production', label:'5º T.A · Atualização de valores e produção', title:'5º T.A HUGO', subtitle:'Atualização de valores e produção', totalId:'comparison-production-total', footerId:'comparison-production-footer-total' },
-  { id:'rebalance', label:'Reequilíbrio · Jan/25 - Dez/25', title:'Reequilíbrio', subtitle:'Valores e produção · Jan/25 - Dez/25', totalId:'comparison-rebalance-total', footerId:'comparison-rebalance-footer-total' },
+  { id:'production', label:'5º T.A · Atualização valores e produção', title:'5º T.A HUGO', subtitle:'Atualização valores e produção', totalId:'comparison-production-total', footerId:'comparison-production-footer-total' },
+  { id:'rebalance', label:'Reequilíbrio · Jan/25 - Dez/25', title:'Reequilíbrio', subtitle:'Atualização valores e produção · Jan/25 - Dez/25', totalId:'comparison-rebalance-total', footerId:'comparison-rebalance-footer-total' },
 ];
 let referenceId = 'current', annual = false, initialized = false;
 const $ = selector => document.querySelector(selector);

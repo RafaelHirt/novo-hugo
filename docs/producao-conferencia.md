@@ -21,7 +21,7 @@ Os cabeçalhos K3, L3 e M3 identificam P25, P50 e P75. Em cada uma das 42 linhas
 
 Há **34 linhas P50 e 8 P75**, sem seleção P25 nesta versão. P75 está nas cinco UTI, na UI da população privada de liberdade, no Pronto Atendimento e nas cirurgias de alto custo. O Pronto Atendimento usa M22 = R$ 624,80 e 2.802 atendimentos: R$ 1.750.689,60/mês. A referência é M22 desta planilha; a fórmula M23 usada na fonte anterior permanece somente naquela fonte.
 
-Os percentis são apresentados junto ao custo unitário de cada linha, no detalhe do comparativo e no CSV do cenário. Ao editar o preço, a indicação passa a “Preço editado · ref. P50/P75”, preservando o percentil de origem. Nas bases contratuais sem percentil identificado, apresenta-se a referência contratual, HUGO ou HUGOL.
+Os percentis são apresentados em etiquetas junto ao custo unitário, no detalhe do comparativo e no CSV do cenário. Ao editar o preço, a indicação passa a “Editado · ref. P50/P75”, preservando o percentil de origem. Nas bases contratuais sem percentil identificado, apresenta-se o valor contratual, HUGO ou HUGOL. Ocupações alteradas mostram a taxa original e a ajustada em “Antes → Atual”; **Restaurar bloco** retorna todos os serviços daquela categoria ao cenário de referência, preservando os outros blocos.
 
 ## Produção e ocupação
 
