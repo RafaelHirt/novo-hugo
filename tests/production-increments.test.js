@@ -106,3 +106,14 @@ test('Migração preserva ajustes da produção atual; novos cenários e compara
   assert.equal(comparison.scenarios[1].amount,367304318.76);
   assert.equal(snapshot(model.presetState('production')).total,26618281.37);
 });
+
+test('A versão 3 preserva o modo Novo Prédio e os ajustes separados das duas possibilidades',()=>{
+  const saved={...withPrices(),version:3,drafts:{
+    same:{...model.presetState('production'),edits:{'production-6':{factor:80}}},
+    new:withPrices(),
+  }};
+  const migrated=migrateSavedConfig(saved);
+  assert.deepEqual(migrated,saved);assert.equal(migrated.base,'new');
+  assert.equal(snapshot(migrated.drafts.same).state['production-6'].factor,80);
+  assert.equal(snapshot(migrated.drafts.new).state['production-new-80'].unit,500);
+});

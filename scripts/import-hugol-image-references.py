@@ -72,7 +72,7 @@ def money(value):
 
 report = [
     '# Conferência dos percentis HUGOL', '',
-    'Registro técnico dos preços importados antes da correção confirmada pelo usuário. O modelo atual aplica R$ 4.948,21 à gestão de altas. As referências e etiquetas desta conferência não são exibidas na interface, no comparativo ou no CSV das bases HUGOL e HUGO.', '',
+    'Registro técnico dos preços importados antes da correção confirmada pelo usuário. O modelo atual aplica R$ 4.948,21 à gestão de altas. As referências foram restauradas na interface, no comparativo e no CSV. A base HUGOL usa o P confirmado da imagem; a base HUGO usa valor contratual, sem Ps inferidos.', '',
     f"Fonte das referências: {reference['source']}. A seleção usa a coluna verde da imagem, identificada por serviço, nunca a igualdade isolada de preços. A fonte financeira continua sendo `01 NOVO HUGO - BASE HUGOL.xlsx`.", '',
     '## Resultado', '',
     '- Novo Prédio (52 linhas, incluindo os serviços dos incrementos): 46 custos unitários conferem, 1 diverge e 5 não têm referência na imagem.',

@@ -1,11 +1,11 @@
 # Novo Prédio com valores e produção atualizados
 
-O seletor da aba Ago/25 - Jul/26 oferece a base atual de 42 serviços (R$ 26.618.281,37/mês) e **Novo Prédio - Base Ago/25 - Jul/26** (52 linhas, R$ 29.304.814,03/mês sem incrementos). A opção de novo prédio foi confirmada pelo usuário; a base original e seus ajustes foram preservados.
+Os dois cartões de escolha da aba Ago/25 - Jul/26 oferecem a base atual de 42 serviços (R$ 26.618.281,37/mês) e **Novo Prédio + serviços** (52 linhas, R$ 29.304.814,03/mês sem incrementos). A opção de novo prédio foi confirmada pelo usuário; a base original e seus ajustes foram preservados.
 
 ## Fontes e preços
 
 - Quantitativos, distribuição, ocupação de referência e incrementos: Novo Prédio da base HUGO (`02 NOVO HUGO - BASE HUGO VIGENTE (3).xlsx`).
-- Custos unitários e percentis: os serviços já importados de `HUGO - ATUAL` do arquivo `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (4).xlsx`.
+- Custos unitários e percentis: os serviços já importados de `HUGO - ATUAL` do arquivo `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (3).xlsx`.
 - O mapeamento explícito por linha está em `production-model.js`. Cada preço conhecido registra arquivo, aba, linha e célula de origem; as quantidades têm sua própria origem. São 46 linhas com preço conhecido e seis linhas sem preço (cinco serviços distintos).
 
 UI médicas e cirúrgicas gerais usam o preço atualizado de R$ 1.079,46/P50. As três UTI adultas usam R$ 3.301,57/P75. Pronto Atendimento usa R$ 624,80/P75. As cirurgias de alto custo usam R$ 3.117,87/P75 e as demais, R$ 2.394,43/P50. As linhas externas de ecocardiograma e raio X usam os preços dos mesmos exames internos da base de produção. A gestão de altas nesta base mantém R$ 5.153,41/P50; a correção de R$ 4.948,21 foi solicitada somente para a base HUGOL.
@@ -22,9 +22,9 @@ Os leitos do novo prédio usam arredondamento de paciente-dia para cima e ocupa�
 | Atendimento domiciliar (SAD) | 120 atendimentos/mês | A informar |
 | Hemodinâmica | 250 ou 450 procedimentos/mês | A informar |
 
-Esses preços permanecem `null`, sem usar os preços HUGOL, contratuais ou da aba oculta. Os cartões apresentam **Custo a informar**, com campos para o usuário fornecer os valores. Banco de sangue exige seus dois preços; o campo de ressonância abastece as duas linhas. A caixa do incremento só é liberada depois que seus preços estiverem informados. **Selecionar disponíveis** inclui somente opções com todos os custos definidos. Valores explicitamente informados como zero são aceitos; ausência de informação não equivale a zero.
+Esses preços permanecem `null`, sem usar os preços HUGOL, contratuais ou da aba oculta. Os cartões apresentam **Custo a informar** e um editor recolhido em “Informar custos unitários”, com campos para o usuário fornecer os valores. Banco de sangue exige seus dois preços; o campo de ressonância abastece as duas linhas. A caixa do incremento só é liberada depois que seus preços estiverem informados. **Selecionar disponíveis** inclui somente opções com todos os custos definidos. Valores explicitamente informados como zero são aceitos; ausência de informação não equivale a zero.
 
-Os preços informados são salvos neste navegador e identificados como **Informado para simulação**, sem inferir P. Alternar o incremento preserva esses preços e restaura seu volume de referência. Restaurar um bloco com preço originalmente ausente mantém o preço informado e restaura seus outros campos. A restauração geral limpa também esses preços. A validação do modelo rejeita seleções ativas com custos pendentes.
+Os preços informados são salvos neste navegador e identificados como **Informado para simulação**, sem inferir P. Alternar o incremento preserva esses preços e restaura seu volume de referência. Restaurar um bloco com preço originalmente ausente mantém o preço informado e restaura seus outros campos. A restauração do cenário de Novo Prédio limpa também esses preços, preservando os ajustes da base atualizada. A validação do modelo rejeita seleções ativas com custos pendentes.
 
 ## Adequações de leitos
 
@@ -46,6 +46,6 @@ O total com serviços adicionais depende dos preços que ainda serão informados
 
 ## Salvamento e validação
 
-O armazenamento `novo-hugo-production-v1` passa à versão 2. A migração reconhece a antiga base `new` de 42 serviços e a transforma em `same`, preservando todas as edições; a nova base `new` de 52 linhas tem IDs próprios. Dados das demais abas permanecem separados.
+O armazenamento `novo-hugo-production-v1` usa a versão 3. Os dois cartões de escolha mantêm rascunhos separados por base em `drafts`. Alternar e recarregar preservam os dois cenários; a restauração geral limpa apenas a possibilidade ativa, mantendo a outra. A migração reconhece a antiga base `new` de 42 serviços e a transforma em `same`, preservando todas as edições; a nova base `new` de 52 linhas tem IDs próprios. Dados das demais abas permanecem separados.
 
 Os testes verificam os preços e as quantidades de cada fonte, ausência de preços inventados, seleção bloqueada sem custo, as 64 combinações com preços explicitamente fornecidos dentro do teste, hemodinâmica 250/450, restauração, migração e integração mensal/anual com o comparativo.

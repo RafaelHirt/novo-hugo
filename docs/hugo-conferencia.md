@@ -44,7 +44,7 @@ Os totais originais têm frações abaixo de um centavo em algumas células. A i
 
 ## Referência contratual
 
-As seis abas dos cenários de incremento não contêm cabeçalhos P25, P50 ou P75. A coluna M é **Valor Contrato HUGO**, com o preço usado no custo mensal. O caráter contratual permanece registrado nos metadados. Por solicitação do usuário, as etiquetas de referência e a coluna de referência do CSV foram ocultadas nas bases HUGO e HUGOL.
+As seis abas dos cenários de incremento não contêm cabeçalhos P25, P50 ou P75. A coluna M é **Valor Contrato HUGO**, com o preço usado no custo mensal. As referências foram restauradas por solicitação do usuário: as 52 linhas mostram **Valor contratual** na interface, no CSV e no comparativo, sem inferir P.
 
 A associação anterior com percentis de HUGO - ATUAL, feita por igualdade de preço e categoria, era uma inferência e foi removida. Essa igualdade não comprova uma classificação P para as abas dos incrementos. Quantidades, preços, produção e totais financeiros foram preservados.
 

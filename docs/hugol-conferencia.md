@@ -1,6 +1,6 @@
 # Conferência da base HUGOL
 
-Correção posterior confirmada pelo usuário: gestão de altas usa **R$ 4.948,21 por unidade** em todos os cenários HUGOL. A base sem aumento passa a R$ 25.963.506,96 (5 unidades); o novo prédio base, R$ 27.381.560,79; o completo com 250 hemodinâmicas, R$ 32.038.952,33; com 450, R$ 32.932.340,33 (10 unidades). A alteração está explícita em `hugol-model.js`, preservando a importação original documentada abaixo. As etiquetas e os avisos de referência foram retirados da interface, do comparativo e do CSV das bases HUGOL e HUGO.
+Correção posterior confirmada pelo usuário: gestão de altas usa **R$ 4.948,21 por unidade** em todos os cenários HUGOL. A base sem aumento passa a R$ 25.963.506,96 (5 unidades); o novo prédio base, R$ 27.381.560,79; o completo com 250 hemodinâmicas, R$ 32.038.952,33; com 450, R$ 32.932.340,33 (10 unidades). A alteração está explícita em `hugol-model.js`, preservando a importação original documentada abaixo. As referências foram restauradas na interface, no comparativo e no CSV: os Ps confirmados da imagem HUGOL e o valor contratual HUGO. Com a correção de gestão de altas, 47 preços do novo prédio conferem e cinco continuam sem referência na imagem; na base sem aumento, são 35 confirmados e sete sem referência.
 
 Fonte atual: `01 NOVO HUGO - BASE HUGOL.xlsx`. Importação dos valores armazenados nas sete abas de cenários; HUGO - ATUAL, Azul e RESUMO não são fontes importadas. A assinatura SHA-256 consta em `hugol-source.js`.
 

@@ -13,6 +13,7 @@ const snapshot=config=>model.snapshot(config,policy);
 test('Valores e produção reproduzem as 42 linhas verdes e o total P71 de HUGO - ATUAL',()=>{
   const s=snapshot(initial());
   assert.equal(productionSource.sourceSheet,'HUGO - ATUAL');
+  assert.equal(productionSource.fileName,'06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (3).xlsx');
   assert.equal(s.rows.length,42);assert.equal(s.total,26618281.37);assert.equal(s.baseTotal,26618281.37);assert.equal(s.delta,0);
   assert.deepEqual(s.beds,{ward:336,icu:70,total:406});
   assert.equal(model.workbookAudit(policy)[0].difference,0);

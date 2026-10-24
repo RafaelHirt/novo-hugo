@@ -1,4 +1,4 @@
-import { currency, signedCurrency, number, escapeHtml as h } from './format.js';
+import { currency, signedCurrency, number, describePriceReference, escapeHtml as h } from './format.js';
 import { buildComparison } from './comparison-model.js';
 import { icon } from './icons.js';
 
@@ -67,7 +67,7 @@ function refresh() {
   $('#comparison-services').innerHTML=view.services.map(row=>`<tr><th scope="row">${h(row.name)}<small>${h(row.group)}</small></th>${row.cells.map(cell=>{
     const quantityLabel=cell.row?.bedType==='observation'?'Leitos de observação':cell.row?.kind==='bed'?'Leitos':'Quantidade';
     const caption=!cell.present?'Sem este serviço':`${quantityLabel}: ${number(cell.quantity)}${cell.enabled?'':cell.row?.available===false?' · Não selecionado':' · Retirado'}${cell.excluded?' · Fora do subtotal':''}`;
-    const sourceCaption=['hugol','hugoBase'].includes(cell.id) ? '' : cell.row?.unitBasis ? 'Percentil de origem: '+cell.row.unitBasis : '';
+    const sourceCaption=cell.row && (cell.row.unitBasis || cell.row.unitReference || cell.row.priceReference) ? describePriceReference(cell.row,cell.unit).exportLabel : '';
     return `<td data-label="${h(view.scenarios.find(item=>item.id===cell.id).label)}" class="compare-value ${cell.isReference?'reference-column':''}"><span class="compare-cell-main">${cell.present?currency(cell.amount):'—'}</span><small class="comparison-quantity">${h(caption)}${sourceCaption ? `<br>${h(sourceCaption)}` : ''}</small>${deltaMarkup(cell)}</td>`;
   }).join('')}</tr>`).join('') || `<tr class="comparison-empty"><td colspan="${view.scenarios.length+1}">Nenhum serviço encontrado para os filtros selecionados.</td></tr>`;
 }

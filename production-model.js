@@ -53,5 +53,5 @@ export const model = createIncrementModel(productionScenarioSource, 'HUGO · val
 export function migrateSavedConfig(saved) {
   // v1 used "new" for the existing 42-service worksheet, before there was a
   // new-building simulation. Preserve all existing row edits and production.
-  return saved && saved.version !== 2 && saved.base === 'new' ? { ...saved, base: 'same' } : saved;
+  return saved && (!Number.isInteger(saved.version) || saved.version < 2) && saved.base === 'new' ? { ...saved, base: 'same' } : saved;
 }

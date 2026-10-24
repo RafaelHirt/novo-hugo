@@ -1,6 +1,6 @@
 # Conferência de valores e produção
 
-Fonte: `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (4).xlsx`. Somente a aba **HUGO - ATUAL** é importada, conforme esclarecimento do usuário. O total P71 é **R$ 26.618.281,37 por mês**, ou R$ 319.419.376,44 por ano. A aba anterior de Atualização de valores está oculta e tem sua própria fonte, ajustes e correção de preço de PA. A aba de valores e produção também oferece a simulação do Novo Prédio com incrementos, descrita em [composição dos incrementos](producao-incrementos.md).
+Fonte: `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (3).xlsx`. Somente a aba **HUGO - ATUAL** é importada, conforme esclarecimento do usuário. O total P71 é **R$ 26.618.281,37 por mês**, ou R$ 319.419.376,44 por ano. A aba anterior de Atualização de valores está oculta e tem sua própria fonte, ajustes e correção de preço de PA. A aba de valores e produção também oferece a simulação do Novo Prédio com incrementos, descrita em [composição dos incrementos](producao-incrementos.md).
 
 | Categoria | Total mensal |
 | --- | ---: |
@@ -21,7 +21,7 @@ Os cabeçalhos K3, L3 e M3 identificam P25, P50 e P75. Em cada uma das 42 linhas
 
 Há **34 linhas P50 e 8 P75**, sem seleção P25 nesta versão. P75 está nas cinco UTI, na UI da população privada de liberdade, no Pronto Atendimento e nas cirurgias de alto custo. O Pronto Atendimento usa M22 = R$ 624,80 e 2.802 atendimentos: R$ 1.750.689,60/mês. A referência é M22 desta planilha. A fonte anterior também passou a usar o preço P75 de R$ 624,80, por correção explícita do usuário, mantendo o arquivo importado intacto.
 
-Os percentis são apresentados em etiquetas junto ao custo unitário, no detalhe do comparativo e no CSV do cenário. Ao editar o preço, a indicação passa a “Editado · ref. P50/P75”, preservando o percentil de origem. As bases de incrementos HUGO e HUGOL não exibem etiquetas nem percentis por solicitação do usuário. Ocupações alteradas mostram a taxa original e a ajustada em “Antes → Atual”; **Restaurar bloco** retorna todos os serviços daquela categoria ao cenário de referência, preservando os outros blocos.
+Os percentis são apresentados em etiquetas junto ao custo unitário, no detalhe do comparativo e no CSV do cenário. Ao editar o preço, a indicação passa a “Editado · ref. P50/P75”, preservando o percentil de origem. As bases de incrementos HUGO e HUGOL também voltaram a exibir suas referências, respectivamente como valores contratuais e Ps confirmados na imagem. Ocupações alteradas mostram a taxa original e a ajustada em “Antes → Atual”; **Restaurar bloco** retorna todos os serviços daquela categoria ao cenário de referência, preservando os outros blocos.
 
 ## Produção e ocupação
 
@@ -35,3 +35,7 @@ O botão “Aplicar ao bloco” altera as ocupações de todas as linhas ativas 
 - UTI a 90%: R$ 6.325.808,12 no bloco e R$ 26.819.677,14 no total.
 
 O controle existe nas cinco bases financeiras. Estados são independentes; a nova aba salva em `novo-hugo-production-v1`. O comparativo recebe as cinco seleções visíveis atuais e permite escolher esta base como referência. O arquivo gerado registra SHA-256, linhas, células verdes e fórmulas de origem em `production-source.js`; esses dados exigem autenticação.
+
+## Escolha da possibilidade
+
+Dois cartões no início da aba apresentam **Base atualizada** (R$ 26.618.281,37/mês) e **Novo Prédio + serviços** (base sem incrementos de R$ 29.304.814,03/mês). A referência da primeira é o arquivo (3), com PA de R$ 624,80. Os incrementos aparecem apenas na segunda possibilidade; as duas mantêm ajustes e restaurações independentes, inclusive após recarregar. Campos de custos pendentes ficam em editores recolhidos nos cartões de serviço.

@@ -35,21 +35,13 @@
         <optgroup label="Análise"><option value="comparison">Comparativo de cenários</option></optgroup>
       </select></label>
       <div class="scenario-navigation-groups" role="tablist" aria-label="Bases da simulação">
-        <div class="scenario-navigation-group" role="presentation"><span class="navigation-group-label">Contrato atual</span><div class="navigation-group-options" role="presentation">
-          <button id="tab-hugo" class="tab active" data-tab="hugo" role="tab" aria-selected="true" aria-controls="hugo"><span data-icon="document"></span><span class="tab-label">4 T.A (Atual)<small>Base contratual</small></span></button>
-        </div></div>
-        <div class="scenario-navigation-group navigation-fifth" role="presentation"><span class="navigation-group-label">5º T.A HUGO</span><div class="navigation-group-options" role="presentation">
-          <button id="tab-hugol" class="tab" data-tab="hugol" role="tab" aria-selected="false" aria-controls="hugol" tabindex="-1" aria-label="5º T.A HUGO - Incremento de serviços (Base R$ HUGOL)"><span data-icon="document"></span><span class="tab-label">Incremento de serviços<small>Base R$ HUGOL</small></span></button>
-          <button id="tab-hugo-increment" class="tab" data-tab="hugo-increment" role="tab" aria-selected="false" aria-controls="hugo-increment" tabindex="-1" aria-label="5º T.A HUGO - Incremento de serviços (Base R$ HUGO)"><span data-icon="document"></span><span class="tab-label">Incremento de serviços<small>Base R$ HUGO</small></span></button>
-          <button id="tab-hugo-updated" class="tab" data-tab="hugo-updated" role="tab" aria-selected="false" aria-controls="hugo-updated" tabindex="-1" aria-label="5º T.A HUGO - Atualização de valores" hidden><span data-icon="document"></span><span class="tab-label">Atualização de valores<small>Ago/25 - Jul/26</small></span></button>
-          <button id="tab-hugo-production" class="tab" data-tab="hugo-production" role="tab" aria-selected="false" aria-controls="hugo-production" tabindex="-1" aria-label="5º T.A HUGO - Atualização valores e produção"><span data-icon="document"></span><span class="tab-label">Atualização valores e produção<small>Ago/25 - Jul/26</small></span></button>
-        </div></div>
-        <div class="scenario-navigation-group" role="presentation"><span class="navigation-group-label">Reequilíbrio</span><div class="navigation-group-options" role="presentation">
-          <button id="tab-hugo-rebalance" class="tab" data-tab="hugo-rebalance" role="tab" aria-selected="false" aria-controls="hugo-rebalance" tabindex="-1" aria-label="Reequilíbrio - Atualização valores e produção Jan/25 - Dez/25"><span data-icon="document"></span><span class="tab-label">Atualização valores e produção<small>Jan/25 - Dez/25</small></span></button>
-        </div></div>
-        <div class="scenario-navigation-group" role="presentation"><span class="navigation-group-label">Análise</span><div class="navigation-group-options" role="presentation">
-          <button id="tab-comparison" class="tab" data-tab="comparison" role="tab" aria-selected="false" aria-controls="comparison" tabindex="-1"><span data-icon="chart"></span><span class="tab-label">Comparativo<small>Cenários selecionados</small></span></button>
-        </div></div>
+        <button id="tab-hugo" class="tab active" data-tab="hugo" role="tab" aria-selected="true" aria-controls="hugo"><span data-icon="document"></span><span class="tab-label">4 T.A (Atual)<small>Contrato vigente</small></span></button>
+        <button id="tab-hugol" class="tab" data-tab="hugol" role="tab" aria-selected="false" aria-controls="hugol" tabindex="-1" aria-label="5º T.A HUGO - Incremento de serviços (Base R$ HUGOL)"><span data-icon="document"></span><span class="tab-label">Incrementos HUGOL<small>Base R$ HUGOL</small></span></button>
+        <button id="tab-hugo-increment" class="tab" data-tab="hugo-increment" role="tab" aria-selected="false" aria-controls="hugo-increment" tabindex="-1" aria-label="5º T.A HUGO - Incremento de serviços (Base R$ HUGO)"><span data-icon="document"></span><span class="tab-label">Incrementos HUGO<small>Base R$ HUGO</small></span></button>
+        <button id="tab-hugo-production" class="tab" data-tab="hugo-production" role="tab" aria-selected="false" aria-controls="hugo-production" tabindex="-1" aria-label="5º T.A HUGO - Atualização valores e produção"><span data-icon="document"></span><span class="tab-label">Valores e produção<small>Ago/25 - Jul/26</small></span></button>
+        <button id="tab-hugo-rebalance" class="tab" data-tab="hugo-rebalance" role="tab" aria-selected="false" aria-controls="hugo-rebalance" tabindex="-1" aria-label="Reequilíbrio - Atualização valores e produção Jan/25 - Dez/25"><span data-icon="document"></span><span class="tab-label">Reequilíbrio<small>Jan/25 - Dez/25</small></span></button>
+        <button id="tab-comparison" class="tab" data-tab="comparison" role="tab" aria-selected="false" aria-controls="comparison" tabindex="-1"><span data-icon="chart"></span><span class="tab-label">Comparativo<small>Análise dos cenários</small></span></button>
+        <button id="tab-hugo-updated" class="tab" data-tab="hugo-updated" role="tab" aria-selected="false" aria-controls="hugo-updated" tabindex="-1" hidden>Atualização de valores</button>
       </div>
     </nav>
 
@@ -184,21 +176,28 @@
     </section>
     <section id="hugo-production" role="tabpanel" aria-labelledby="tab-hugo-production" hidden>
       <div class="context">
-        <div><span class="section-eyebrow">5º TERMO ADITIVO · VALORES E PRODUÇÃO</span><h2>5º T.A HUGO - Atualização valores e produção</h2><p>Agosto/2025 a julho/2026 · Selecione a base atual ou simule o Novo Prédio com os preços atualizados.</p></div>
-        <div class="context-actions"><button id="production-reset" class="button secondary"><span data-icon="reset"></span>Restaurar base</button><button id="production-export" class="button primary"><span data-icon="download"></span>Exportar cenário CSV</button></div>
+        <div><span class="section-eyebrow">5º TERMO ADITIVO · VALORES E PRODUÇÃO</span><h2>5º T.A HUGO - Atualização valores e produção</h2><p>Agosto/2025 a julho/2026 · Analise a base atualizada ou monte uma simulação com serviços adicionais.</p></div>
+        <div class="context-actions"><button id="production-reset" class="button secondary"><span data-icon="reset"></span>Restaurar cenário</button><button id="production-export" class="button primary"><span data-icon="download"></span>Exportar cenário CSV</button></div>
       </div>
+      <section class="scenario-mode-panel" aria-labelledby="production-mode-title">
+        <div class="scenario-mode-heading"><div><span class="section-eyebrow">ESCOLHA COMO TRABALHAR</span><h2 id="production-mode-title">Duas possibilidades, uma base de preços</h2><p>Os preços de referência são os mesmos. A distribuição dos serviços acompanha a opção selecionada.</p></div><span id="production-save-status" class="save-status" role="status"></span></div>
+        <div class="scenario-choices" role="group" aria-label="Base atualizada ou novo prédio com serviços adicionais">
+          <button type="button" class="scenario-choice" data-scenario-choice="production" aria-pressed="false"><span class="scenario-choice-top"><span class="scenario-choice-icon" data-icon="document"></span><span class="scenario-choice-check" aria-hidden="true" data-icon="check"></span></span><strong>Base atualizada</strong><span class="scenario-choice-description">Produção e ocupação da planilha, com Pronto Atendimento a R$ 624,80.</span><span class="scenario-choice-price" data-choice-total></span><span class="scenario-choice-meta"><span data-choice-capacity></span><span>Referência mensal</span></span></button>
+          <button type="button" class="scenario-choice" data-scenario-choice="new-0" aria-pressed="false"><span class="scenario-choice-top"><span class="scenario-choice-icon" data-icon="hospital"></span><span class="scenario-choice-check" aria-hidden="true" data-icon="check"></span></span><strong>Novo Prédio + serviços</strong><span class="scenario-choice-description">Distribuição do Novo Prédio. Escolha serviços adicionais e adeque os leitos.</span><span class="scenario-choice-price" data-choice-total></span><span class="scenario-choice-meta"><span data-choice-capacity></span><span>Base sem incrementos</span></span></button>
+        </div>
+      </section>
       <div id="production-summary-sentinel" class="summary-sentinel" data-summary-sentinel="hugo-production" aria-hidden="true"></div>
       <div id="production-metrics-dock" class="metrics-dock" data-summary-panel="hugo-production" role="region" aria-label="Resumo financeiro de valores e produção"><div class="metrics">
         <article class="metric metric-primary"><div class="metric-heading"><small>CUSTEIO MENSAL DO CENÁRIO</small><span class="metric-icon" data-icon="wallet"></span></div><strong id="production-total" aria-live="polite"></strong><span id="production-annual"></span></article>
         <article class="metric metric-delta" id="production-delta-card"><div class="metric-heading"><small>VARIAÇÃO SOBRE A BASE</small><span class="metric-icon" data-icon="trend"></span></div><strong id="production-delta"></strong><span id="production-delta-caption"></span></article>
         <article class="metric metric-beds"><div class="metric-heading"><small>LEITOS DE INTERNAÇÃO ATIVOS</small><span class="metric-icon" data-icon="bed"></span></div><div class="bed-counters"><div><span>Enfermaria</span><strong id="production-ward-beds"></strong></div><div><span>UTI</span><strong id="production-icu-beds"></strong></div><div class="bed-total"><span>Total</span><strong id="production-beds"></strong></div></div></article>
-        <article class="metric"><div class="metric-heading"><small>BASE DE VALORES E PRODUÇÃO</small><span class="metric-icon" data-icon="document"></span></div><strong id="production-base-total"></strong><span id="production-base-name"></span></article>
+        <article class="metric"><div class="metric-heading"><small>BASE ATUALIZADA DE REFERÊNCIA</small><span class="metric-icon" data-icon="document"></span></div><strong id="production-base-total"></strong><span id="production-base-name"></span></article>
       </div></div>
-      <section class="panel increments-panel" aria-labelledby="production-increments-title">
-        <div class="panel-heading"><div><span class="section-eyebrow">MONTE O CENÁRIO</span><h2 id="production-increments-title">Escolha a base e os incrementos</h2><p>Use os serviços e leitos do Novo Prédio com os preços da base de valores e produção.</p></div><span id="production-save-status" class="save-status" role="status"></span></div>
-        <label class="scenario-preset" for="production-preset"><span>Cenário</span><select id="production-preset"></select></label>
+      <section class="panel increments-panel" aria-labelledby="production-increments-title" data-increments-only hidden>
+        <div class="panel-heading"><div><span class="section-eyebrow">MONTE O CENÁRIO</span><h2 id="production-increments-title">O que deseja acrescentar?</h2><p>Selecione os serviços disponíveis. Os demais podem ser incluídos após informar seus custos.</p></div></div>
+        <label class="scenario-preset" for="production-preset" hidden><span>Cenário</span><select id="production-preset"></select></label>
         <p id="production-base-instruction" class="scenario-instruction">Para incluir incrementos, selecione Novo Prédio - Base Ago/25 - Jul/26.</p>
-        <p class="scenario-price-note">Custos pendentes: ressonância magnética, SAD, hemodinâmica, bolsas de sangue e plaquetas por aférese. Informe os custos unitários nos cartões para liberar esses incrementos. As adequações de enfermaria e UTI já têm preços disponíveis.</p>
+        <p class="scenario-price-note" data-cost-readiness></p>
         <fieldset id="production-increment-fieldset" class="increment-fieldset"><legend class="sr-only">Incrementos com preços atualizados</legend><div id="production-increments" class="increment-grid"></div></fieldset>
         <div class="selection-footer"><span id="production-selection-summary"></span><div><button id="production-select-all" class="text-button">Selecionar disponíveis</button><button id="production-clear-increments" class="text-button">Limpar incrementos</button></div></div>
         <p class="increment-method-note">Enfermaria e UTI têm adequações independentes. O SADT acompanha a combinação de leitos selecionada. Os valores dos cartões representam cada opção isolada.</p>

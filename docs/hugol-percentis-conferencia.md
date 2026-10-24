@@ -1,6 +1,6 @@
 # Conferência dos percentis HUGOL
 
-Registro técnico dos preços importados antes da correção confirmada pelo usuário. O modelo atual aplica R$ 4.948,21 à gestão de altas. As referências e etiquetas desta conferência não são exibidas na interface, no comparativo ou no CSV das bases HUGOL e HUGO.
+Registro técnico dos preços importados antes da correção confirmada pelo usuário. O modelo atual aplica R$ 4.948,21 à gestão de altas. As referências foram restauradas na interface, no comparativo e no CSV. A base HUGOL usa o P confirmado da imagem; a base HUGO usa valor contratual, sem Ps inferidos.
 
 Fonte das referências: Imagem corrigida de percentis HUGOL fornecida pelo usuário em 24/10/2026; substitui a imagem anterior. A seleção usa a coluna verde da imagem, identificada por serviço, nunca a igualdade isolada de preços. A fonte financeira continua sendo `01 NOVO HUGO - BASE HUGOL.xlsx`.
 

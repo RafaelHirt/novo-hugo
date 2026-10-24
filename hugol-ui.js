@@ -4,7 +4,7 @@ import { icon } from './icons.js';
 import { blockControls, syncBlockControls, bindBlockControls, updateOccupancyComparison } from './occupancy.js';
 
 export function initHugol(options = {}) {
-  return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', showUnitReferences: false, ...options });
+  return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', ...options });
 }
 
 export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false, storageVersion = 1, migrateSavedConfig = value => value, showUnitReferences = true, exportFileName = 'novo-hugo-base-' + basisName.toLowerCase() + '.csv' }) {
@@ -13,13 +13,23 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
   const $ = selector => root.querySelector(selector.replaceAll('#hugol-', '#' + prefix + '-'));
   const policy = { includeOmittedWard };
   const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const scenarioChoices = [...root.querySelectorAll('[data-scenario-choice]')];
+  const drafts = {};
   let config = presetState(defaultPreset), snapshot;
   const openGroups = new Map([['Enfermarias', true], ['UTI', true]]);
+  function restoreConfig(candidate) {
+    const restored = model.normalizeConfig({ base: candidate.base, selected: candidate.selected, edits: candidate.edits && typeof candidate.edits === 'object' && !Array.isArray(candidate.edits) ? candidate.edits : {} });
+    hugolSnapshot(restored, policy); return restored;
+  }
   try {
     const saved = migrateSavedConfig(JSON.parse(localStorage.getItem(storageKey)));
     if (saved) {
-      const restored = model.normalizeConfig({ base: saved.base, selected: saved.selected, edits: saved.edits && typeof saved.edits === 'object' && !Array.isArray(saved.edits) ? saved.edits : {} });
-      hugolSnapshot(restored, policy); config = restored;
+      if (scenarioChoices.length && saved.drafts && typeof saved.drafts === 'object') {
+        for (const [base, candidate] of Object.entries(saved.drafts)) try {
+          const restored = restoreConfig(candidate); if (restored.base === base) drafts[base] = restored;
+        } catch {}
+      }
+      config = restoreConfig(saved);
     }
   } catch {}
   const hasIncrements = increments.length > 0;
@@ -28,9 +38,11 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     $('#hugol-preset').innerHTML = presets.map(item => `<option value="${item.id}">${h(item.name)}</option>`).join('') + '<option value="custom" disabled>Combinação personalizada</option>';
     const incrementIcons = { blood:'lab', mri:'activity', sad:'people', hemodynamics:'hospital', wardBeds:'bed', icuBeds:'activity' };
     $('#hugol-increments').innerHTML = increments.map(item => `<article class="increment-card"><label class="increment-card-choice"><input type="checkbox" data-increment="${item.id}"><span class="increment-card-body"><span class="increment-card-heading"><span class="increment-icon">${icon(incrementIcons[item.id])}</span><strong>${h(item.name)}</strong></span><span class="increment-description" data-increment-description="${item.id}">${h(item.description)}</span><span class="increment-amount" data-increment-amount="${item.id}">+ ${currency(item.amountCents / 100)}</span><small data-increment-caption="${item.id}">${item.addedBeds ? 'Acréscimo mensal desta opção isolada' : 'Referência mensal da planilha'}</small>${item.addedBeds ? `<small class="increment-breakdown">Leitos: ${currency(item.bedAmountCents / 100)}<br>SADT: ${currency(item.sadtAmountCents / 100)}</small>` : ''}</span></label>${item.id === 'hemodynamics' ? `<label class="increment-volume" for="${prefix}-hemodynamics-volume"><span>Procedimentos por mês</span><select id="${prefix}-hemodynamics-volume" aria-label="Procedimentos de hemodinâmica por mês na base ${basisName}"><option value="250">250 procedimentos</option><option value="450">450 procedimentos</option></select></label>` : ''}</article>`).join('');
-    for (const input of priceInputs) {
-      const card = root.querySelector(`[data-increment="${input.increment}"]`).closest('.increment-card');
-      card.insertAdjacentHTML('beforeend', `<label class="increment-price"><span>${h(input.label)} · custo unitário</span><input class="money-input" type="text" inputmode="decimal" data-increment-price="${input.key}" aria-label="${h('Custo atualizado: ' + input.label)}" placeholder="Informar custo em R$"><small data-price-status="${input.key}"></small></label>`);
+    for (const item of increments.filter(item => priceInputs.some(input => input.increment === item.id))) {
+      const card = root.querySelector(`[data-increment="${item.id}"]`).closest('.increment-card');
+      card.querySelector('.increment-card-heading').insertAdjacentHTML('afterend', `<span class="increment-state" data-increment-state="${item.id}"></span>`);
+      const fields = priceInputs.filter(input => input.increment === item.id).map(input => `<label class="increment-price"><span>${h(input.label)} · custo unitário</span><input class="money-input" type="text" inputmode="decimal" data-increment-price="${input.key}" aria-label="${h('Custo atualizado: ' + input.label)}" placeholder="Informar custo em R$"><small data-price-status="${input.key}"></small></label>`).join('');
+      card.insertAdjacentHTML('beforeend', `<details class="increment-prices"><summary data-price-editor="${item.id}">Informar custos unitários${icon('chevron')}</summary><div>${fields}</div></details>`);
     }
   }
   $('#hugol-audit').innerHTML = workbookAudit(policy).map(item => `<tr><th scope="row">${h(item.name)}</th><td data-label="Planilha">${currency(item.sourceTotalCents / 100)}</td><td data-label="Dashboard">${currency(item.dashboardTotal)}</td><td data-label="Conferência" class="audit-result">${item.difference === 0 ? 'Conferido' : `${item.corrected ? 'Preço corrigido · ' : ''}${signedCurrency(item.difference)}`}</td></tr>`).join('');
@@ -56,6 +68,13 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
   }
   function refresh(rebuild = true) {
     snapshot = hugolSnapshot(config, policy);
+    for (const button of scenarioChoices) {
+      const previewConfig = presetState(button.dataset.scenarioChoice), preview = hugolSnapshot(previewConfig, policy);
+      button.setAttribute('aria-pressed', String(config.base === previewConfig.base));
+      button.querySelector('[data-choice-total]').textContent = currency(preview.total);
+      button.querySelector('[data-choice-capacity]').textContent = `${preview.rows.length} ${previewConfig.base === 'same' ? 'serviços' : 'linhas'} · ${number(preview.beds.total)} leitos`;
+    }
+    for (const section of root.querySelectorAll('[data-increments-only]')) section.hidden = config.base !== 'new';
     $('#hugol-total').textContent = currency(snapshot.total);
     $('#hugol-annual').textContent = currency(snapshot.total * 12) + ' / ano';
     $('#hugol-delta').textContent = signedCurrency(snapshot.delta);
@@ -106,14 +125,25 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
         }
         for (const item of increments.filter(item => priceInputs.some(input => input.increment === item.id))) {
           const known = model.canSelectIncrement(config, item.id);
+          const state = root.querySelector(`[data-increment-state="${item.id}"]`);
+          state.textContent = known ? 'Preço informado' : 'Aguardando preço'; state.dataset.ready = String(known);
+          const editor = root.querySelector(`[data-price-editor="${item.id}"]`);
+          editor.firstChild.textContent = known ? 'Editar custos unitários' : 'Informar custos unitários';
           if (!known) {
             $(`[data-increment-amount="${item.id}"]`).textContent = 'Custo a informar';
-            $(`[data-increment-caption="${item.id}"]`).textContent = 'Informe os preços abaixo para liberar a seleção';
+            $(`[data-increment-caption="${item.id}"]`).textContent = 'Defina o custo para incluir este serviço';
           } else if (item.id !== 'hemodynamics') {
             $(`[data-increment-amount="${item.id}"]`).textContent = '+ ' + currency(model.incrementQuote(config, item.id, policy));
             $(`[data-increment-caption="${item.id}"]`).textContent = 'Calculado com os preços informados';
           }
         }
+        const readiness = root.querySelector('[data-cost-readiness]');
+        if (readiness) {
+          readiness.dataset.ready = String(pending === 0);
+          readiness.textContent = pending ? `${ready.length} incrementos disponíveis · ${pending} aguardam preço atualizado. Use “Informar custos unitários” no serviço desejado para liberar sua seleção.` : 'Todos os incrementos têm preços definidos. Escolha os serviços que deseja incluir.';
+        }
+        const hemoCard = root.querySelector('[data-increment="hemodynamics"]').closest('.increment-card');
+        hemoCard.querySelector('.increment-volume').hidden = !model.canSelectIncrement(config, 'hemodynamics');
       }
     }
     $('#hugol-change-count').textContent = `${snapshot.rows.filter(row => snapshot.state[row.id].enabled).length} serviços ativos`;
@@ -145,18 +175,28 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
       for (const field of element.querySelectorAll('input:not([type=checkbox])')) field.disabled = !state.enabled || !row.available;
     }
     syncBlockControls($('#hugol-tables'), snapshot.rows, snapshot.state, snapshot.modifiedIds);
-    try { localStorage.setItem(storageKey, JSON.stringify({ ...config, version: storageVersion })); $('#hugol-save-status').textContent = 'Salvo neste navegador'; }
+    if (scenarioChoices.length) drafts[config.base] = structuredClone(config);
+    try { localStorage.setItem(storageKey, JSON.stringify({ ...config, version: storageVersion, ...(scenarioChoices.length ? {drafts} : {}) })); $('#hugol-save-status').textContent = 'Salvo neste navegador'; }
     catch { $('#hugol-save-status').textContent = 'Salvamento automático indisponível'; }
     onChange?.(snapshot);
   }
   if (hasIncrements) {
+    function selectPreset(id) {
+      const next = presetState(id);
+      if (scenarioChoices.length) {
+        if (next.base === config.base) return;
+        drafts[config.base] = structuredClone(config);
+        config = drafts[next.base] ? structuredClone(drafts[next.base]) : next;
+      } else {
+        for (const input of priceInputs) for (const rowId of input.rowIds) if (Number.isFinite(config.edits?.[rowId]?.unit)) next.edits[rowId] = { unit: config.edits[rowId].unit };
+        config = next;
+      }
+      refresh();
+    }
+    for (const button of scenarioChoices) button.addEventListener('click', () => selectPreset(button.dataset.scenarioChoice));
     $('#hugol-increments').addEventListener('change', event => { if (event.target.dataset.increment) { config = setIncrement(config, event.target.dataset.increment, event.target.checked); refresh(); } });
     $('#hugol-hemodynamics-volume').addEventListener('change', event => { config = setHemodynamicsVolume(config, Number(event.target.value)); refresh(); });
-    $('#hugol-preset').addEventListener('change', event => {
-      const next = presetState(event.target.value);
-      for (const input of priceInputs) for (const id of input.rowIds) if (Number.isFinite(config.edits?.[id]?.unit)) next.edits[id] = { unit: config.edits[id].unit };
-      config = next; refresh();
-    });
+    $('#hugol-preset').addEventListener('change', event => selectPreset(event.target.value));
     $('#hugol-select-all').addEventListener('click', () => { for (const item of increments) if (model.canSelectIncrement(config, item.id)) config = setIncrement(config, item.id, true); refresh(); });
     $('#hugol-clear-increments').addEventListener('click', () => { for (const item of increments) config = setIncrement(config, item.id, false); refresh(); });
     $('#hugol-increments').addEventListener('input', event => {
@@ -172,7 +212,10 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     });
     $('#hugol-increments').addEventListener('focusout', event => { if (event.target.dataset.incrementPrice) { event.target.removeAttribute('aria-invalid'); refresh(false); } });
   }
-  $('#hugol-reset').addEventListener('click', () => { config = presetState(defaultPreset); $('#hugol-search').value = ''; refresh(); });
+  $('#hugol-reset').addEventListener('click', () => {
+    const activeChoice = scenarioChoices.find(button => presetState(button.dataset.scenarioChoice).base === config.base);
+    config = presetState(activeChoice?.dataset.scenarioChoice || defaultPreset); $('#hugol-search').value = ''; refresh();
+  });
   $('#hugol-search').addEventListener('input', () => refresh());
   const tables = $('#hugol-tables');
   bindBlockControls(tables, () => snapshot, changes => {
