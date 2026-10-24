@@ -78,6 +78,8 @@ A capacidade inicial das bases do novo prédio é 336 enfermaria + 70 UTI = 406;
 
 Confira [os totais, os incrementos e as fórmulas](docs/hugol-conferencia.md). `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis hugol` reproduz `hugol-source.js`, usando `openpyxl` somente durante a importação.
 
+Os percentis HUGOL foram conferidos com a imagem corrigida fornecida pelo usuário em 24/10/2026, substituindo a anterior. A coluna verde está transcrita por serviço em `scripts/hugol-image-reference.json`. Depois da importação financeira, execute `python scripts/import-hugol-image-references.py /caminho/arquivo.xlsx` para aplicar as referências e gerar [a conferência linha a linha](docs/hugol-percentis-conferencia.md). O script valida a assinatura do arquivo e os vínculos explícitos de preços do SADT externo. Mantém os valores financeiros: 46 das 52 linhas do novo prédio conferem, gestão de altas diverge e cinco linhas não constam na imagem. A tela, o comparativo e o CSV identificam a origem e distinguem divergências, inclusive após edição de preços. A base R$ HUGO permanece contratual, sem percentis inferidos dessa imagem.
+
 ## Incrementos com base R$ HUGO
 
 Fonte atual: `02 NOVO HUGO - BASE HUGO VIGENTE (3).xlsx`, das seis abas de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL. HUGO - ATUAL, Azul e RESUMO não são fontes desta importação.

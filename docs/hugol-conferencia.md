@@ -2,6 +2,8 @@
 
 Fonte atual: `01 NOVO HUGO - BASE HUGOL.xlsx`. Importação dos valores armazenados nas sete abas de cenários; HUGO - ATUAL, Azul e RESUMO não são fontes importadas. A assinatura SHA-256 consta em `hugol-source.js`.
 
+Os custos unitários foram também comparados à imagem corrigida de percentis HUGOL enviada pelo usuário em 24/10/2026, substituindo a anterior. Veja [a conferência das 94 linhas das duas bases](hugol-percentis-conferencia.md): gestão de altas diverge (R$ 5.153,41 na planilha contra P50 de R$ 4.948,21 na imagem); serviços sem referência permanecem sem P. Esta conferência não altera os totais abaixo.
+
 | Aba de origem | Cenário | Planilha e dashboard — mensal |
 | --- | --- | ---: |
 | HUGO - BASE HUGOL | Base HUGOL sem aumento | R$ 25.964.532,96 |

@@ -1,5 +1,5 @@
 import { model as hugolModel } from './hugol-model.js';
-import { currency, signedCurrency, number, parseCurrency, escapeHtml as h } from './format.js';
+import { currency, signedCurrency, number, parseCurrency, describePriceReference, escapeHtml as h } from './format.js';
 import { icon } from './icons.js';
 import { blockControls, syncBlockControls, bindBlockControls, updateOccupancyComparison } from './occupancy.js';
 
@@ -88,6 +88,12 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
       $('#hugol-selection-summary').textContent = `${config.selected.length} de ${increments.length} incrementos selecionados${snapshot.modifiedIds.length ? ` · ${snapshot.modifiedIds.length} ${snapshot.modifiedIds.length === 1 ? 'serviço ajustado manualmente' : 'serviços ajustados manualmente'}` : ''}`;
     }
     $('#hugol-change-count').textContent = `${snapshot.rows.filter(row => snapshot.state[row.id].enabled).length} serviços ativos`;
+    const referenceSummary = root.querySelector('[data-price-reference-summary]');
+    if (referenceSummary) {
+      const counts = { match: 0, different: 0, not_listed: 0 };
+      for (const row of snapshot.rows) counts[describePriceReference(row, snapshot.state[row.id].unit).status]++;
+      referenceSummary.textContent = `Imagem HUGOL · Custos unitários: ${counts.match} conferem · ${counts.different} ${counts.different === 1 ? 'divergente' : 'divergentes'} · ${counts.not_listed} sem referência na imagem. Inclui os serviços dos incrementos.`;
+    }
     if (rebuild) renderTables();
     for (const total of root.querySelectorAll('[data-h-group]')) total.textContent = currency(snapshot.totals.find(item => item.group === total.dataset.hGroup).total);
     for (const element of root.querySelectorAll('[data-h-row]')) {
@@ -97,10 +103,18 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
       element.querySelector('[data-h-volume]').textContent = !row.available ? 'Selecione o incremento para incluir este serviço' : row.kind === 'bed' ? `Paciente-dia projetado: ${number(hugolVolume(row, state))}${row.volumeRounding === 'up' ? ' · arredondado para cima' : ''}` : row.kind === 'surgery' ? `${number(hugolVolume(row, state))} horas cirúrgicas` : row.criterion;
       const badge = element.querySelector('[data-h-badge]'); badge.hidden = !modified; badge.textContent = state.enabled ? 'Alterado' : 'Retirado';
       const reference = element.querySelector('[data-h-unit-reference]');
-      const referenceLabel = row.unitBasis ? `Referência: ${row.unitBasis}` : row.unitReference || 'Base R$ ' + basisName;
-      reference.textContent = state.unit === row.unit ? referenceLabel : `Editado · ${row.unitBasis ? 'ref. ' + row.unitBasis : referenceLabel}`;
-      reference.dataset.percentile = row.unitBasis || '';
-      reference.dataset.edited = String(state.unit !== row.unit);
+      const description = describePriceReference(row, state.unit, 'Base R$ ' + basisName);
+      reference.textContent = description.label;
+      reference.dataset.percentile = description.percentile;
+      reference.dataset.referenceStatus = description.status;
+      reference.dataset.edited = String(description.edited);
+      reference.title = description.title;
+      let detail = element.querySelector('[data-h-reference-detail]');
+      if (!detail) {
+        detail = document.createElement('small'); detail.className = 'reference-detail'; detail.dataset.hReferenceDetail = '';
+        reference.after(detail);
+      }
+      detail.textContent = description.detail; detail.hidden = !description.detail;
       if (row.kind === 'bed') updateOccupancyComparison(element.querySelector('[data-occupancy-change]'), row.factor, state.factor);
       for (const field of element.querySelectorAll('input:not([type=checkbox])')) field.disabled = !state.enabled || !row.available;
     }
@@ -143,7 +157,7 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
   });
   $('#hugol-export').addEventListener('click', () => {
     const decimal = value => value.toFixed(2).replace('.', ',');
-    const lines = [['Categoria','Serviço','Ativo','Quantidade / leitos','Ocupação (%) / horas médias','Custo unitário (R$)','Referência do custo','Custo da linha (R$)','Custeio considerado (R$)'], ...snapshot.rows.map(row => [row.group, row.name, snapshot.state[row.id].enabled ? 'Sim' : 'Não', snapshot.state[row.id].qty, row.factor === undefined ? '' : String(snapshot.state[row.id].factor).replace('.', ','), decimal(snapshot.state[row.id].unit), `${row.unitBasis || row.unitReference || 'Base R$ ' + basisName}${snapshot.state[row.id].unit === row.unit ? '' : ' (preço editado)'}`, decimal(snapshot.rawValues[row.id]), decimal(snapshot.values[row.id])]), ['TOTAL','','','','','','','',decimal(snapshot.total)]];
+    const lines = [['Categoria','Serviço','Ativo','Quantidade / leitos','Ocupação (%) / horas médias','Custo unitário (R$)','Referência do custo','Custo da linha (R$)','Custeio considerado (R$)'], ...snapshot.rows.map(row => [row.group, row.name, snapshot.state[row.id].enabled ? 'Sim' : 'Não', snapshot.state[row.id].qty, row.factor === undefined ? '' : String(snapshot.state[row.id].factor).replace('.', ','), decimal(snapshot.state[row.id].unit), describePriceReference(row, snapshot.state[row.id].unit, 'Base R$ ' + basisName).exportLabel, decimal(snapshot.rawValues[row.id]), decimal(snapshot.values[row.id])]), ['TOTAL','','','','','','','',decimal(snapshot.total)]];
     const csv = lines.map(row => row.map(value => '"' + String(value).replaceAll('"','""') + '"').join(';')).join('\r\n');
     const url = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a'); link.href = url; link.download = exportFileName; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);

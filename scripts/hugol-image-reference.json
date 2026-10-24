@@ -1,0 +1,62 @@
+{
+  "source": "Imagem corrigida de percentis HUGOL fornecida pelo usuário em 24/10/2026; substitui a imagem anterior",
+  "imageTotals": {"beforeHecad": 36664844.00, "afterHecad": 36756107.44},
+  "selection": "Coluna destacada em verde na imagem; valores transcritos por serviço, sem inferência por igualdade de preço",
+  "catalog": {
+    "medical_ward": {"items": "1.1.1", "service": "UI Clínica Médica", "percentile": "P75", "unit": 1195.31},
+    "surgical_ward": {"items": "1.1.2", "service": "UI Cirúrgica (especialidades, Neuro e geral)", "percentile": "P75", "unit": 1195.31},
+    "adult_icu": {"items": "1.2.1", "service": "UTI Adulto", "percentile": "P50", "unit": 2494.05},
+    "emergency": {"items": "2.1", "service": "Pronto Atendimento/Socorro", "percentile": "P75", "unit": 553.01},
+    "high_turnover_surgery": {"items": "3.1", "service": "Cirurgia eletiva (alto giro)", "percentile": "P50", "unit": 2062.11},
+    "adult_complex_surgery": {"items": "3.2", "service": "Cirurgia eletiva média ou alta complexidade (cardíacas adulto, incluindo marcapasso)", "percentile": "P50", "unit": 2062.11},
+    "other_surgery": {"items": "3.5", "service": "Demais cirurgias (incluindo pediatria e queimados)", "percentile": "P50", "unit": 2062.11},
+    "high_cost_surgery": {"items": "3.4", "service": "Cirurgia eletiva hospitalar de alto custo", "percentile": "P75", "unit": 2728.19},
+    "medical_consultation": {"items": "4.1", "service": "Consulta Médica", "percentile": "P50", "unit": 141.34},
+    "nonmedical_consultation": {"items": "4.2", "service": "Consulta Multiprofissional", "percentile": "P50", "unit": 79.36},
+    "outpatient_procedures": {"items": "4.3", "service": "Pequenos procedimentos ambulatoriais", "percentile": "P50", "unit": 202.74},
+    "transfusion": {"items": "5.1", "service": "Agência Transfusional", "percentile": "P50", "unit": 392.36},
+    "pathology": {"items": "5.2", "service": "Anatomia Patológica", "percentile": "P50", "unit": 104.63},
+    "laboratory": {"items": "5.3", "service": "Análises Clínicas", "percentile": "P50", "unit": 9.55},
+    "bronchoscopy": {"items": "5.4", "service": "Broncoscopia", "percentile": "P50", "unit": 3082.12},
+    "endoscopy": {"items": "5.8", "service": "Endoscopia/Colonoscopia/Broncoscopia", "percentile": "P50", "unit": 624.37},
+    "echocardiogram": {"items": "5.6 e 7.2", "service": "Ecocardiograma", "percentile": "P50", "unit": 185.36},
+    "electrocardiogram": {"items": "5.7", "service": "Eletrocardiograma", "percentile": "P50", "unit": 30.83},
+    "xray": {"items": "5.10", "service": "Raio X", "percentile": "P50", "unit": 68.23},
+    "mri": {"items": "5.11 e 7.5", "service": "Ressonância Magnética", "percentile": "P50", "unit": 356.25},
+    "tomography": {"items": "5.13 e 7.7", "service": "Tomografia", "percentile": "P50", "unit": 168.50},
+    "ultrasound": {"items": "5.14", "service": "Ultrassonografia", "percentile": "P50", "unit": 105.85},
+    "physiotherapy": {"items": "5.15", "service": "Fisioterapia", "percentile": "P50", "unit": 31.87},
+    "speech": {"items": "5.16", "service": "Fonoaudiologia", "percentile": "P50", "unit": 49.68},
+    "dialysis": {"items": "5.17", "service": "Hemodiálise", "percentile": "P50", "unit": 590.29},
+    "psychology": {"items": "5.18", "service": "Psicologia", "percentile": "P50", "unit": 46.32},
+    "occupational_therapy": {"items": "5.19", "service": "Terapia Ocupacional", "percentile": "P50", "unit": 87.02},
+    "hemodynamics": {"items": "6.1", "service": "Procedimento de hemodinâmica", "percentile": "P75", "unit": 4466.94},
+    "home_care": {"items": "8.1", "service": "Serviço de desospitalização", "percentile": "P50", "unit": 1944.95},
+    "blood": {"items": "9.1 (antes e depois da A.T. HECAD)", "service": "Bolsas de sangue total coletadas", "percentile": "P50", "unit": 194.93},
+    "platelets": {"items": "9.2 (antes e depois da A.T. HECAD)", "service": "Bolsas de plaquetas por aférese produzidas", "percentile": "P50", "unit": 1369.68},
+    "discharge": {"items": "10.1", "service": "Escritório de gestão de alta", "percentile": "P50", "unit": 4948.21}
+  },
+  "mappings": {
+    "same": {
+      "6": "medical_ward", "7": "surgical_ward", "8": "surgical_ward", "9": null, "10": null,
+      "13": "adult_icu", "14": "adult_icu", "15": "adult_icu", "16": "adult_icu", "17": "adult_icu",
+      "22": "emergency", "25": null, "28": "medical_consultation", "29": "nonmedical_consultation", "30": "outpatient_procedures",
+      "34": "high_cost_surgery", "35": "other_surgery", "39": "transfusion", "40": "pathology", "41": "laboratory", "42": "bronchoscopy",
+      "43": "endoscopy", "44": "echocardiogram", "45": null, "46": "electrocardiogram", "47": null, "48": "endoscopy",
+      "49": "xray", "50": "tomography", "51": "ultrasound", "52": "physiotherapy", "53": "speech", "54": "dialysis",
+      "55": "psychology", "56": "occupational_therapy", "57": null, "61": "endoscopy", "62": null, "63": "endoscopy",
+      "64": "tomography", "65": "ultrasound", "69": "discharge"
+    },
+    "new": {
+      "6": "medical_ward", "7": "medical_ward", "8": "surgical_ward", "9": "surgical_ward", "10": "surgical_ward", "11": "surgical_ward",
+      "16": "adult_icu", "17": "adult_icu", "18": "adult_icu", "23": "emergency", "26": "home_care", "29": null,
+      "32": "medical_consultation", "33": "nonmedical_consultation", "34": "outpatient_procedures", "38": "high_turnover_surgery", "39": "adult_complex_surgery",
+      "40": "adult_complex_surgery", "41": "high_cost_surgery", "42": "other_surgery", "46": "transfusion", "47": "pathology", "48": "laboratory",
+      "49": "bronchoscopy", "50": "endoscopy", "51": null, "52": "echocardiogram", "53": "electrocardiogram", "54": null,
+      "55": "endoscopy", "56": "xray", "57": "mri", "58": "tomography", "59": "ultrasound", "60": "physiotherapy", "61": "speech",
+      "62": "dialysis", "63": "psychology", "64": "occupational_therapy", "65": null, "69": "endoscopy", "70": "echocardiogram",
+      "71": null, "72": "endoscopy", "73": "xray", "74": "mri", "75": "tomography", "76": "ultrasound", "80": "hemodynamics",
+      "83": "blood", "84": "platelets", "87": "discharge"
+    }
+  }
+}

@@ -25,7 +25,7 @@ export function buildComparison(scenarios, { referenceId = 'current', annual = f
     const first = byScenario.map(map => map.get(key)).find(Boolean);
     const cells = scenarios.map((item,index) => {
       const row = byScenario[index].get(key), state = row ? item.snapshot.state[row.id] : null;
-      return { id:item.id, row, present:Boolean(row), enabled:state?.enabled || false, quantity:state?.enabled ? state.qty : 0, amount:roundCurrency((row ? item.snapshot.values[row.id] : 0) * multiplier), isReference:item.id === reference.id, excluded:Boolean(row && item.snapshot.includeOmittedWard === false && row.countedInWorkbook === false) };
+      return { id:item.id, row, unit:state?.unit, present:Boolean(row), enabled:state?.enabled || false, quantity:state?.enabled ? state.qty : 0, amount:roundCurrency((row ? item.snapshot.values[row.id] : 0) * multiplier), isReference:item.id === reference.id, excluded:Boolean(row && item.snapshot.includeOmittedWard === false && row.countedInWorkbook === false) };
     });
     for (const cell of cells) Object.assign(cell,difference(cell.amount,cells[referenceIndex].amount));
     return { key, name:first.name, group:first.group, cells, impact:Math.max(...cells.map(cell=>Math.abs(cell.delta))) };
