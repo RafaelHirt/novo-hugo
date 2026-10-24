@@ -1,6 +1,6 @@
 # Novo Prédio com valores e produção atualizados
 
-Os dois cartões de escolha da aba Ago/25 - Jul/26 oferecem a base atual de 42 serviços (R$ 26.618.281,37/mês) e **Novo Prédio + serviços** (52 linhas, R$ 29.304.814,03/mês sem incrementos). A opção de novo prédio foi confirmada pelo usuário; a base original e seus ajustes foram preservados.
+Os dois controles de escolha da aba Ago/25 - Jul/26 oferecem a base atual de 42 serviços (R$ 26.618.281,37/mês) e **Novo Prédio — base de cálculo** (52 linhas, R$ 29.304.814,03/mês sem incrementos). A opção de novo prédio foi confirmada pelo usuário; a base original e seus ajustes foram preservados.
 
 ## Fontes e preços
 
@@ -46,6 +46,6 @@ O total com serviços adicionais depende dos preços que ainda serão informados
 
 ## Salvamento e validação
 
-O armazenamento `novo-hugo-production-v1` usa a versão 3. Os dois cartões de escolha mantêm rascunhos separados por base em `drafts`. Alternar e recarregar preservam os dois cenários; a restauração geral limpa apenas a possibilidade ativa, mantendo a outra. A migração reconhece a antiga base `new` de 42 serviços e a transforma em `same`, preservando todas as edições; a nova base `new` de 52 linhas tem IDs próprios. Dados das demais abas permanecem separados.
+O armazenamento `novo-hugo-production-v1` usa a versão 3. Os dois controles de escolha mantêm rascunhos separados por base em `drafts`. Alternar e recarregar preservam os dois cenários; a restauração geral limpa apenas a possibilidade ativa, mantendo a outra. A migração reconhece a antiga base `new` de 42 serviços e a transforma em `same`, preservando todas as edições; a nova base `new` de 52 linhas tem IDs próprios. Dados das demais abas permanecem separados.
 
 Os testes verificam os preços e as quantidades de cada fonte, ausência de preços inventados, seleção bloqueada sem custo, as 64 combinações com preços explicitamente fornecidos dentro do teste, hemodinâmica 250/450, restauração, migração e integração mensal/anual com o comparativo.

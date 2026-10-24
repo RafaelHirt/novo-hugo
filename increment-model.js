@@ -174,6 +174,21 @@ export function createIncrementModel(importedSource, basisName, { unitCorrection
     const snapshot = priceRows(rows, config.edits || {}, includeOmittedWard);
     const referenceBase = source.referenceBase || config.base;
     const base = priceRows(buildRows({ base: referenceBase, selected: [] }), {}, includeOmittedWard);
+    const calculationBase = referenceBase === config.base ? base : priceRows(buildRows({ base: config.base, selected: [] }), {}, includeOmittedWard);
+    // Separate the base price, selected increments and manual service edits.
+    // Supplied missing prices and the hemodynamics volume belong to increments.
+    const incrementPricing = {};
+    for (const input of priceInputs) for (const id of input.rowIds) if (Number.isFinite(config.edits?.[id]?.unit)) incrementPricing[id] = { unit: config.edits[id].unit };
+    if (config.selected.includes('hemodynamics')) {
+      const hemodynamics = rows.find(row => row.group === 'Hemodinâmica');
+      const edit = config.edits?.[hemodynamics?.id];
+      if (edit) {
+        const pricing = incrementPricing[hemodynamics.id] || {};
+        for (const key of ['unit', 'qty']) if (Number.isFinite(edit[key])) pricing[key] = edit[key];
+        incrementPricing[hemodynamics.id] = pricing;
+      }
+    }
+    const selectedPricing = priceRows(rows, incrementPricing, includeOmittedWard);
     const baseName = key => source.baseNames?.[key] || (key === 'new' ? 'Novo Prédio - Base' : `HUGO · Base ${basisName} (sem aumento)`);
     const matchingPreset = presets.find(item => item.base === config.base && item.selected.length === config.selected.length && item.selected.every(id => config.selected.includes(id)));
     const modified = rows.filter(row => {
@@ -182,6 +197,7 @@ export function createIncrementModel(importedSource, basisName, { unitCorrection
     });
     return {
       ...snapshot, baseTotal: base.total, delta: roundCurrency(snapshot.total - base.total),
+      calculation: { base: calculationBase.total, increments: roundCurrency(selectedPricing.total - calculationBase.total), adjustments: roundCurrency(snapshot.total - selectedPricing.total), total: snapshot.total },
       selected: increments.filter(item => config.selected.includes(item.id)),
       baseName: baseName(config.base), referenceName: baseName(referenceBase),
       referenceCaption: source.referenceCaption || 'Sobre a base sem incrementos',

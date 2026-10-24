@@ -38,4 +38,4 @@ O controle existe nas cinco bases financeiras. Estados são independentes; a nov
 
 ## Escolha da possibilidade
 
-Dois cartões no início da aba apresentam **Base atualizada** (R$ 26.618.281,37/mês) e **Novo Prédio + serviços** (base sem incrementos de R$ 29.304.814,03/mês). A referência da primeira é o arquivo (3), com PA de R$ 624,80. Os incrementos aparecem apenas na segunda possibilidade; as duas mantêm ajustes e restaurações independentes, inclusive após recarregar. Campos de custos pendentes ficam em editores recolhidos nos cartões de serviço.
+Dois controles compactos no início da aba permitem selecionar **Base atualizada** (R$ 26.618.281,37/mês) e **Novo Prédio — base de cálculo** (base sem incrementos de R$ 29.304.814,03/mês). A referência da primeira é o arquivo (3), com PA de R$ 624,80. Os incrementos aparecem apenas na segunda possibilidade; as duas mantêm ajustes e restaurações independentes, inclusive após recarregar. Campos de custos pendentes ficam em editores recolhidos nos cartões de serviço.
