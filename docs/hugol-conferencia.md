@@ -10,8 +10,8 @@ Os custos unitários foram também comparados à imagem corrigida de percentis H
 
 | Aba de origem | Cenário | Planilha — mensal | Dashboard com gestão de altas corrigida — mensal |
 | --- | --- | ---: | ---: |
-| HUGO - BASE HUGOL | Base HUGOL sem aumento | R$ 25.964.532,96 | R$ 25.963.506,96 |
-| HUGO - SEM BANCO DE SANGUE | Novo Prédio - Base | R$ 27.383.612,79 | R$ 27.381.560,79 |
+| HUGO - BASE HUGOL | Base HUGOL - Prédio atual | R$ 25.964.532,96 | R$ 25.963.506,96 |
+| HUGO - SEM BANCO DE SANGUE | Base HUGOL - Novo prédio | R$ 27.383.612,79 | R$ 27.381.560,79 |
 | HUGO - SEM RESSONÂNCIA | + Banco de sangue | R$ 27.564.052,29 | R$ 27.562.000,29 |
 | HUGO - SEM SAD E HEMODINÂMICA | + Banco e ressonância | R$ 27.706.552,29 | R$ 27.704.500,29 |
 | HUGO - SEM HEMODINÂMICA | + Banco, ressonância e SAD | R$ 27.939.946,29 | R$ 27.937.894,29 |
@@ -67,6 +67,6 @@ Os testes verificam os sete cenários originais, todas as linhas, as 64 combina�
 
 ## Fluxo simplificado da interface
 
-A barra **Base** permite alternar entre a base HUGOL sem aumento e o Novo Prédio. Em seguida aparecem os indicadores financeiros e as caixas dos serviços adicionais, sem um resumo duplicado. Os cenários prontos permanecem disponíveis na opção recolhida **Usar um cenário da planilha**. O bloco “Cenário atual” e sua composição visual foram removidos, assim como os cartões explicativos de escolha da base.
+A barra **Base** permite alternar entre **Base HUGOL - Prédio atual** e **Base HUGOL - Novo prédio**. Esses nomes também identificam a referência nos indicadores, no comparativo e nos cenários da planilha. Em seguida aparecem os indicadores financeiros e as caixas dos serviços adicionais, sem um resumo duplicado. Os cenários prontos permanecem disponíveis na opção recolhida **Usar um cenário da planilha**. O bloco “Cenário atual” e sua composição visual foram removidos, assim como os cartões explicativos de escolha da base.
 
 A composição permanece disponível internamente em `snapshot.calculation`, com cobertura de testes financeiros. No exemplo com os seis incrementos e sem edições, **R$ 27.381.560,79 + R$ 4.657.391,54 + R$ 0,00 = R$ 32.038.952,33**. Os indicadores e a seleção de serviços continuam atualizados ao editar, restaurar ou recarregar.

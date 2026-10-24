@@ -96,7 +96,7 @@
         <div><span class="section-eyebrow">5º TERMO ADITIVO · BASE R$ HUGOL</span><h2>5º T.A HUGO - Incremento de serviços</h2><p>Valores unitários de referência HUGOL.</p></div>
         <div class="context-actions"><button id="hugol-reset" class="button secondary"><span data-icon="reset"></span>Restaurar valores</button><button id="hugol-export" class="button primary"><span data-icon="download"></span>Exportar CSV</button></div>
       </div>
-      <div class="base-toolbar"><strong>Base</strong><div class="scenario-choices" role="group" aria-label="Base de cálculo"><button type="button" class="scenario-choice" data-scenario-choice="same" aria-pressed="false">Base HUGOL sem aumento</button><button type="button" class="scenario-choice" data-scenario-choice="new-0" aria-pressed="false">Novo Prédio</button></div><span id="hugol-save-status" class="save-status" role="status"></span></div>
+      <div class="base-toolbar"><strong>Base</strong><div class="scenario-choices" role="group" aria-label="Base de cálculo"><button type="button" class="scenario-choice" data-scenario-choice="same" aria-pressed="false">Base HUGOL - Prédio atual</button><button type="button" class="scenario-choice" data-scenario-choice="new-0" aria-pressed="false">Base HUGOL - Novo prédio</button></div><span id="hugol-save-status" class="save-status" role="status"></span></div>
       <div id="hugol-summary-sentinel" class="summary-sentinel" data-summary-sentinel="hugol" aria-hidden="true"></div>
       <div id="hugol-metrics-dock" class="metrics-dock" data-summary-panel="hugol" role="region" aria-label="Resumo financeiro da base HUGOL"><div class="metrics">
         <article class="metric metric-primary"><div class="metric-heading"><small>TOTAL MENSAL</small><span class="metric-icon" data-icon="wallet"></span></div><strong id="hugol-total" aria-live="polite"></strong><span id="hugol-annual"></span></article>
@@ -106,7 +106,7 @@
       </div></div>
       <section class="panel increments-panel" aria-labelledby="increments-title" data-increments-only>
         <div class="panel-heading"><div><span class="section-eyebrow">MONTE O CENÁRIO</span><h2 id="increments-title">Serviços adicionais</h2><p>Marque os serviços que deseja incluir.</p></div></div>
-        <p id="hugol-base-instruction" class="scenario-instruction" hidden>Para combinar incrementos, escolha um cenário de Novo Prédio na lista acima.</p>
+        <p id="hugol-base-instruction" class="scenario-instruction" hidden>Para combinar incrementos, selecione Base HUGOL - Novo prédio.</p>
         <fieldset id="hugol-increment-fieldset" class="increment-fieldset"><legend class="sr-only">Incrementos de serviços</legend><div id="hugol-increments" class="increment-grid"></div></fieldset>
         <div class="selection-footer"><span id="hugol-selection-summary"></span><div><button id="hugol-select-all" class="text-button">Selecionar todos</button><button id="hugol-clear-increments" class="text-button">Limpar incrementos</button></div></div>
         <details class="preset-options"><summary>Usar um cenário da planilha</summary><div><label class="scenario-preset" for="hugol-preset"><span>Cenário</span><select id="hugol-preset"></select></label></div></details>
