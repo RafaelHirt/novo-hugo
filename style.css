@@ -45,8 +45,11 @@ h1 { font-size: 46px; letter-spacing: -1.3px; margin: 16px 0 8px; line-height: 1
 .navigation-group-options { display: grid; grid-template-columns: minmax(0, 1fr); gap: 7px; flex: 1; }
 .navigation-fifth .navigation-group-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .scenario-picker { display: none; }
-.tab { display: flex; gap: 9px; align-items: center; min-width: 0; min-height: 82px; padding: 14px 12px; border: 1px solid #e1e9ed; border-radius: 9px; background: #f8fafb; font-size: 12px; font-weight: 650; color: #426473; text-align: left; }
+.tab { display: flex; gap: 9px; align-items: center; min-width: 0; min-height: 106px; padding: 14px 12px; border: 1px solid #e1e9ed; border-radius: 9px; background: #f8fafb; font-size: 12px; font-weight: 650; color: #426473; text-align: left; }
 .tab-label { min-width: 0; line-height: 1.5; }
+.tab-contract { display: block; margin-bottom: 5px; color: #587882; font-size: 10px; font-weight: 700; }
+.tab.active .tab-contract { color: #006c65; }
+.tab-name { display: block; }
 .tab-label small { display: block; font-size: 11px; font-weight: 500; }
 .tab .icon { width: 17px; height: 17px; }
 .tab:hover { color: var(--teal); background: #edf5f3; border-color: #add3cd; }

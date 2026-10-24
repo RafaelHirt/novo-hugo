@@ -4,7 +4,7 @@ import { icon } from './icons.js';
 import { blockControls, syncBlockControls, bindBlockControls, updateOccupancyComparison } from './occupancy.js';
 
 export function initHugol(options = {}) {
-  return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', ...options });
+  return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', storageVersion: 2, ...options });
 }
 
 export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false, storageVersion = 1, migrateSavedConfig = value => value, showUnitReferences = true, exportFileName = 'novo-hugo-base-' + basisName.toLowerCase() + '.csv' }) {
@@ -70,7 +70,8 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     snapshot = hugolSnapshot(config, policy);
     for (const button of scenarioChoices) {
       const previewConfig = presetState(button.dataset.scenarioChoice), preview = hugolSnapshot(previewConfig, policy);
-      button.setAttribute('aria-pressed', String(config.base === previewConfig.base));
+      const sameSelection = config.selected.length === previewConfig.selected.length && config.selected.every(id => previewConfig.selected.includes(id));
+      button.setAttribute('aria-pressed', String(config.base === previewConfig.base && (button.dataset.choiceKind !== 'preset' || sameSelection)));
       button.querySelector('[data-choice-total]').textContent = currency(preview.total);
       button.querySelector('[data-choice-capacity]').textContent = `${preview.rows.length} ${previewConfig.base === 'same' ? 'serviços' : 'linhas'} · ${number(preview.beds.total)} leitos`;
     }
@@ -181,9 +182,9 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     onChange?.(snapshot);
   }
   if (hasIncrements) {
-    function selectPreset(id) {
+    function selectPreset(id, useDraft = false) {
       const next = presetState(id);
-      if (scenarioChoices.length) {
+      if (scenarioChoices.length && useDraft) {
         if (next.base === config.base) return;
         drafts[config.base] = structuredClone(config);
         config = drafts[next.base] ? structuredClone(drafts[next.base]) : next;
@@ -193,7 +194,7 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
       }
       refresh();
     }
-    for (const button of scenarioChoices) button.addEventListener('click', () => selectPreset(button.dataset.scenarioChoice));
+    for (const button of scenarioChoices) button.addEventListener('click', () => selectPreset(button.dataset.scenarioChoice, button.dataset.choiceKind !== 'preset'));
     $('#hugol-increments').addEventListener('change', event => { if (event.target.dataset.increment) { config = setIncrement(config, event.target.dataset.increment, event.target.checked); refresh(); } });
     $('#hugol-hemodynamics-volume').addEventListener('change', event => { config = setHemodynamicsVolume(config, Number(event.target.value)); refresh(); });
     $('#hugol-preset').addEventListener('change', event => selectPreset(event.target.value));
