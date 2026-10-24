@@ -42,19 +42,13 @@ Com ambas as adequações, o acréscimo é **R$ 3.131.710,91**, dos quais R$ 404
 
 Os totais originais têm frações abaixo de um centavo em algumas células. A importação confere o total arredondado contra a soma das linhas monetárias em centavos; os seis totais coincidem.
 
-## Percentis de referência
+## Referência contratual
 
-O arquivo complementar `02 NOVO HUGO - BASE HUGO VIGENTE CORRETA.xlsx` identifica o preço contratual escolhido na coluna O de HUGO - ATUAL, por referência direta à célula verde em K/L/M. Os serviços do novo prédio são associados pelo preço contratual e pela categoria; quando disponível, nome e categoria iguais têm preferência. A associação precisa resultar em um único percentil, e o preço M do novo prédio precisa coincidir com o preço já usado no dashboard. A anotação mantém todos os campos financeiros e os incrementos anteriores.
+As seis abas dos cenários de incremento não contêm cabeçalhos P25, P50 ou P75. A coluna M é **Valor Contrato HUGO**, com o preço usado no custo mensal. Todas as 52 linhas são apresentadas como **Valor contratual**, inclusive no CSV.
 
-| Referência | Linhas no novo prédio |
-| --- | ---: |
-| P50 | 41 |
-| P75 | 4 |
-| Valor contratual sem P definido | 7 |
+A associação anterior com percentis de HUGO - ATUAL, feita por igualdade de preço e categoria, era uma inferência e foi removida. Essa igualdade não comprova uma classificação P para as abas dos incrementos. Quantidades, preços, produção e totais financeiros foram preservados.
 
-P75 corresponde às três UTI e à cirurgia eletiva de alto custo. P50 abrange as seis UI, as outras quatro modalidades cirúrgicas e os demais serviços com preço selecionado no contrato. Os valores contratuais sem P são Pronto Atendimento, SAD, duas ressonâncias, hemodinâmica, coleta de sangue total e plaquetas. O preço de Pronto Atendimento fica em `K22:M22`, uma célula mesclada, e não é tratado como P25.
-
-As etiquetas de referência têm contraste e cor por percentil, com identificação textual; preços alterados são marcados como editados e mantêm a referência de origem. O CSV inclui a mesma indicação. `scripts/import-hugo-percentiles.py` registra nome e SHA-256 da fonte complementar, além das células de origem de cada referência.
+`scripts/import-hugo-references.py` valida cabeçalhos e preços M nas seis abas de `02 NOVO HUGO - BASE HUGO VIGENTE CORRETA.xlsx`, registrando arquivo, SHA-256, abas e coluna em `contractReference`. O script não lê os percentis de outra aba e não calcula nem infere P a partir de coincidências numéricas.
 
 ## Ajustes e restauração do bloco
 
