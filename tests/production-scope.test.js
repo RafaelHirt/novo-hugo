@@ -46,15 +46,20 @@ test('Versões anteriores preservam os ajustes do prédio atual e começam sem s
   assert.equal(migrateSavedConfig(null),null);
 });
 
-test('A versão 5 preserva seleções e rascunhos independentes e filtra linhas da base errada',()=>{
+test('Versões 5 e 6 preservam seleções e rascunhos independentes e filtram linhas da base errada',()=>{
   const same=current({'production-6':{factor:80}});
   const next={...model.presetState('new-2'),edits:{'production-increment-new-80':{qty:450},'production-6':{factor:80},'production-new-83':{unit:1}}};
   const clean={...next,edits:{'production-increment-new-80':{qty:450}}};
-  const saved={...next,version:5,drafts:{same,new:next}};
-  const restored=migrateSavedConfig(saved);
-  assert.deepEqual(restored,{...clean,drafts:{same,new:clean}});
-  assert.equal(snapshot(restored).total,29708188.78);
-  assert.equal(snapshot(restored.drafts.same).total,26854683.11);
+  for(const version of[5,6]){
+    const saved={...next,version,drafts:{same,new:next}};
+    const restored=migrateSavedConfig(saved);
+    assert.deepEqual(restored,{...clean,drafts:{same,new:clean}});
+    assert.equal(snapshot(restored).total,29708188.78);
+    assert.equal(snapshot(restored.drafts.same).total,26854683.11);
+    const real=migrateSavedConfig({...same,version,drafts:{same,new:clean}});
+    assert.deepEqual(real,{...same,drafts:{same,new:clean}});
+    assert.equal(snapshot(real).total,26854683.11);
+  }
 });
 
 test('O comparativo acompanha a base selecionada e os serviços reais, no mês e no ano',()=>{

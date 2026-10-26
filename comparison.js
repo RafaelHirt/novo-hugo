@@ -38,7 +38,7 @@ function init() {
     const link=document.createElement('a');link.href=url;link.download='novo-hugo-comparativo-'+(annual?'anual':'mensal')+'.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });
 }
-function available() { return definitions.filter(item=>snapshots[item.id]).map(item=>({...item,snapshot:snapshots[item.id]})); }
+function available() { return definitions.filter(item=>snapshots[item.id]).map(item=>({...item,label:item.label+(snapshots[item.id].occupancyLabel?' · '+snapshots[item.id].occupancyLabel:''),snapshot:snapshots[item.id]})); }
 function deltaMarkup(cell) {
   return cell.isReference ? '<small class="cell-reference">Referência</small>' : `<small class="cell-delta" data-direction="${direction(cell.delta)}">${signedCurrency(cell.delta)} <span>(${percent(cell.percent)})</span></small>`;
 }
@@ -54,6 +54,7 @@ function refresh() {
       const row=entry.id==='hemodynamics'?snapshot.rows.find(row=>row.group==='Hemodinâmica'):null;
       return row?`${entry.name} · ${number(snapshot.state[row.id].enabled?snapshot.state[row.id].qty:0)}/mês`:entry.name;
     }):[item.id==='current'?'Base vigente':snapshot.baseName];
+    if (snapshot.occupancyLabel && !chips.includes(snapshot.occupancyLabel)) chips.unshift(snapshot.occupancyLabel);
     if (snapshot.periodLabel) chips.push(snapshot.periodLabel);
     return `<article class="compare-scenario ${item.isReference?'is-reference':''}" data-scenario="${item.id}"><div class="compare-scenario-heading"><div><small>${h(item.title)}</small><h3>${h(item.subtitle)}</h3></div>${item.isReference?'<span class="reference-badge">Referência</span>':icon('document')}</div><strong id="${item.totalId}" class="compare-scenario-total">${currency(item.amount)}</strong><span class="compare-period-caption">${annual?'Custeio anual · '+currency(snapshot.total)+' / mês':'Custeio mensal · '+currency(snapshot.total*12)+' / ano'}</span><div class="compare-scenario-delta" data-direction="${direction(item.delta)}">${item.isReference?'Base para as diferenças':`<strong>${signedCurrency(item.delta)}</strong><span>${percent(item.percent)} vs. ${h(view.referenceLabel)}</span>`}</div><div class="compare-capacity"><div><small>Enfermaria</small><strong>${number(snapshot.beds.ward)}</strong></div><div><small>UTI</small><strong>${number(snapshot.beds.icu)}</strong></div><div><small>Total de leitos</small><strong>${number(snapshot.beds.total)}</strong></div></div><div class="comparison-chips">${chips.map(label=>`<span>${h(label)}</span>`).join('')}${modified?`<span>${modified} ${modified===1?'ajuste manual':'ajustes manuais'}</span>`:''}</div></article>`;
   }).join('');

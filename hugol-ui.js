@@ -243,6 +243,7 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     const decimal = value => Number.isFinite(value) ? value.toFixed(2).replace('.', ',') : '';
     const lines = [['Categoria','Serviço','Ativo','Quantidade / leitos','Ocupação (%) / horas médias','Custo unitário (R$)','Referência do custo','Custo da linha (R$)','Custeio considerado (R$)'], ...snapshot.rows.map(row => [row.group, row.name, snapshot.state[row.id].enabled ? 'Sim' : 'Não', snapshot.state[row.id].qty, row.factor === undefined ? '' : String(snapshot.state[row.id].factor).replace('.', ','), decimal(snapshot.state[row.id].unit), describePriceReference(row, snapshot.state[row.id].unit, 'Base R$ ' + basisName).exportLabel, decimal(snapshot.rawValues[row.id]), decimal(snapshot.values[row.id])]), ['TOTAL','','','','','','','',decimal(snapshot.total)]];
     if (!showUnitReferences) for (const line of lines) line.splice(6, 1);
+    if (snapshot.occupancyLabel) lines.unshift(['Tipo de ocupação', snapshot.occupancyLabel], []);
     const csv = lines.map(row => row.map(value => '"' + String(value).replaceAll('"','""') + '"').join(';')).join('\r\n');
     const url = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a'); link.href = url; link.download = exportFileName; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);

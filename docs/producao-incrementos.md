@@ -1,10 +1,12 @@
 # Novo prédio · valores e produção com novos serviços
 
-Fonte: `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26 (3).xlsx`, SHA-256 `cfedf64f35f2c7286c5bdbea6e83e14a85fd44bd1b13ba55fdf9d31dae9cec7f`. As seis abas de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL fornecem diretamente a distribuição, as quantidades, os preços e os totais do Novo prédio. Não é a antiga simulação composta com preços ausentes.
+Fonte: `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26 (3) FINAL.xlsx`, SHA-256 `9839442f103481b2dc0756bd23e5f37363e1a8068fceec8deb24afbce2c2c547`. As seis abas de HUGO - SEM BANCO DE SANGUE até HUGO - FINAL fornecem diretamente a distribuição, as quantidades, os preços e os totais com **Taxa de Ocupação Estimada**. O arquivo FINAL reproduz os mesmos valores financeiros do anexo anterior.
 
 O comando `python scripts/import-hugol.py /caminho/arquivo.xlsx --basis production-increments` gera `production-increments-source.js`. Lê os valores armazenados, confere a fórmula de cada custo estimado na coluna S com o percentil marcado em verde nas colunas M/N/O e verifica a soma em centavos. HUGO - ATUAL também é registrada na fonte para auditoria, com total P71 de R$ 27.719.812,85. Azul e RESUMO não são importadas como cenários.
 
 ## Cenários do Novo prédio
+
+Na interface, o cenário anterior aparece primeiro como **Taxa de Ocupação Real**, preservando seus dados e ajustes. Depois dele vêm os seis cenários estimados abaixo, começando por **HUGO - SEM BANCO DE SANGUE**. O usuário corrigiu o valor inicialmente citado e confirmou a preservação da base anterior de **R$ 26.618.281,37**, com seus preços, quantidades, ocupações e ajustes salvos.
 
 | Origem | Cenário | Planilha e dashboard — mensal |
 | --- | --- | ---: |
@@ -34,8 +36,8 @@ A adequação de UI tem R$ 1.033.043,22 em leitos e R$ 270.835,98 em SADT; a de 
 
 ## Interface e validação
 
-A escolha compacta **Prédio atual / Novo prédio** mantém o padrão da base HUGOL. Os serviços adicionais aparecem somente no Novo prédio. Os indicadores usam a base da opção selecionada; no Novo prédio, a variação é calculada a partir de R$ 29.304.814,03 sem adicionais. Cenários prontos ficam recolhidos em **Usar um cenário da planilha**. O bloco duplicado “Cenário atual” não foi reintroduzido.
+A escolha compacta **Taxa de Ocupação Real / Taxa de Ocupação Estimada** mantém o padrão da base HUGOL. Os serviços adicionais aparecem na opção estimada. Os indicadores usam a base da opção selecionada; na estimada, a variação é calculada a partir de R$ 29.304.814,03 sem adicionais, com 90% nas enfermarias e 95% nas UTI. Cenários prontos ficam recolhidos em **Usar um cenário da planilha**, com a Real primeiro e os Estimados depois. Os rótulos acompanham o comparativo e os CSVs. O bloco duplicado “Cenário atual” não foi reintroduzido.
 
 A fonte registra arquivo, assinatura, abas, células de preços, fórmulas e verdes escolhidos. Todas as 354 linhas do novo arquivo (42 atuais e 52 × 6 do novo prédio), seus sete totais e as 64 combinações de incrementos têm conferência financeira. Os testes verificam também UI/UTI separadas, a alternativa de 450 hemodinâmicas e o comparativo mensal/anual.
 
-O salvamento versão 5 mantém ajustes independentes por prédio. Edições dos 42 serviços reais de versões anteriores são preservadas. A antiga simulação com preços digitados não pode reaparecer: os serviços do novo anexo têm IDs próprios e preços da fonte. A restauração afeta somente o prédio selecionado.
+O salvamento versão 6 mantém a seleção e os ajustes independentes de cada opção. A atualização dos rótulos preserva integralmente os estados das versões 5 e 6. Edições dos 42 serviços reais de versões anteriores são preservadas. A antiga simulação com preços digitados não pode reaparecer: os serviços do novo anexo têm IDs próprios e preços da fonte. A restauração afeta somente a opção selecionada.

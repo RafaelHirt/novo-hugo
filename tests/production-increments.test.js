@@ -9,7 +9,7 @@ const snapshot = config => model.snapshot(config, policy);
 const cents = value => Math.round(value * 100);
 
 test('O novo anexo fornece todos os preços e fecha suas 354 linhas e sete totais em centavos', () => {
-  assert.equal(source.sha256, 'cfedf64f35f2c7286c5bdbea6e83e14a85fd44bd1b13ba55fdf9d31dae9cec7f');
+  assert.equal(source.sha256, '9839442f103481b2dc0756bd23e5f37363e1a8068fceec8deb24afbce2c2c547');
   assert.deepEqual(model.workbookAudit(policy).map(item => cents(item.dashboardTotal)), [2771981285,2930481403,2955058078,2970818878,2989691998,3081045248,3417085087]);
   let count = 0;
   for (const preset of model.presets) {
