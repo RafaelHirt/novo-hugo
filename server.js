@@ -12,6 +12,7 @@ const files = {
   '/hugo-source.js': 'hugo-source.js', '/hugo-model.js': 'hugo-model.js', '/increment-model.js': 'increment-model.js', '/comparison-model.js': 'comparison-model.js',
   '/updated-source.js': 'updated-source.js', '/updated-model.js': 'updated-model.js',
   '/production-source.js': 'production-source.js', '/production-model.js': 'production-model.js', '/occupancy.js': 'occupancy.js',
+  '/production-increments-source.js': 'production-increments-source.js',
   '/rebalance-source.js': 'rebalance-source.js', '/rebalance-model.js': 'rebalance-model.js',
   '/assets/novo-hugo.webp': 'assets/novo-hugo.webp', '/assets/ses-goias.webp': 'assets/ses-goias.webp',
 };

@@ -135,7 +135,7 @@ export function createIncrementModel(importedSource, basisName, { unitCorrection
         }
         if (selectedBedOptions.length && sadtRows.some(item => item.id === row.id)) {
           row = selectedBedOptions.length === bedOptions.length
-            ? { ...row, ...bedPackage.patches[row.id] }
+            ? { ...row, ...bedPackage.patches[row.id], sourceSheet: bedPackage.sourceSheet }
             : { ...row, qty: Math.round((source.bedAdequacy?.sadtBaseQuantities[row.id] ?? original.qty) * sadtMultiplier) };
         }
       }

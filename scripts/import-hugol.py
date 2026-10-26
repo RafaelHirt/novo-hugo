@@ -1,6 +1,6 @@
 """Extract only approved scenario sheets; never evaluate workbook formulas.
 
-Usage: python scripts/import-hugol.py /path/to/workbook.xlsx [--basis hugol|hugo|updated]
+Usage: python scripts/import-hugol.py /path/to/workbook.xlsx [--basis hugol|hugo|updated|production-increments]
 Requires openpyxl for this one-time import, not for running the dashboard.
 """
 import argparse
@@ -49,10 +49,14 @@ def cents(value):
     return int(Decimal(str(value)).quantize(Decimal('.01'), rounding=ROUND_HALF_UP) * 100)
 
 
-def extract(values, formulas, same=False, prefix='', updated=False):
+def extract(values, formulas, same=False, prefix='', updated=False, check_green=False):
     result = []
     groups = SAME_GROUPS if same else NEW_GROUPS
     total_column = ('P' if updated else 'I') if same else 'S' if updated else 'P'
+    if check_green:
+        headers = [values[f'{column}3'].value for column in ('KLM' if same else 'MNO')]
+        if headers != ['P25', 'P50', 'P75']:
+            raise ValueError(f'Unsupported percentile headers at {values.title}: {headers}')
     if not same:
         subtotal_formula = formulas[f'{total_column}12'].value.replace(' ', '').upper()
         subtotal_range = re.fullmatch(rf'=SUM\({total_column}(\d+):{total_column}(\d+)\)', subtotal_formula)
@@ -92,6 +96,14 @@ def extract(values, formulas, same=False, prefix='', updated=False):
             if updated:
                 percentiles = dict(zip('KLM' if same else 'MNO', ['P25', 'P50', 'P75']))
                 item.update(sourceUnitCell=unit_cell, unitBasis=percentiles[unit_cell[0]], sourceFormula=price_formula)
+                if check_green:
+                    green = values['L6' if same else 'N6'].fill.fgColor
+                    selected = [f'{column}{index}' for column in percentiles
+                                if values[f'{column}{index}'].fill.patternType == 'solid'
+                                and values[f'{column}{index}'].fill.fgColor == green]
+                    if selected != [unit_cell]:
+                        raise ValueError(f'Green selection and formula differ at {values.title}!{total_column}{index}: {selected}, {price_formula}')
+                    item['sourceGreenCell'] = selected[0]
             if factor is not None:
                 item['factor'] = factor
             if kind == 'bed':
@@ -105,21 +117,22 @@ def extract(values, formulas, same=False, prefix='', updated=False):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('workbook')
-parser.add_argument('--basis', choices=['hugol', 'hugo', 'updated'], default='hugol')
+parser.add_argument('--basis', choices=['hugol', 'hugo', 'updated', 'production-increments'], default='hugol')
 args = parser.parse_args()
 is_hugol = args.basis == 'hugol'
-is_updated = args.basis == 'updated'
-prefix = '' if is_hugol else 'updated-' if is_updated else 'hugo-'
+is_production_increment = args.basis == 'production-increments'
+is_updated = args.basis == 'updated' or is_production_increment
+prefix = 'production-increment-' if is_production_increment else '' if is_hugol else 'updated-' if is_updated else 'hugo-'
 new_total_column = 'S' if is_updated else 'P'
 path = Path(args.workbook)
 values = openpyxl.load_workbook(path, data_only=True)
 formulas = openpyxl.load_workbook(path, data_only=False)
 SHEETS = [next(name for name in alternatives if name in values.sheetnames) for alternatives in HUGOL_SHEETS] if is_hugol else HUGO_SHEETS
 same_sheet = SHEETS[0] if is_hugol else 'HUGO - ATUAL' if is_updated else None
-same = extract(values[same_sheet], formulas[same_sheet], same=True, prefix=prefix, updated=is_updated) if same_sheet else []
+same = extract(values[same_sheet], formulas[same_sheet], same=True, prefix=prefix, updated=is_updated, check_green=is_production_increment) if same_sheet else []
 same_total_cell = 'P71' if is_updated else 'I71'
 new_sheets = SHEETS[1:] if is_hugol else SHEETS
-versions = [extract(values[name], formulas[name], prefix=prefix, updated=is_updated) for name in new_sheets]
+versions = [extract(values[name], formulas[name], prefix=prefix, updated=is_updated, check_green=is_production_increment) for name in new_sheets]
 new_totals = [cents(values[name][f'{new_total_column}89'].value) for name in new_sheets]
 sheet_totals = ([cents(values[same_sheet][same_total_cell].value)] if same_sheet else []) + new_totals
 increments = []
@@ -135,6 +148,11 @@ for index, (key, label, description) in enumerate(INCREMENTS):
         'amountCents': new_totals[index + 1] - new_totals[index],
         'sourceSheet': new_sheets[index + 1], 'patches': patches,
     })
+
+if is_production_increment:
+    for name, rows in [(same_sheet, same), *zip(new_sheets, versions)]:
+        for row in rows:
+            row['sourceSheet'] = name
 
 presets = [{
     'id': 'same', 'name': 'HUGO - Base atualizada' if is_updated else 'HUGO · Base HUGOL (sem aumento)', 'base': 'same',
@@ -176,5 +194,6 @@ for preset in presets:
     expected = sum(row['sourceTotalCents'] for row in rows if row['countedInWorkbook'])
     assert expected == preset['sourceTotalCents'], (preset['id'], expected, preset['sourceTotalCents'])
 target = Path(__file__).resolve().parents[1] / f'{args.basis}-source.js'
-target.write_text(f'// Approved worksheet values and incremental changes. Generated by scripts/import-hugol.py.\nexport const {args.basis}Source = ' + json.dumps(payload, ensure_ascii=False, indent=2) + ';\n')
+source_name = 'productionIncrement' if is_production_increment else args.basis
+target.write_text(f'// Approved worksheet values and incremental changes. Generated by scripts/import-hugol.py.\nexport const {source_name}Source = ' + json.dumps(payload, ensure_ascii=False, indent=2) + ';\n')
 print(f'{len(same)} + {len(versions[0])} service rows, {len(increments)} independent increments, {len(presets)} checked worksheet totals -> {target.name}')

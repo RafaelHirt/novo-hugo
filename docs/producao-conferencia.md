@@ -1,6 +1,8 @@
 # Conferência de valores e produção
 
-Fonte: `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (3).xlsx`. Somente a aba **HUGO - ATUAL** é importada, conforme esclarecimento do usuário. O total P71 é **R$ 26.618.281,37 por mês**, ou R$ 319.419.376,44 por ano. A aba anterior de Atualização de valores está oculta e tem sua própria fonte, ajustes e correção de preço de PA. Por solicitação do usuário, a aba contém apenas os 42 serviços dessa fonte. A simulação de Novo Prédio e os incrementos foram retirados até o envio de uma planilha específica.
+Fonte do **Prédio atual**: `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (3).xlsx`. Somente a aba **HUGO - ATUAL** dessa fonte é importada, conforme esclarecimento do usuário. O total P71 é **R$ 26.618.281,37 por mês**, ou R$ 319.419.376,44 por ano. Seus 42 serviços e sua produção são preservados. A aba anterior de Atualização de valores está oculta e tem sua própria fonte, ajustes e correção de preço de PA.
+
+Com o envio de `04 NOVO HUGO - BASE HUGO Custo atualizados - agosto25 a julho26 (3).xlsx`, a opção **Novo prédio** usa agora os seis cenários reais dessa nova fonte: de R$ 29.304.814,03 sem adicionais a R$ 34.170.850,87 com todos e 250 hemodinâmicas. Todos os preços estão disponíveis. A tabela abaixo continua descrevendo apenas o Prédio atual; a [conferência dos novos serviços](producao-incrementos.md) registra as outras abas e seus valores. A base HUGO - ATUAL do anexo 04 (R$ 27.719.812,85) é registrada para auditoria, preservando a fonte 06 do prédio atual.
 
 | Categoria | Total mensal |
 | --- | ---: |
@@ -38,6 +40,6 @@ O controle existe nas cinco bases financeiras. Estados são independentes; a nov
 
 ## Escopo e salvamento
 
-A aba exibe diretamente os serviços e os indicadores da planilha, sem escolha de Novo Prédio, incrementos ou preços a informar. O bloco “Cenário atual” foi retirado de todas as abas.
+A barra **Prédio atual / Novo prédio** seleciona a estrutura de serviços. Os indicadores usam a base da opção selecionada; o Novo prédio começa em R$ 29.304.814,03 e sua variação inclui somente os adicionais e as edições aplicadas. Seis caixas independentes permitem escolher os serviços do anexo, com adequações separadas de UI e UTI. Os cenários prontos ficam em uma opção recolhida. Não há custos pendentes a digitar. O bloco “Cenário atual” continua removido.
 
-O salvamento usa versão 4. Ao migrar dados salvos da antiga simulação, recupera somente ajustes dos 42 serviços reais; linhas e preços simulados não podem reaparecer. Restaurar valores retorna à base de R$ 26.618.281,37. Novos serviços dependerão de uma planilha específica enviada pelo usuário.
+O salvamento usa versão 5 e rascunhos separados. Ao migrar dados anteriores, recupera somente ajustes dos 42 serviços reais, inclusive do rascunho da base atual quando a simulação antiga estava selecionada. Os novos serviços têm IDs próprios e preços do arquivo; preços simulados antigos não reaparecem. A abertura inicial preserva o prédio atual. Restaurar valores retorna à base do prédio selecionado e mantém o rascunho do outro. O comparativo e as exportações acompanham a seleção real.
