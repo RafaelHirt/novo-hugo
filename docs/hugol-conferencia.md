@@ -31,16 +31,16 @@ A fórmula P12 desta versão é `SUM(P6:P11)`, incluindo a UI do 2º andar (R$ 1
 
 Com as duas adequações, o acréscimo é **R$ 2.984.323,04**, dos quais R$ 401.344,52 em SADT. Essa combinação reproduz a planilha. Os efeitos isolados não são somados diretamente: o índice de SADT e as quantidades de cada linha têm arredondamentos.
 
-A contagem de enfermaria inclui **318 UI + 18 PS Observação = 336**, conforme a decisão atual do usuário. O custeio permanece igual. Os indicadores acompanham essa capacidade inicial e os acréscimos selecionados:
+Os quantitativos financeiros da fonte permanecem em 336 posições de enfermaria na base e 371 com adequação de UI. O indicador **Leitos de Internação (Mapa de Leitos)** reduz somente a enfermaria exibida em 18, conforme a solicitação atual do usuário. O comparativo usa o mesmo mapa:
 
-| Adequação | Enfermaria | UTI | Total físico |
+| Adequação | Enfermaria no mapa | UTI | Total no mapa |
 | --- | ---: | ---: | ---: |
-| Sem adequação | 336 | 70 | 406 |
-| Somente UI | 371 | 70 | 441 |
-| Somente UTI | 336 | 90 | 426 |
-| UI e UTI | 371 | 90 | 461 |
+| Sem adequação | 318 | 70 | 388 |
+| Somente UI | 353 | 70 | 423 |
+| Somente UTI | 318 | 90 | 408 |
+| UI e UTI | 353 | 90 | 443 |
 
-A distribuição da planilha soma 336 posições na base e 371 com adequação de UI. O desconto anterior de 18 no indicador foi retirado; os valores financeiros permanecem intactos. Edições manuais de quantidade acompanham a capacidade ativa. Hospital dia e escritório de gestão de altas permanecem fora do indicador de internação.
+Nenhuma linha de serviço, descrição, quantidade, ocupação, custo ou produção é alterada por essa dedução. A referência de 406 leitos usada na fórmula de SADT também permanece intacta. Edições manuais continuam afetando a linha financeira e o mapa acompanha o resultado, limitado a zero. Hospital dia e escritório de gestão de altas continuam fora do mapa.
 
 ## Outros incrementos
 

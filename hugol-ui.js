@@ -4,10 +4,10 @@ import { icon } from './icons.js';
 import { blockControls, syncBlockControls, bindBlockControls, updateOccupancyComparison } from './occupancy.js';
 
 export function initHugol(options = {}) {
-  return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', storageVersion: 2, ...options });
+  return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', storageVersion: 2, wardMapReduction: 18, ...options });
 }
 
-export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false, storageVersion = 1, migrateSavedConfig = value => value, showUnitReferences = true, exportFileName = 'novo-hugo-base-' + basisName.toLowerCase() + '.csv' }) {
+export function initIncrementScenario({ model, panelId, prefix, basisName, storageKey, onChange, defaultPreset = 'new-0', includeOmittedWard = false, storageVersion = 1, migrateSavedConfig = value => value, showUnitReferences = true, wardMapReduction = 0, exportFileName = 'novo-hugo-base-' + basisName.toLowerCase() + '.csv' }) {
   const { increments, presets, presetState, setIncrement, setHemodynamicsVolume, restoreGroup, snapshot: hugolSnapshot, volume: hugolVolume, workbookAudit } = model;
   const root = document.getElementById(panelId);
   const $ = selector => root.querySelector(selector.replaceAll('#hugol-', '#' + prefix + '-'));
@@ -68,6 +68,11 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
   }
   function refresh(rebuild = true) {
     snapshot = hugolSnapshot(config, policy);
+    // The bed map is a display indicator; source quantities and all costing
+    // calculations, including the SADT reference, retain the worksheet beds.
+    const reduction = typeof wardMapReduction === 'function' ? wardMapReduction(config) : wardMapReduction;
+    const ward = Math.max(0, snapshot.beds.ward - reduction);
+    snapshot.bedMap = { ward, icu: snapshot.beds.icu, total: ward + snapshot.beds.icu };
     for (const button of scenarioChoices) {
       const previewConfig = presetState(button.dataset.scenarioChoice);
       const sameSelection = config.selected.length === previewConfig.selected.length && config.selected.every(id => previewConfig.selected.includes(id));
@@ -79,9 +84,9 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     $('#hugol-delta').textContent = signedCurrency(snapshot.delta);
     $('#hugol-delta-card').dataset.direction = snapshot.delta > 0 ? 'increase' : snapshot.delta < 0 ? 'decrease' : 'neutral';
     $('#hugol-delta-caption').textContent = snapshot.referenceCaption;
-    $('#hugol-ward-beds').textContent = number(snapshot.beds.ward);
-    $('#hugol-icu-beds').textContent = number(snapshot.beds.icu);
-    $('#hugol-beds').textContent = number(snapshot.beds.total);
+    $('#hugol-ward-beds').textContent = number(snapshot.bedMap.ward);
+    $('#hugol-icu-beds').textContent = number(snapshot.bedMap.icu);
+    $('#hugol-beds').textContent = number(snapshot.bedMap.total);
     $('#hugol-base-total').textContent = currency(snapshot.baseTotal);
     $('#hugol-base-name').textContent = snapshot.referenceName;
     if (hasIncrements) {

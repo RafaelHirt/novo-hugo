@@ -4,7 +4,7 @@ import { createIncrementModel } from './increment-model.js';
 
 // The current building retains its approved values-and-production worksheet.
 // Every new-building quantity and price comes directly from the new attachment.
-const occupancyLabels = { same: 'Taxa de Ocupação Real', new: 'Taxa de Ocupação Estimada' };
+const occupancyLabels = { same: 'Atual HUGO - Taxa de ocupação real', new: 'Novo HUGO - Taxa de ocupação estimada' };
 export const productionScenarioSource = { ...productionIncrementSource,
   bases: { same: productionSource.bases.new, new: productionIncrementSource.bases.new },
   presets: [ { ...productionSource.presets[0], base: 'same', name: occupancyLabels.same },
