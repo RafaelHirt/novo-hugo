@@ -5,7 +5,7 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 ## Interface
 
 - Indicadores financeiros e projeção anual, com resumo fixo e compacto durante a rolagem.
-- Indicador **Leitos de Internação (Mapa de Leitos)**. Nas bases de incremento HUGOL e HUGO e na opção Atual HUGO de valores e produção, deduz 18 leitos somente da enfermaria exibida: 318 + 70 = 388 na base. O comparativo usa o mesmo mapa. As quantidades dos serviços, a produção, os custos e a referência de SADT continuam com os valores da fonte. Novo HUGO com ocupação estimada, 4 T.A e Reequilíbrio mantêm suas contagens anteriores.
+- Indicador **Leitos de Internação (Mapa de Leitos)**. No 4 T.A, nas bases de incremento HUGOL e HUGO e na opção Atual HUGO de valores e produção, deduz 18 leitos somente da enfermaria exibida: 318 + 70 = 388 na base. O comparativo usa o mesmo mapa. As quantidades dos serviços, a produção, os custos e a referência de SADT continuam com os valores da fonte. Novo HUGO com ocupação estimada e Reequilíbrio mantêm suas contagens anteriores.
 - Busca com ou sem acentos, filtro por categoria e opção de mostrar somente serviços alterados.
 - Categorias recolhíveis, destaque das alterações e botão **Restaurar bloco** em cada categoria. Restaura ativação, quantidades, preços e ocupações daquele bloco, inclusive linhas ocultas por busca, preservando outros blocos e os incrementos selecionados.
 - Resumo financeiro fixo durante a edição e composição do custeio abaixo dos serviços.

@@ -119,9 +119,11 @@ function update() {
   $('#percent').textContent = number(delta / reference * 100) + '% em relação à referência';
   $('.metric-delta').dataset.direction = delta > 0 ? 'increase' : delta < 0 ? 'decrease' : 'neutral';
   const beds = bedTotals(state);
-  $('#ward-beds').textContent = number(beds.ward);
-  $('#icu-beds').textContent = number(beds.icu);
-  $('#beds').textContent = number(beds.total);
+  const ward = Math.max(0, beds.ward - 18);
+  const bedMap = { ward, icu: beds.icu, total: ward + beds.icu };
+  $('#ward-beds').textContent = number(bedMap.ward);
+  $('#icu-beds').textContent = number(bedMap.icu);
+  $('#beds').textContent = number(bedMap.total);
   $('#reference').textContent = currency(reference);
   const modifiedCount = rows.filter(row => changed(row.id)).length;
   const activeCount = state.filter(row => row.enabled).length;
@@ -132,7 +134,7 @@ function update() {
     total: rows.filter(row => row.group === group).reduce((sum, row) => sum + Math.round(values[row.id] * 100), 0) / 100,
   }));
   const max = Math.max(...totals.map(item => item.total), 1);
-  renderComparison({ rows, state, values, total, totals, beds });
+  renderComparison({ rows, state, values, total, totals, beds, bedMap });
   $('#chart').innerHTML = [...totals].sort((a, b) => b.total - a.total).map(item => `<button class="chart-row" data-chart-group="${item.group}" aria-label="Ver serviços de ${item.group}, ${currency(item.total)}">
     <span class="chart-label"><span class="chart-dot" style="background:${colors[item.index]}"></span>${item.group}</span>
     <span class="track"><span style="width:${item.total / max * 100}%;background:${colors[item.index]}"></span></span>
