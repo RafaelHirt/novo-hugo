@@ -642,3 +642,77 @@ fieldset:disabled .increment-card { opacity: .55; cursor: default; }
   .group-occupancy > small { grid-column: 1 / -1; }
   .service-toolbar { align-items: flex-start; flex-direction: column; }
 }
+
+/* PDF configuration stays separate from scenario editing. */
+.context-actions { flex-wrap: wrap; }
+.pdf-dialog { width: min(900px, calc(100vw - 28px)); max-height: calc(100dvh - 28px); padding: 0; border: 1px solid #d6e3e8; border-radius: 16px; color: #203d4c; background: white; box-shadow: 0 20px 80px #102f4566; }
+.pdf-dialog[open] { display: flex; flex-direction: column; }
+.pdf-dialog::backdrop { background: #102d3f88; }
+.pdf-dialog-header { display: flex; align-items: start; justify-content: space-between; gap: 16px; padding: 22px 24px 18px; border-bottom: 1px solid #e0e9ed; flex-shrink: 0; }
+.pdf-dialog-header p { margin-top: 5px; font-size: 12px; }
+.pdf-dialog-header > button { padding: 9px; }
+.pdf-dialog-body { padding: 18px 24px 22px; overflow-y: auto; }
+.pdf-dialog-context { margin: 0 0 18px; color: #315965; font-size: 12px; font-weight: 600; }
+.pdf-settings { border: 0; padding: 0; margin: 0 0 22px; min-width: 0; }
+.pdf-settings legend { margin-bottom: 12px; padding: 0; font-size: 13px; font-weight: 650; }
+.pdf-option-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 18px; }
+.pdf-option { display: flex; align-items: center; gap: 9px; font-size: 12px; line-height: 1.5; cursor: pointer; }
+.pdf-dialog input[type=checkbox] { width: 17px; height: 17px; margin: 0; flex-shrink: 0; accent-color: #007d76; }
+.pdf-services-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.pdf-services-heading h3 { font-size: 13px; margin: 0; }
+.pdf-services-heading > div { display: flex; flex-wrap: wrap; gap: 12px; }
+.pdf-services-heading .text-button { font-size: 11px; }
+.pdf-service-list { max-height: 340px; overflow-y: auto; margin-top: 16px; padding: 1px 5px 1px 1px; }
+.pdf-service-group { min-width: 0; margin: 0 0 15px; padding: 8px 12px; border: 1px solid #dce7ea; border-radius: 8px; }
+.pdf-service-group legend { max-width: 100%; padding: 0 5px; font-size: 12px; font-weight: 650; }
+.pdf-service-group legend label { display: flex; align-items: center; gap: 9px; cursor: pointer; }
+.pdf-service-group legend small { color: #6a808a; font-size: 10px; font-weight: 400; }
+.pdf-service-choice { display: flex; align-items: center; gap: 9px; padding: 9px 0; border-bottom: 1px solid #edf2f3; cursor: pointer; font-size: 12px; line-height: 1.5; }
+.pdf-service-choice:last-child { border-bottom: 0; }
+.pdf-service-choice > span { min-width: 0; flex: 1; }
+.pdf-service-choice small { display: block; font-size: 10px; color: #71858e; }
+.pdf-service-choice strong { margin-left: auto; white-space: nowrap; font-size: 11px; color: #3a6570; }
+.pdf-no-results { padding: 15px 0; text-align: center; }
+.pdf-dialog-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 24px; border-top: 1px solid #dce7eb; background: #f7fafb; flex-shrink: 0; }
+.pdf-dialog-footer strong { font-size: 12px; }
+.pdf-dialog-footer p { font-size: 11px; margin-top: 5px; }
+.pdf-dialog-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.pdf-print-document { display: none; }
+@media (max-width: 600px) {
+  .pdf-dialog-header { padding: 16px; }
+  .pdf-dialog-body { padding: 16px; }
+  .pdf-option-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .pdf-dialog-footer { padding: 13px 16px; flex-direction: column; align-items: stretch; gap: 10px; }
+  .pdf-dialog-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .pdf-service-list { max-height: 270px; }
+  .pdf-service-choice { font-size: 11px; }
+  .pdf-service-choice strong { font-size: 10px; }
+}
+@page hugo-report { size: A4 landscape; margin: 12mm; }
+@media print {
+  body[data-pdf-export] { background: white; color: #173a48; margin: 0; }
+  body[data-pdf-export] > *:not(#scenario-pdf-document) { display: none !important; }
+  body[data-pdf-export] > #scenario-pdf-document { display: block !important; page: hugo-report; width: auto; margin: 0; padding: 0; font: 9pt/1.4 Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pdf-report-header { padding-bottom: 10px; border-bottom: 2px solid #007d76; margin-bottom: 16px; }
+  .pdf-report-header > span { font-size: 8pt; letter-spacing: 1px; color: #006d65; font-weight: bold; }
+  .pdf-report-header h1 { font-size: 17pt; line-height: 1.3; margin: 7px 0; letter-spacing: 0; color: #173a48; }
+  .pdf-report-header p { font-size: 9pt; margin: 3px 0; color: #4b626d; }
+  .pdf-report-scenario { font-weight: bold; }
+  .pdf-report-cards { display: flex; gap: 10px; margin: 0 0 15px; break-inside: avoid; }
+  .pdf-report-cards > div { flex: 1; padding: 10px 12px; border: 1px solid #ccdcdf; border-radius: 5px; }
+  .pdf-report-cards dt { font-size: 8pt; color: #526d75; }
+  .pdf-report-cards dd { margin: 5px 0 0; font-size: 11pt; font-weight: bold; color: #174a51; }
+  .pdf-report-scope { font-size: 8pt; margin: 10px 0; color: #526d75; }
+  .pdf-report-group { margin: 16px 0; padding: 0; border: 0; }
+  .pdf-report-group h2 { font-size: 11pt; margin: 0 0 6px; break-after: avoid; color: #006d65; }
+  .pdf-report-group table { width: 100%; min-width: 0; table-layout: auto; border-collapse: collapse; font-size: 8.5pt; }
+  .pdf-report-group thead { display: table-header-group; }
+  .pdf-report-group tr { break-inside: avoid; }
+  .pdf-report-group th, .pdf-report-group td { padding: 7px 8px; border: 1px solid #d6e1e5; vertical-align: top; text-align: right; background: white; }
+  .pdf-report-group th { background: #edf4f3; color: #24515b; font-size: 8pt; font-weight: bold; }
+  .pdf-report-group th:first-child, .pdf-report-group td:first-child { width: 31%; text-align: left; }
+  .pdf-report-group td small { display: block; color: #637983; font-size: 7.5pt; margin-top: 3px; }
+  .pdf-report-group .pdf-col-unit, .pdf-report-group .pdf-col-amount { white-space: nowrap; }
+  .pdf-report-group .pdf-col-reference { font-size: 7.5pt; text-align: left; }
+  .pdf-report-subtotal { display: flex; justify-content: space-between; gap: 20px; padding: 12px; margin: 14px 0 0; border: 1px solid #a9c7c2; background: #edf5f3; font-size: 11pt; break-inside: avoid; }
+}

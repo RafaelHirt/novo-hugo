@@ -8,11 +8,13 @@ import { model as updatedModel, migrateSavedConfig as migrateUpdatedConfig } fro
 import { blockControls, syncBlockControls, bindBlockControls, validOccupancy, updateOccupancyComparison } from './occupancy.js';
 import { model as productionModel, migrateSavedConfig as migrateProductionConfig } from './production-model.js';
 import { model as rebalanceModel } from './rebalance-model.js';
+import { bindScenarioPdf } from './pdf-report.js';
 
 const $ = selector => document.querySelector(selector);
 const normalize = value => value.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const defaults = initial();
 let state = initial();
+let currentPdfSnapshot;
 try {
   const saved = JSON.parse(localStorage.getItem('novo-hugo-v1'));
   if (Array.isArray(saved) && saved.length === rows.length) {
@@ -134,7 +136,8 @@ function update() {
     total: rows.filter(row => row.group === group).reduce((sum, row) => sum + Math.round(values[row.id] * 100), 0) / 100,
   }));
   const max = Math.max(...totals.map(item => item.total), 1);
-  renderComparison({ rows, state, values, total, totals, beds, bedMap });
+  currentPdfSnapshot = { rows, state, values, total, totals, beds, bedMap };
+  renderComparison(currentPdfSnapshot);
   $('#chart').innerHTML = [...totals].sort((a, b) => b.total - a.total).map(item => `<button class="chart-row" data-chart-group="${item.group}" aria-label="Ver serviços de ${item.group}, ${currency(item.total)}">
     <span class="chart-label"><span class="chart-dot" style="background:${colors[item.index]}"></span>${item.group}</span>
     <span class="track"><span style="width:${item.total / max * 100}%;background:${colors[item.index]}"></span></span>
@@ -343,6 +346,9 @@ $('#export').addEventListener('click', () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
+bindScenarioPdf($('#hugo'), () => ({ snapshot: currentPdfSnapshot, baseTotal: reference,
+  volume: (row, item) => !item.enabled ? 0 : row.kind === 'bed' ? projectedPatientDays(row, item) : row.kind === 'surgery' ? item.qty * item.factor : item.qty,
+}));
 tables();
 initHugol({ onChange: setHugolComparison });
 initIncrementScenario({ model: hugoIncrementModel, panelId: 'hugo-increment', prefix: 'hugo-base', basisName: 'HUGO', storageKey: 'novo-hugo-hugo-v1', storageVersion: 2, wardMapReduction: 18, onChange: setHugoComparison });

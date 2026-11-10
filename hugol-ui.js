@@ -2,6 +2,7 @@ import { model as hugolModel } from './hugol-model.js';
 import { currency, signedCurrency, number, parseCurrency, describePriceReference, escapeHtml as h } from './format.js';
 import { icon } from './icons.js';
 import { blockControls, syncBlockControls, bindBlockControls, updateOccupancyComparison } from './occupancy.js';
+import { bindScenarioPdf } from './pdf-report.js';
 
 export function initHugol(options = {}) {
   return initIncrementScenario({ model: hugolModel, panelId: 'hugol', prefix: 'hugol', basisName: 'HUGOL', storageKey: 'novo-hugo-hugol-v1', storageVersion: 2, wardMapReduction: 18, ...options });
@@ -253,5 +254,6 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
     const url = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a'); link.href = url; link.download = exportFileName; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
+  bindScenarioPdf(root, () => ({ snapshot, volume: hugolVolume }));
   refresh();
 }

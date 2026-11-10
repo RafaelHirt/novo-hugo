@@ -6,6 +6,7 @@ const paths = {
   bed: '<path d="M3 18v3m18-3v3M3 10v8h18v-8M5 10V4h14v6M3 14h18M7 10V7h4v3m2 0V7h4v3"/>',
   document: '<path d="M14 2H5v20h14V7l-5-5Zm0 0v5h5M8 12h8m-8 4h8"/>',
   download: '<path d="M12 3v12m-4-4 4 4 4-4M3 16v5h18v-5"/>',
+  printer: '<path d="M6 9V3h12v6M6 18H3V9h18v9h-3M6 14h12v7H6zM17 11h.01"/>',
   reset: '<path d="M3 11a9 9 0 1 1 3 8M3 4v7h7"/>',
   search: '<circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/>',
   close: '<path d="m6 6 12 12M6 18 18 6"/>',
