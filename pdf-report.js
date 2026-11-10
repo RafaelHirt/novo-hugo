@@ -1,6 +1,7 @@
 import { icon } from './icons.js';
 import { currency, escapeHtml as h } from './format.js';
 import { createScenarioReport, pdfSections, pdfColumns, selectedReportRows, selectedReportTotal, renderScenarioReport } from './pdf-model.js';
+import { paginateScenarioReport } from './pdf-pagination.js';
 
 const normalize = text => text.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
@@ -27,7 +28,7 @@ function openScenarioPdf(report, trigger) {
       <label class="search"><span class="sr-only">Buscar serviços para o PDF</span>${icon('search')}<input type="search" data-pdf-search placeholder="Buscar categoria ou serviço"></label>
       <div class="pdf-service-list" data-pdf-services></div>
     </div>
-    <div class="pdf-dialog-footer"><div><strong data-pdf-selection role="status" aria-live="polite"></strong><p>Na janela de impressão, escolha “Salvar como PDF”.</p></div><div class="pdf-dialog-actions"><button type="button" class="button secondary" data-pdf-close>Cancelar</button><button type="button" class="button primary" data-pdf-generate>${icon('printer')}Gerar PDF</button></div></div>`;
+    <div class="pdf-dialog-footer"><div><strong data-pdf-selection role="status" aria-live="polite"></strong><p data-pdf-help>Escolha “Salvar como PDF”. Desmarque “Cabeçalhos e rodapés” para ocultar o endereço e a data do navegador.</p></div><div class="pdf-dialog-actions"><button type="button" class="button secondary" data-pdf-close>Cancelar</button><button type="button" class="button primary" data-pdf-generate>${icon('printer')}Gerar PDF</button></div></div>`;
   document.body.append(dialog);
   const selected = new Set(report.rows.filter(row => row.enabled).map(row => row.id));
   const groups = [...new Set(report.rows.map(row => row.group))];
@@ -77,6 +78,14 @@ function openScenarioPdf(report, trigger) {
     documentRoot.id = 'scenario-pdf-document'; documentRoot.className = 'pdf-print-document';
     documentRoot.innerHTML = renderScenarioReport(report, options());
     document.body.append(documentRoot);
+    document.body.dataset.pdfPreparing = '';
+    try { paginateScenarioReport(documentRoot); }
+    catch {
+      documentRoot.remove(); document.body.removeAttribute('data-pdf-preparing');
+      dialog.querySelector('[data-pdf-help]').textContent = 'Não foi possível organizar uma linha nesta página. Selecione menos colunas e tente novamente.';
+      return;
+    }
+    document.body.removeAttribute('data-pdf-preparing');
     const previousTitle = document.title;
     document.title = 'Novo HUGO - ' + report.title;
     document.body.dataset.pdfExport = '';

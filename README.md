@@ -22,7 +22,7 @@ Dashboard em português para demonstração financeira, com acesso por senha val
 - Comparativo dos cinco cenários visíveis salvos, com referência escolhida pelo usuário, diferenças em reais e percentual, visão mensal ou anual e filtro de diferenças. Cartões ficam em até três colunas no computador, com tabelas roláveis e categoria fixa. Serviços e quantidades ficam em detalhe opcional, sem coluna de ocupação; percentis de origem aparecem nas linhas que os têm. Exportação do comparativo em CSV.
 - Indicador de conexão com animação suave, respeitando a preferência por movimentos reduzidos.
 - Sem dependências de imagens, fontes ou scripts externos durante o uso.
-- **Gerar PDF** nas abas de cenários: escolha cada cartão do resumo, colunas, categorias e linhas de serviços. Variação e base de referência começam desmarcadas. O relatório usa os ajustes atuais e o Mapa de Leitos exibido, distingue o total do cenário do subtotal selecionado e abre a impressão do navegador para salvar em PDF. Veja [as opções do PDF](docs/pdf.md).
+- **Gerar PDF** nas abas de cenários: escolha cada cartão do resumo, colunas, categorias e linhas de serviços. Variação e base de referência começam desmarcadas. O relatório usa os ajustes atuais e o Mapa de Leitos exibido, distingue o total do cenário do subtotal selecionado e organiza folhas A4 com margens, cabeçalhos e numeração próprios. Categorias pequenas ficam juntas; categorias longas repetem a identificação nas continuações. Na impressão, desmarque os cabeçalhos e rodapés do navegador para o modelo limpo. Veja [as opções do PDF](docs/pdf.md).
 
 ## Desenvolvimento
 

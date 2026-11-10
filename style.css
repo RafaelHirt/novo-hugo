@@ -688,31 +688,48 @@ fieldset:disabled .increment-card { opacity: .55; cursor: default; }
   .pdf-service-choice { font-size: 11px; }
   .pdf-service-choice strong { font-size: 10px; }
 }
-@page hugo-report { size: A4 landscape; margin: 12mm; }
+/* The report uses its own page geometry, also during off-screen measurement. */
+.pdf-print-document { font: 8.5pt/1.35 Arial, sans-serif; color: #173a48; }
+body[data-pdf-preparing] > #scenario-pdf-document { display: block; position: fixed; top: 0; left: -20000px; width: 297mm; }
+.pdf-print-document .pdf-sheet { width: 297mm; height: 210mm; padding: 10mm 13mm; margin: 0; display: flex; flex-direction: column; background: white; box-sizing: border-box; overflow: hidden; }
+.pdf-print-document .pdf-report-header { flex-shrink: 0; padding: 0 0 9px; border-bottom: 2px solid #007d76; margin: 0 0 12px; }
+.pdf-print-document .pdf-report-header > span { font-size: 7.5pt; letter-spacing: 1px; color: #00756c; font-weight: 700; }
+.pdf-print-document .pdf-report-header h1 { font-size: 15pt; line-height: 1.2; margin: 6px 0; letter-spacing: -.2px; color: #173a48; }
+.pdf-print-document .pdf-report-header p { font-size: 8pt; line-height: 1.35; margin: 3px 0 0; color: #56717a; }
+.pdf-print-document .pdf-report-scenario { font-weight: 700; }
+.pdf-print-document .pdf-sheet-continuation .pdf-report-header { padding-bottom: 6px; margin-bottom: 10px; }
+.pdf-print-document .pdf-sheet-continuation .pdf-report-header > span { font-size: 7pt; }
+.pdf-print-document .pdf-sheet-continuation .pdf-report-header h1 { font-size: 10pt; margin: 4px 0; }
+.pdf-print-document .pdf-sheet-continuation .pdf-report-header p { display: inline; font-size: 7pt; margin-right: 12px; }
+.pdf-print-document .pdf-sheet-body { flex: 1; min-height: 0; display: flow-root; }
+.pdf-print-document .pdf-report-cards { display: flex; gap: 9px; margin: 0 0 10px; break-inside: avoid; }
+.pdf-print-document .pdf-report-cards > div { flex: 1; min-width: 0; padding: 9px 11px; border: 1px solid #d1e3df; border-left: 3px solid #007d76; border-radius: 4px; background: #f5faf8; }
+.pdf-print-document .pdf-report-cards dt { font-size: 7.5pt; color: #55727b; }
+.pdf-print-document .pdf-report-cards dd { margin: 4px 0 0; font-size: 10pt; line-height: 1.35; font-weight: 700; color: #174a51; }
+.pdf-print-document .pdf-report-scope { font-size: 7.5pt; line-height: 1.35; margin: 0 0 10px; color: #647d86; }
+.pdf-print-document .pdf-report-group { margin: 0 0 11px; padding: 0; border: 0; }
+.pdf-print-document .pdf-report-group table { display: table; width: 100%; min-width: 0; border-collapse: collapse; table-layout: auto; font-size: 8.3pt; }
+.pdf-print-document .pdf-report-group thead { display: table-header-group; }
+.pdf-print-document .pdf-report-group tbody { display: table-row-group; }
+.pdf-print-document .pdf-report-group tr { display: table-row; padding: 0; position: static; break-inside: avoid; }
+.pdf-print-document .pdf-report-group th, .pdf-print-document .pdf-report-group td { display: table-cell; padding: 4px 7px; border: 1px solid #dbe6e9; vertical-align: top; text-align: right; color: #284c59; background: white; font-size: inherit; line-height: 1.35; }
+.pdf-print-document .pdf-report-group tbody tr:nth-child(even) td { background: #f7fafb; }
+.pdf-print-document .pdf-report-group th { background: #edf4f4; font-size: 7.3pt; font-weight: 600; color: #466a75; }
+.pdf-print-document .pdf-report-group th:first-child, .pdf-print-document .pdf-report-group td:first-child { width: 33%; text-align: left; }
+.pdf-print-document .pdf-report-group td::before { display: none; }
+.pdf-print-document .pdf-report-group td strong { font-weight: 600; }
+.pdf-print-document .pdf-report-group td small { display: inline; color: #7a8d94; font-size: 7pt; margin-left: 6px; }
+.pdf-print-document .pdf-report-group .pdf-category-heading th { padding: 5px 9px; width: auto; text-align: left; background: #e0efeb; color: #006d65; font-size: 9.5pt; border-color: #ccdfd9; }
+.pdf-print-document .pdf-continuation { float: right; font-size: 7.5pt; font-weight: 400; color: #557a70; }
+.pdf-print-document .pdf-col-unit, .pdf-print-document .pdf-col-amount { white-space: nowrap; }
+.pdf-print-document .pdf-report-group .pdf-col-reference { font-size: 7.3pt; text-align: left; }
+.pdf-print-document .pdf-report-subtotal { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 10px 12px; margin: 6px 0 0; border: 1px solid #a9c7c2; border-left: 3px solid #007d76; background: #edf5f3; font-size: 10pt; color: #174a51; break-inside: avoid; }
+.pdf-print-document .pdf-sheet-footer { flex-shrink: 0; display: flex; justify-content: space-between; gap: 20px; padding-top: 7px; margin-top: 5px; border-top: 1px solid #d7e5e7; font-size: 7pt; color: #6a828b; }
+@page hugo-report { size: A4 landscape; margin: 0; }
 @media print {
-  body[data-pdf-export] { background: white; color: #173a48; margin: 0; }
+  body[data-pdf-export] { background: white; color: #173a48; margin: 0; padding: 0; }
   body[data-pdf-export] > *:not(#scenario-pdf-document) { display: none !important; }
-  body[data-pdf-export] > #scenario-pdf-document { display: block !important; page: hugo-report; width: auto; margin: 0; padding: 0; font: 9pt/1.4 Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .pdf-report-header { padding-bottom: 10px; border-bottom: 2px solid #007d76; margin-bottom: 16px; }
-  .pdf-report-header > span { font-size: 8pt; letter-spacing: 1px; color: #006d65; font-weight: bold; }
-  .pdf-report-header h1 { font-size: 17pt; line-height: 1.3; margin: 7px 0; letter-spacing: 0; color: #173a48; }
-  .pdf-report-header p { font-size: 9pt; margin: 3px 0; color: #4b626d; }
-  .pdf-report-scenario { font-weight: bold; }
-  .pdf-report-cards { display: flex; gap: 10px; margin: 0 0 15px; break-inside: avoid; }
-  .pdf-report-cards > div { flex: 1; padding: 10px 12px; border: 1px solid #ccdcdf; border-radius: 5px; }
-  .pdf-report-cards dt { font-size: 8pt; color: #526d75; }
-  .pdf-report-cards dd { margin: 5px 0 0; font-size: 11pt; font-weight: bold; color: #174a51; }
-  .pdf-report-scope { font-size: 8pt; margin: 10px 0; color: #526d75; }
-  .pdf-report-group { margin: 16px 0; padding: 0; border: 0; }
-  .pdf-report-group h2 { font-size: 11pt; margin: 0 0 6px; break-after: avoid; color: #006d65; }
-  .pdf-report-group table { width: 100%; min-width: 0; table-layout: auto; border-collapse: collapse; font-size: 8.5pt; }
-  .pdf-report-group thead { display: table-header-group; }
-  .pdf-report-group tr { break-inside: avoid; }
-  .pdf-report-group th, .pdf-report-group td { padding: 7px 8px; border: 1px solid #d6e1e5; vertical-align: top; text-align: right; background: white; }
-  .pdf-report-group th { background: #edf4f3; color: #24515b; font-size: 8pt; font-weight: bold; }
-  .pdf-report-group th:first-child, .pdf-report-group td:first-child { width: 31%; text-align: left; }
-  .pdf-report-group td small { display: block; color: #637983; font-size: 7.5pt; margin-top: 3px; }
-  .pdf-report-group .pdf-col-unit, .pdf-report-group .pdf-col-amount { white-space: nowrap; }
-  .pdf-report-group .pdf-col-reference { font-size: 7.5pt; text-align: left; }
-  .pdf-report-subtotal { display: flex; justify-content: space-between; gap: 20px; padding: 12px; margin: 14px 0 0; border: 1px solid #a9c7c2; background: #edf5f3; font-size: 11pt; break-inside: avoid; }
+  body[data-pdf-export] > #scenario-pdf-document { display: block !important; position: static; width: 297mm; margin: 0; padding: 0; page: hugo-report; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pdf-print-document .pdf-sheet { break-after: page; break-inside: avoid; }
+  .pdf-print-document .pdf-sheet:last-child { break-after: auto; }
 }
