@@ -6,17 +6,9 @@ import { createIncrementModel } from './increment-model.js';
 // The current building retains its approved values-and-production worksheet.
 // New-building values retain their source; approved corrections are applied below.
 const occupancyLabels = { same: 'Atual HUGO - Taxa de ocupação real', new: 'Novo HUGO - Taxa de ocupação estimada' };
-const removedSadtIds = new Set(productionSadtSource.removedIds);
 const sadtIds = new Set(productionSadtSource.rows.map(row => row.id));
-const addedSadtRows = productionSadtSource.rows.filter(row => row.added).map(row => ({
-  ...row, criterion:'Exame', kind:'service', sourceVolume:row.qty,
-  sourceRow:Number(row.sourceCell.slice(1)), sourceSheet:productionSadtSource.sourceSheet,
-  sourceGreenCell:row.sourceUnitCell, countedInWorkbook:true,
-}));
-const newBuildingRows = productionIncrementSource.bases.new.filter(row => !removedSadtIds.has(row.id))
-  .flatMap(row => row.id === 'production-increment-new-72' ? [row, ...addedSadtRows] : [row]);
 export const productionScenarioSource = { ...productionIncrementSource,
-  bases: { same: productionSource.bases.new, new: newBuildingRows },
+  bases: { same: productionSource.bases.new, new: productionIncrementSource.bases.new },
   presets: [ { ...productionSource.presets[0], base: 'same', name: occupancyLabels.same },
     ...productionIncrementSource.presets.filter(preset => preset.base === 'new').map(preset => ({ ...preset,
       name: occupancyLabels.new + ' · ' + (preset.id === 'new-0' ? 'HUGO - SEM BANCO DE SANGUE' : preset.name),
@@ -37,7 +29,7 @@ const coreModel = createIncrementModel(productionScenarioSource, 'HUGO · valore
     reason: 'Escritório de gestão de altas: usar R$ 6.670,06 por unidade da Manifestação GEC (5), mantendo as 10 unidades autorizadas pelo usuário.' }],
   quantityCorrections: [{ id: fixedEmergencyId, qty: 3000, fixed: true,
     reason: 'Pronto Atendimento: 3.000 atendimentos mensais fixos, conforme autorização do usuário e HUGO - 1º TA!J21 da Manifestação GEC (5).' },
-    ...productionSadtSource.rows.filter(row => !row.added).map(row => ({
+    ...productionSadtSource.rows.map(row => ({
       id:row.id, qty:row.qty, preserveIncrementDelta:true,
       sourceQuantityCell:productionSadtSource.sourceSheet + '!' + row.sourceQuantityCell,
       reason:'SADT: quantitativo base da Manifestação GEC (5), mantendo os acréscimos autorizados dos serviços adicionais.',

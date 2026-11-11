@@ -15,8 +15,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N38",
       "sourceCell": "R38",
       "sourceTotalCents": 42755526,
-      "sourceFormula": "=ROUND(J38*N38,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J38*N38,2)"
     },
     {
       "id": "production-increment-new-47",
@@ -29,8 +28,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N39",
       "sourceCell": "R39",
       "sourceTotalCents": 2538250,
-      "sourceFormula": "=ROUND(J39*N39,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J39*N39,2)"
     },
     {
       "id": "production-increment-new-48",
@@ -43,8 +41,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N40",
       "sourceCell": "R40",
       "sourceTotalCents": 79099200,
-      "sourceFormula": "=ROUND(J40*N40,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J40*N40,2)"
     },
     {
       "id": "production-increment-new-49",
@@ -57,8 +54,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N41",
       "sourceCell": "R41",
       "sourceTotalCents": 2586679,
-      "sourceFormula": "=ROUND(J41*N41,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J41*N41,2)"
     },
     {
       "id": "production-increment-new-50",
@@ -71,8 +67,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N42",
       "sourceCell": "R42",
       "sourceTotalCents": 2581696,
-      "sourceFormula": "=ROUND(J42*N42,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J42*N42,2)"
     },
     {
       "id": "production-increment-new-52",
@@ -85,8 +80,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N43",
       "sourceCell": "R43",
       "sourceTotalCents": 5026832,
-      "sourceFormula": "=ROUND(J43*N43,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J43*N43,2)"
     },
     {
       "id": "production-increment-new-51",
@@ -99,8 +93,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N44",
       "sourceCell": "R44",
       "sourceTotalCents": 1428240,
-      "sourceFormula": "=ROUND(J44*N44,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J44*N44,2)"
     },
     {
       "id": "production-increment-new-53",
@@ -113,8 +106,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N45",
       "sourceCell": "R45",
       "sourceTotalCents": 3757650,
-      "sourceFormula": "=ROUND(J45*N45,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J45*N45,2)"
     },
     {
       "id": "production-increment-new-54",
@@ -127,8 +119,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N46",
       "sourceCell": "R46",
       "sourceTotalCents": 1486176,
-      "sourceFormula": "=ROUND(J46*N46,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J46*N46,2)"
     },
     {
       "id": "production-increment-new-55",
@@ -141,8 +132,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N47",
       "sourceCell": "R47",
       "sourceTotalCents": 15254465,
-      "sourceFormula": "=ROUND(J47*N47,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J47*N47,2)"
     },
     {
       "id": "production-increment-new-56",
@@ -155,8 +145,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N48",
       "sourceCell": "R48",
       "sourceTotalCents": 45128976,
-      "sourceFormula": "=ROUND(J48*N48,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J48*N48,2)"
     },
     {
       "id": "production-increment-new-58",
@@ -169,8 +158,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N49",
       "sourceCell": "R49",
       "sourceTotalCents": 114732556,
-      "sourceFormula": "=ROUND(J49*N49,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J49*N49,2)"
     },
     {
       "id": "production-increment-new-59",
@@ -183,8 +171,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N50",
       "sourceCell": "R50",
       "sourceTotalCents": 3113555,
-      "sourceFormula": "=ROUND(J50*N50,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J50*N50,2)"
     },
     {
       "id": "production-increment-new-60",
@@ -197,8 +184,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N51",
       "sourceCell": "R51",
       "sourceTotalCents": 48134316,
-      "sourceFormula": "=ROUND(J51*N51,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J51*N51,2)"
     },
     {
       "id": "production-increment-new-61",
@@ -211,8 +197,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N52",
       "sourceCell": "R52",
       "sourceTotalCents": 6818656,
-      "sourceFormula": "=ROUND(J52*N52,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J52*N52,2)"
     },
     {
       "id": "production-increment-new-62",
@@ -225,8 +210,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N53",
       "sourceCell": "R53",
       "sourceTotalCents": 17256876,
-      "sourceFormula": "=ROUND(J53*N53,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J53*N53,2)"
     },
     {
       "id": "production-increment-new-63",
@@ -239,8 +223,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N54",
       "sourceCell": "R54",
       "sourceTotalCents": 8977124,
-      "sourceFormula": "=ROUND(J54*N54,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J54*N54,2)"
     },
     {
       "id": "production-increment-new-64",
@@ -253,8 +236,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N55",
       "sourceCell": "R55",
       "sourceTotalCents": 1856022,
-      "sourceFormula": "=ROUND(J55*N55,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J55*N55,2)"
     },
     {
       "id": "production-increment-new-65",
@@ -267,8 +249,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N56",
       "sourceCell": "R56",
       "sourceTotalCents": 20854856,
-      "sourceFormula": "=ROUND(J56*N56,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J56*N56,2)"
     },
     {
       "id": "production-increment-new-69",
@@ -281,8 +262,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N61",
       "sourceCell": "R61",
       "sourceTotalCents": 8067800,
-      "sourceFormula": "=ROUND(J61*N61,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J61*N61,2)"
     },
     {
       "id": "production-increment-new-72",
@@ -295,22 +275,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N62",
       "sourceCell": "R62",
       "sourceTotalCents": 5676080,
-      "sourceFormula": "=ROUND(J62*N62,2)",
-      "added": false
-    },
-    {
-      "id": "production-increment-new-gec-63",
-      "name": "Endoscopia de vias urinárias",
-      "group": "SADT externo",
-      "qty": 20,
-      "unit": 709.51,
-      "unitBasis": "P50",
-      "sourceQuantityCell": "J63",
-      "sourceUnitCell": "N63",
-      "sourceCell": "R63",
-      "sourceTotalCents": 1419020,
-      "sourceFormula": "=ROUND(J63*N63,2)",
-      "added": true
+      "sourceFormula": "=ROUND(J62*N62,2)"
     },
     {
       "id": "production-increment-new-75",
@@ -323,8 +288,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N64",
       "sourceCell": "R64",
       "sourceTotalCents": 2058500,
-      "sourceFormula": "=ROUND(J64*N64,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J64*N64,2)"
     },
     {
       "id": "production-increment-new-76",
@@ -337,8 +301,7 @@ export const productionSadtSource = {
       "sourceUnitCell": "N65",
       "sourceCell": "R65",
       "sourceTotalCents": 726900,
-      "sourceFormula": "=ROUND(J65*N65,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J65*N65,2)"
     },
     {
       "id": "production-increment-new-71",
@@ -351,15 +314,28 @@ export const productionSadtSource = {
       "sourceUnitCell": "N66",
       "sourceCell": "R66",
       "sourceTotalCents": 1904320,
-      "sourceFormula": "=ROUND(J66*N66,2)",
-      "added": false
+      "sourceFormula": "=ROUND(J66*N66,2)"
     }
   ],
-  "removedIds": [
-    "production-increment-new-70",
-    "production-increment-new-73"
+  "ignoredRows": [
+    {
+      "name": "Endoscopia de vias urinárias",
+      "group": "SADT externo",
+      "qty": 20,
+      "unit": 709.51,
+      "unitBasis": "P50",
+      "sourceQuantityCell": "J63",
+      "sourceUnitCell": "N63",
+      "sourceCell": "R63",
+      "sourceTotalCents": 1419020,
+      "sourceFormula": "=ROUND(J63*N63,2)"
+    }
   ],
   "groupTotalCents": {
+    "SADT interno": 423387651,
+    "SADT externo": 18433600
+  },
+  "workbookGroupTotalCents": {
     "SADT interno": 423387651,
     "SADT externo": 19852620
   }

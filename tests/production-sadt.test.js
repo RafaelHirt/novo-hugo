@@ -10,30 +10,34 @@ const policy = { includeOmittedWard:false }, cents = value => Math.round(value *
 const snapshot = config => model.snapshot(config, policy);
 const original = createIncrementModel(productionIncrementSource, 'Importação original');
 
-test('A base reproduz todos os 25 quantitativos e os dois subtotais de SADT da Manifestação GEC (5)', () => {
+test('A atualização usa somente os 24 quantitativos correspondentes e preserva todos os serviços originais', () => {
   assert.equal(source.sha256, 'c57e05cce4723bdfe08ba7e3910f2d5c2504f4ed1cec29ff6675436264fa56d6');
   assert.deepEqual(source.rows.filter(row => row.group === 'SADT interno').map(row => row.qty),
     [891,275,73240,19,32,272,60,1025,48,215,6288,6967,257,13659,1184,273,1508,214,1672]);
-  assert.deepEqual(source.rows.filter(row => row.group === 'SADT externo').map(row => row.qty), [100,80,20,125,60,80]);
+  assert.deepEqual(source.rows.filter(row => row.group === 'SADT externo').map(row => row.qty), [100,80,125,60,80]);
   const s = snapshot(model.presetState('new-0'));
+  assert.deepEqual(s.rows.map(row => row.id), productionIncrementSource.bases.new.map(row => row.id));
   for (const entry of source.rows) {
     assert.equal(s.state[entry.id].qty, entry.qty, entry.name);
     assert.equal(s.state[entry.id].unit, entry.unit, entry.name);
     assert.equal(cents(s.values[entry.id]), entry.sourceTotalCents, entry.name);
   }
   for (const [group,total] of Object.entries(source.groupTotalCents)) {
-    assert.equal(cents(s.totals.find(row => row.group === group).total), total);
-    assert.equal(s.rows.filter(row => row.group === group && s.state[row.id].enabled).length, group === 'SADT interno' ? 19 : 6);
+    assert.equal(source.rows.filter(row => row.group === group).reduce((sum,row) => sum + cents(s.values[row.id]), 0), total);
+    assert.equal(s.rows.filter(row => row.group === group && s.state[row.id].enabled).length, group === 'SADT interno' ? 19 : 7);
   }
-  for (const id of source.removedIds) assert.ok(!s.rows.some(row => row.id === id));
-  const added = s.rows.find(row => row.id === 'production-increment-new-gec-63');
-  assert.equal(added.name, 'Endoscopia de vias urinárias');
-  assert.equal(added.unitBasis, 'P50'); assert.equal(added.sourceUnitCell, 'N63');
-  assert.equal(s.values[added.id], 14190.20);
-  assert.equal(s.total, 30235604.30);
+  assert.ok(!s.rows.some(row => row.name === 'Endoscopia de vias urinárias'));
+  const before = original.snapshot(original.presetState('new-0'), policy);
+  for (const id of ['production-increment-new-70','production-increment-new-73']) {
+    assert.deepEqual(s.state[id], before.state[id]); assert.equal(s.values[id], before.values[id]);
+  }
+  assert.equal(s.totals.find(row => row.group === 'SADT interno').total, 4233876.51);
+  assert.equal(s.totals.find(row => row.group === 'SADT externo').total, 202493.90);
+  assert.equal(s.total, 30239572.00);
   const report = createScenarioReport({ title:'Novo HUGO', snapshot:s, volume:model.volume });
-  assert.equal(report.rows.find(row => row.id === added.id).quantity, 20);
-  assert.equal(report.rows.find(row => row.id === added.id).amount, 14190.20);
+  assert.ok(!report.rows.some(row => row.id === 'production-increment-new-gec-63'));
+  assert.equal(report.rows.find(row => row.id === 'production-increment-new-70').quantity, 40);
+  assert.equal(report.rows.find(row => row.id === 'production-increment-new-73').quantity, 150);
 });
 
 test('A expansão de UI e UTI preserva cada aumento de produção aprovado sobre os novos quantitativos base', () => {
@@ -65,14 +69,18 @@ test('A migração troca apenas os quantitativos antigos de SADT e conserva pre�
   const saved = { ...config, version:7, drafts:{ same, new:config } }, copy = structuredClone(saved);
   const migrated = migrateSavedConfig(saved);
   assert.deepEqual(migrated.edits['production-increment-new-48'], { unit:10.80 });
-  assert.equal(migrated.edits['production-increment-new-70'], undefined);
+  assert.deepEqual(migrated.edits['production-increment-new-70'], { qty:99 });
   assert.deepEqual(migrated.edits['production-increment-new-57'], { qty:101 });
   assert.deepEqual(migrated.edits['production-increment-new-87'], config.edits['production-increment-new-87']);
   assert.equal(snapshot(migrated).state['production-increment-new-48'].qty, 73240);
   assert.deepEqual(migrated.drafts.same, same); assert.deepEqual(migrated.drafts.new.edits, migrated.edits);
   assert.deepEqual(migrated.selected, config.selected); assert.deepEqual(saved, copy);
-  const latest = migrateSavedConfig({ ...config, version:8 });
+  const wrongAddition = { ...config, edits:{ ...config.edits, 'production-increment-new-gec-63':{ qty:20, unit:709.51 } } };
+  const latest = migrateSavedConfig({ ...wrongAddition, version:8, drafts:{ same, new:wrongAddition } });
   assert.deepEqual(latest.edits['production-increment-new-48'], config.edits['production-increment-new-48']);
+  assert.equal(latest.edits['production-increment-new-gec-63'], undefined);
+  assert.equal(latest.drafts.new.edits['production-increment-new-gec-63'], undefined);
+  assert.deepEqual(latest.drafts.same, same);
   const restored = snapshot(model.restoreGroup({ ...model.presetState('new-0'), edits:{ 'production-increment-new-48':{ qty:1 } } }, 'SADT interno'));
   assert.equal(restored.state['production-increment-new-48'].qty, 73240);
 });
