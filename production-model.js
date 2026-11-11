@@ -1,12 +1,10 @@
 import { productionSource } from './production-source.js';
 import { productionIncrementSource } from './production-increments-source.js';
-import { productionSadtSource } from './production-sadt-source.js';
 import { createIncrementModel } from './increment-model.js';
 
 // The current building retains its approved values-and-production worksheet.
 // New-building values retain their source; approved corrections are applied below.
 const occupancyLabels = { same: 'Atual HUGO - Taxa de ocupação real', new: 'Novo HUGO - Taxa de ocupação estimada' };
-const sadtIds = new Set(productionSadtSource.rows.map(row => row.id));
 export const productionScenarioSource = { ...productionIncrementSource,
   bases: { same: productionSource.bases.new, new: productionIncrementSource.bases.new },
   presets: [ { ...productionSource.presets[0], base: 'same', name: occupancyLabels.same },
@@ -19,22 +17,21 @@ export const productionScenarioSource = { ...productionIncrementSource,
   sourceFiles: {
     same: { fileName: productionSource.fileName, sha256: productionSource.sha256 },
     new: { fileName: productionIncrementSource.fileName, sha256: productionIncrementSource.sha256 },
-    newSadt: { fileName: productionSadtSource.fileName, sha256: productionSadtSource.sha256 },
   },
 };
 const fixedEmergencyId = 'production-increment-new-23';
 const dischargeOfficeId = 'production-increment-new-87';
+// Version 8 used revised SADT defaults. Discard only those quantity overrides
+// once when rolling back, retaining prices, other edits and chosen increments.
+const rolledBackSadtIds = new Set(productionIncrementSource.bases.new
+  .filter(row => row.group.startsWith('SADT') && row.qty > 0
+    && !['production-increment-new-70', 'production-increment-new-73'].includes(row.id))
+  .map(row => row.id));
 const coreModel = createIncrementModel(productionScenarioSource, 'HUGO · valores e produção', {
   unitCorrections: [{ id: dischargeOfficeId, unit: 6670.06, sourceUnitCell: 'HUGO - 1º TA!N70',
     reason: 'Escritório de gestão de altas: usar R$ 6.670,06 por unidade da Manifestação GEC (5), mantendo as 10 unidades autorizadas pelo usuário.' }],
   quantityCorrections: [{ id: fixedEmergencyId, qty: 3000, fixed: true,
-    reason: 'Pronto Atendimento: 3.000 atendimentos mensais fixos, conforme autorização do usuário e HUGO - 1º TA!J21 da Manifestação GEC (5).' },
-    ...productionSadtSource.rows.map(row => ({
-      id:row.id, qty:row.qty, preserveIncrementDelta:true,
-      sourceQuantityCell:productionSadtSource.sourceSheet + '!' + row.sourceQuantityCell,
-      reason:'SADT: quantitativo base da Manifestação GEC (5), mantendo os acréscimos autorizados dos serviços adicionais.',
-    })),
-  ],
+    reason: 'Pronto Atendimento: 3.000 atendimentos mensais fixos, conforme autorização do usuário e HUGO - 1º TA!J21 da Manifestação GEC (5).' }],
 });
 export const model = { ...coreModel, snapshot(config, policy) {
   return { ...coreModel.snapshot(config, policy), occupancyLabel: occupancyLabels[config.base] };
@@ -48,8 +45,8 @@ export function migrateSavedConfig(saved) {
     return Object.fromEntries(Object.entries(edits).filter(([id]) => ids.has(id)).flatMap(([id, patch]) => {
       const fixedEmergency = base === 'new' && id === fixedEmergencyId;
       const resetOffice = base === 'new' && id === dischargeOfficeId && !(saved.version >= 7);
-      const resetSadt = base === 'new' && sadtIds.has(id) && !(saved.version >= 8);
-      if (!fixedEmergency && !resetOffice && !resetSadt) return [[id, patch]];
+      const rollbackSadt = base === 'new' && saved.version === 8 && rolledBackSadtIds.has(id);
+      if (!fixedEmergency && !resetOffice && !rollbackSadt) return [[id, patch]];
       const next = { ...patch };
       delete next.qty;
       if (resetOffice) delete next.unit;

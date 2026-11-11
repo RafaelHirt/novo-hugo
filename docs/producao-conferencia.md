@@ -1,6 +1,6 @@
 # Conferência de valores e produção
 
-Os valores de importação documentados abaixo são históricos. As correções posteriores de PA, Escritório e quantitativos do SADT do Novo HUGO estão na [conferência dos incrementos](producao-incrementos.md): a base estimada atual sem adicionais é R$ 30.239.572,00. O HUGO atual de R$ 26.618.281,37 permanece preservado.
+O ajuste dos quantitativos de SADT pela Manifestação GEC foi desfeito a pedido do usuário. A base estimada retorna a R$ 29.577.398,13; com banco de sangue e ressonância, R$ 29.980.772,88. Os ajustes de PA e Escritório continuam descritos na [conferência dos incrementos](producao-incrementos.md).
 
 Fonte do **Prédio atual**: `06 Matriz de Custeio HUGO - 4 T.A. Produção e Custos atualizados - agosto25 a julho26 (3).xlsx`. Somente a aba **HUGO - ATUAL** dessa fonte é importada, conforme esclarecimento do usuário. O total P71 é **R$ 26.618.281,37 por mês**, ou R$ 319.419.376,44 por ano. Seus 42 serviços e sua produção são preservados. A aba anterior de Atualização de valores está oculta e tem sua própria fonte, ajustes e correção de preço de PA.
 

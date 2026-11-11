@@ -3,29 +3,23 @@ import assert from 'node:assert/strict';
 import { model, migrateSavedConfig, productionScenarioSource } from '../production-model.js';
 import { createIncrementModel } from '../increment-model.js';
 import { createScenarioReport } from '../pdf-model.js';
-import { productionIncrementSource } from '../production-increments-source.js';
-import { productionSadtSource } from '../production-sadt-source.js';
 
 const policy = { includeOmittedWard: false };
-const original = createIncrementModel({ ...productionScenarioSource,
-  bases:{ ...productionScenarioSource.bases, new:productionIncrementSource.bases.new },
-}, 'Importação original');
+const original = createIncrementModel(productionScenarioSource, 'Importação original');
 const pa = 'production-increment-new-23', office = 'production-increment-new-87';
-const changedIds = new Set([pa, office, ...productionSadtSource.rows.map(row => row.id)]);
 const cents = value => Math.round(value * 100);
 
-test('As correções de PA, Escritório e SADT preservam os demais serviços e todos os acréscimos nas 64 combinações', () => {
+test('As correções alteram somente PA e Escritório nas 64 combinações e preservam todos os adicionais e o SADT', () => {
   for (let mask = 0; mask < 64; mask++) {
     const config = { base:'new', selected:model.increments.filter((_, index) => mask & (1 << index)).map(row => row.id), edits:{} };
     const before = original.snapshot(config, policy), after = model.snapshot(config, policy);
-    assert.equal(cents(after.total) - cents(before.total), 93475797, 'combinação ' + mask);
-    assert.deepEqual(after.rows.map(row => row.id), before.rows.map(row => row.id));
+    assert.equal(cents(after.total) - cents(before.total), 27258410, 'combinação ' + mask);
     assert.equal(after.state[pa].qty, 3000); assert.equal(after.state[pa].unit, 624.80);
     assert.equal(after.values[pa], 1874400);
     assert.equal(after.state[office].qty, 10); assert.equal(after.state[office].unit, 6670.06);
     assert.equal(after.values[office], 66700.60);
     assert.deepEqual(after.beds, before.beds);
-    for (const row of after.rows.filter(row => !changedIds.has(row.id))) {
+    for (const row of after.rows.filter(row => ![pa, office].includes(row.id))) {
       assert.deepEqual(after.state[row.id], before.state[row.id], row.name);
       assert.equal(after.values[row.id], before.values[row.id], row.name);
     }
