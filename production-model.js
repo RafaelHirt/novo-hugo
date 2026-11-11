@@ -1,12 +1,22 @@
 import { productionSource } from './production-source.js';
 import { productionIncrementSource } from './production-increments-source.js';
+import { productionSadtSource } from './production-sadt-source.js';
 import { createIncrementModel } from './increment-model.js';
 
 // The current building retains its approved values-and-production worksheet.
 // New-building values retain their source; approved corrections are applied below.
 const occupancyLabels = { same: 'Atual HUGO - Taxa de ocupação real', new: 'Novo HUGO - Taxa de ocupação estimada' };
+const removedSadtIds = new Set(productionSadtSource.removedIds);
+const sadtIds = new Set(productionSadtSource.rows.map(row => row.id));
+const addedSadtRows = productionSadtSource.rows.filter(row => row.added).map(row => ({
+  ...row, criterion:'Exame', kind:'service', sourceVolume:row.qty,
+  sourceRow:Number(row.sourceCell.slice(1)), sourceSheet:productionSadtSource.sourceSheet,
+  sourceGreenCell:row.sourceUnitCell, countedInWorkbook:true,
+}));
+const newBuildingRows = productionIncrementSource.bases.new.filter(row => !removedSadtIds.has(row.id))
+  .flatMap(row => row.id === 'production-increment-new-72' ? [row, ...addedSadtRows] : [row]);
 export const productionScenarioSource = { ...productionIncrementSource,
-  bases: { same: productionSource.bases.new, new: productionIncrementSource.bases.new },
+  bases: { same: productionSource.bases.new, new: newBuildingRows },
   presets: [ { ...productionSource.presets[0], base: 'same', name: occupancyLabels.same },
     ...productionIncrementSource.presets.filter(preset => preset.base === 'new').map(preset => ({ ...preset,
       name: occupancyLabels.new + ' · ' + (preset.id === 'new-0' ? 'HUGO - SEM BANCO DE SANGUE' : preset.name),
@@ -17,6 +27,7 @@ export const productionScenarioSource = { ...productionIncrementSource,
   sourceFiles: {
     same: { fileName: productionSource.fileName, sha256: productionSource.sha256 },
     new: { fileName: productionIncrementSource.fileName, sha256: productionIncrementSource.sha256 },
+    newSadt: { fileName: productionSadtSource.fileName, sha256: productionSadtSource.sha256 },
   },
 };
 const fixedEmergencyId = 'production-increment-new-23';
@@ -25,7 +36,13 @@ const coreModel = createIncrementModel(productionScenarioSource, 'HUGO · valore
   unitCorrections: [{ id: dischargeOfficeId, unit: 6670.06, sourceUnitCell: 'HUGO - 1º TA!N70',
     reason: 'Escritório de gestão de altas: usar R$ 6.670,06 por unidade da Manifestação GEC (5), mantendo as 10 unidades autorizadas pelo usuário.' }],
   quantityCorrections: [{ id: fixedEmergencyId, qty: 3000, fixed: true,
-    reason: 'Pronto Atendimento: 3.000 atendimentos mensais fixos, conforme autorização do usuário e HUGO - 1º TA!J21 da Manifestação GEC (5).' }],
+    reason: 'Pronto Atendimento: 3.000 atendimentos mensais fixos, conforme autorização do usuário e HUGO - 1º TA!J21 da Manifestação GEC (5).' },
+    ...productionSadtSource.rows.filter(row => !row.added).map(row => ({
+      id:row.id, qty:row.qty, preserveIncrementDelta:true,
+      sourceQuantityCell:productionSadtSource.sourceSheet + '!' + row.sourceQuantityCell,
+      reason:'SADT: quantitativo base da Manifestação GEC (5), mantendo os acréscimos autorizados dos serviços adicionais.',
+    })),
+  ],
 });
 export const model = { ...coreModel, snapshot(config, policy) {
   return { ...coreModel.snapshot(config, policy), occupancyLabel: occupancyLabels[config.base] };
@@ -39,7 +56,8 @@ export function migrateSavedConfig(saved) {
     return Object.fromEntries(Object.entries(edits).filter(([id]) => ids.has(id)).flatMap(([id, patch]) => {
       const fixedEmergency = base === 'new' && id === fixedEmergencyId;
       const resetOffice = base === 'new' && id === dischargeOfficeId && !(saved.version >= 7);
-      if (!fixedEmergency && !resetOffice) return [[id, patch]];
+      const resetSadt = base === 'new' && sadtIds.has(id) && !(saved.version >= 8);
+      if (!fixedEmergency && !resetOffice && !resetSadt) return [[id, patch]];
       const next = { ...patch };
       delete next.qty;
       if (resetOffice) delete next.unit;

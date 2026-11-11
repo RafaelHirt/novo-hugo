@@ -17,10 +17,14 @@ export function createIncrementModel(importedSource, basisName, { unitCorrection
   for (const correction of quantityCorrections) {
     const row = Object.values(source.bases).flat().find(item => item.id === correction.id);
     if (!row) throw new Error('Linha da correção de quantidade não encontrada: ' + correction.id);
-    row.quantityCorrection = { originalQty: row.qty, qty: correction.qty, reason: correction.reason };
+    const delta = correction.qty - row.qty;
+    row.quantityCorrection = { originalQty: row.qty, qty: correction.qty, reason: correction.reason,
+      preserveIncrementDelta: Boolean(correction.preserveIncrementDelta), sourceQuantityCell: correction.sourceQuantityCell };
     row.qty = correction.qty;
     if (correction.fixed) row.fixedQty = correction.qty;
-    for (const increment of source.increments) if (increment.patches[row.id]?.qty !== undefined) increment.patches[row.id].qty = correction.qty;
+    for (const increment of source.increments) if (increment.patches[row.id]?.qty !== undefined) {
+      increment.patches[row.id].qty = correction.preserveIncrementDelta ? increment.patches[row.id].qty + delta : correction.qty;
+    }
   }
   const bedPackage = source.increments.find(item => item.id === 'beds');
   const newBase = source.bases.new;
@@ -142,9 +146,13 @@ export function createIncrementModel(importedSource, basisName, { unitCorrection
           if (patch && selected.has(increment.id)) row = { ...row, ...patch, sourceSheet: increment.sourceSheet };
         }
         if (selectedBedOptions.length && sadtRows.some(item => item.id === row.id)) {
+          // A revised base may retain an approved expansion package. Apply its
+          // original volume increase on top of the revised base quantities.
+          const correction = original.quantityCorrection;
+          const delta = correction?.preserveIncrementDelta ? correction.qty - correction.originalQty : 0;
           row = selectedBedOptions.length === bedOptions.length
             ? { ...row, ...bedPackage.patches[row.id], sourceSheet: bedPackage.sourceSheet }
-            : { ...row, qty: Math.round((source.bedAdequacy?.sadtBaseQuantities[row.id] ?? original.qty) * sadtMultiplier) };
+            : { ...row, qty: Math.round((source.bedAdequacy?.sadtBaseQuantities[row.id] ?? original.qty - delta) * sadtMultiplier) + delta };
         }
       }
       return { ...row, available: !row.requiredIncrement || selected.has(row.requiredIncrement) };
