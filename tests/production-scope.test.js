@@ -7,7 +7,7 @@ const policy={includeOmittedWard:false};
 const snapshot=config=>model.snapshot(config,policy);
 const current=edits=>({base:'same',selected:[],edits});
 
-test('Valores e produção mantém o prédio atual e oferece o novo prédio somente com os preços do anexo',()=>{
+test('Valores e produção preserva o prédio atual e aplica apenas as correções aprovadas ao novo prédio',()=>{
   assert.equal(model.presets.length,7);assert.equal(model.presets[0].id,'production');
   assert.equal(model.increments.length,6);assert.equal(model.priceInputs.length,0);
   const s=snapshot(model.presetState('production'));
@@ -15,10 +15,10 @@ test('Valores e produção mantém o prédio atual e oferece o novo prédio some
   assert.ok(s.rows.every(row=>/^production-\d+$/.test(row.id)));
   assert.throws(()=>model.setIncrement(model.presetState('production'),'wardBeds',true),/indisponível/);
   const newBuilding=snapshot(model.presetState('new-0'));
-  assert.equal(newBuilding.rows.length,52);assert.equal(newBuilding.total,29304814.03);
-  assert.equal(newBuilding.baseTotal,29304814.03);assert.equal(newBuilding.delta,0);
+  assert.equal(newBuilding.rows.length,52);assert.equal(newBuilding.total,29577398.13);
+  assert.equal(newBuilding.baseTotal,29577398.13);assert.equal(newBuilding.delta,0);
   assert.ok(newBuilding.rows.every(row=>/^production-increment-new-\d+$/.test(row.id)));
-  assert.ok(model.workbookAudit(policy).every(item=>item.difference===0));
+  assert.ok(model.workbookAudit(policy).every(item=>item.difference===(item.base==='new'?272584.10:0)));
 });
 
 test('Migração recupera ajustes reais e não restaura a antiga simulação nem seus preços digitados',()=>{
@@ -54,7 +54,7 @@ test('Versões 5 e 6 preservam seleções e rascunhos independentes e filtram li
     const saved={...next,version,drafts:{same,new:next}};
     const restored=migrateSavedConfig(saved);
     assert.deepEqual(restored,{...clean,drafts:{same,new:clean}});
-    assert.equal(snapshot(restored).total,29708188.78);
+    assert.equal(snapshot(restored).total,29980772.88);
     assert.equal(snapshot(restored.drafts.same).total,26854683.11);
     const real=migrateSavedConfig({...same,version,drafts:{same,new:clean}});
     assert.deepEqual(real,{...same,drafts:{same,new:clean}});
@@ -66,10 +66,10 @@ test('O comparativo acompanha a base selecionada e os serviços reais, no mês e
   const scenarios=[{id:'currentProduction',label:'Prédio atual',snapshot:snapshot(model.presetState('production'))},
     {id:'newProduction',label:'Novo prédio',snapshot:snapshot(model.presetState('new-5'))}];
   const monthly=buildComparison(scenarios,{referenceId:'currentProduction'});
-  assert.equal(monthly.scenarios[1].amount,34170850.87);
-  assert.equal(monthly.scenarios[1].delta,7552569.50);
+  assert.equal(monthly.scenarios[1].amount,34443434.97);
+  assert.equal(monthly.scenarios[1].delta,7825153.60);
   const annual=buildComparison(scenarios,{referenceId:'newProduction',annual:true});
-  assert.equal(annual.scenarios[1].amount,410050210.44);
+  assert.equal(annual.scenarios[1].amount,413321219.64);
   assert.equal(annual.scenarios[1].isReference,true);
   assert.equal(snapshot(model.presetState('production')).total,26618281.37);
 });

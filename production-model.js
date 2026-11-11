@@ -3,7 +3,7 @@ import { productionIncrementSource } from './production-increments-source.js';
 import { createIncrementModel } from './increment-model.js';
 
 // The current building retains its approved values-and-production worksheet.
-// Every new-building quantity and price comes directly from the new attachment.
+// New-building values retain their source; approved corrections are applied below.
 const occupancyLabels = { same: 'Atual HUGO - Taxa de ocupação real', new: 'Novo HUGO - Taxa de ocupação estimada' };
 export const productionScenarioSource = { ...productionIncrementSource,
   bases: { same: productionSource.bases.new, new: productionIncrementSource.bases.new },
@@ -19,7 +19,14 @@ export const productionScenarioSource = { ...productionIncrementSource,
     new: { fileName: productionIncrementSource.fileName, sha256: productionIncrementSource.sha256 },
   },
 };
-const coreModel = createIncrementModel(productionScenarioSource, 'HUGO · valores e produção');
+const fixedEmergencyId = 'production-increment-new-23';
+const dischargeOfficeId = 'production-increment-new-87';
+const coreModel = createIncrementModel(productionScenarioSource, 'HUGO · valores e produção', {
+  unitCorrections: [{ id: dischargeOfficeId, unit: 6670.06, sourceUnitCell: 'HUGO - 1º TA!N70',
+    reason: 'Escritório de gestão de altas: usar R$ 6.670,06 por unidade da Manifestação GEC (5), mantendo as 10 unidades autorizadas pelo usuário.' }],
+  quantityCorrections: [{ id: fixedEmergencyId, qty: 3000, fixed: true,
+    reason: 'Pronto Atendimento: 3.000 atendimentos mensais fixos, conforme autorização do usuário e HUGO - 1º TA!J21 da Manifestação GEC (5).' }],
+});
 export const model = { ...coreModel, snapshot(config, policy) {
   return { ...coreModel.snapshot(config, policy), occupancyLabel: occupancyLabels[config.base] };
 } };
@@ -29,7 +36,15 @@ export function migrateSavedConfig(saved) {
   const filterEdits = (candidate, base) => {
     const ids = new Set(productionScenarioSource.bases[base].map(row => row.id));
     const edits = candidate?.edits && typeof candidate.edits === 'object' && !Array.isArray(candidate.edits) ? candidate.edits : {};
-    return Object.fromEntries(Object.entries(edits).filter(([id]) => ids.has(id)));
+    return Object.fromEntries(Object.entries(edits).filter(([id]) => ids.has(id)).flatMap(([id, patch]) => {
+      const fixedEmergency = base === 'new' && id === fixedEmergencyId;
+      const resetOffice = base === 'new' && id === dischargeOfficeId && !(saved.version >= 7);
+      if (!fixedEmergency && !resetOffice) return [[id, patch]];
+      const next = { ...patch };
+      delete next.qty;
+      if (resetOffice) delete next.unit;
+      return Object.keys(next).length ? [[id, next]] : [];
+    }));
   };
   const clean = (candidate, base) => ({ base, selected: base === 'new' && Array.isArray(candidate?.selected) ? candidate.selected : [], edits: filterEdits(candidate, base) });
   if (Number.isInteger(saved.version) && saved.version >= 5) {

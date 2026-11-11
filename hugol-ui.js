@@ -46,14 +46,15 @@ export function initIncrementScenario({ model, panelId, prefix, basisName, stora
       card.insertAdjacentHTML('beforeend', `<details class="increment-prices"><summary data-price-editor="${item.id}">Informar custos unitários${icon('chevron')}</summary><div>${fields}</div></details>`);
     }
   }
-  $('#hugol-audit').innerHTML = workbookAudit(policy).map(item => `<tr><th scope="row">${h(item.name)}</th><td data-label="Planilha">${currency(item.sourceTotalCents / 100)}</td><td data-label="Dashboard">${currency(item.dashboardTotal)}</td><td data-label="Conferência" class="audit-result">${item.difference === 0 ? 'Conferido' : `${item.corrected ? 'Preço corrigido · ' : ''}${signedCurrency(item.difference)}`}</td></tr>`).join('');
+  $('#hugol-audit').innerHTML = workbookAudit(policy).map(item => `<tr><th scope="row">${h(item.name)}</th><td data-label="Planilha">${currency(item.sourceTotalCents / 100)}</td><td data-label="Dashboard">${currency(item.dashboardTotal)}</td><td data-label="Conferência" class="audit-result">${item.difference === 0 ? 'Conferido' : `${item.corrected ? 'Ajuste aprovado · ' : ''}${signedCurrency(item.difference)}`}</td></tr>`).join('');
 
   function field(row, key, label) {
     const state = snapshot.state[row.id];
     const common = `data-h-id="${row.id}" data-h-key="${key}" aria-label="${h(label + ' — ' + row.name)}" ${state.enabled && row.available ? '' : 'disabled'}`;
     if (key === 'unit') return `<input ${common} class="money-input" type="text" inputmode="decimal" placeholder="Custo pendente" value="${Number.isFinite(state.unit) ? currency(state.unit) : ''}">`;
     const occupancy = key === 'factor' && row.kind === 'bed';
-    return `<input ${common} type="number" min="0" step="${key === 'qty' ? 1 : occupancy ? 0.5 : 0.01}" value="${state[key]}">`;
+    const fixed = key === 'qty' && row.fixedQty !== undefined;
+    return `<input ${common} type="number" min="0" step="${key === 'qty' ? 1 : occupancy ? 0.5 : 0.01}" value="${state[key]}" ${fixed ? `readonly title="Quantidade fixa: ${h(number(row.fixedQty))} por mês"` : ''}>${fixed ? '<small class="quantity-fixed-label">Quantidade fixa</small>' : ''}`;
   }
   function renderTables() {
     const search = normalize($('#hugol-search').value.trim());

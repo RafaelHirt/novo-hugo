@@ -145,6 +145,8 @@ td:first-child { width: 38%; }
 td input[type=number], .money-input { background: #fbfcfd; border: 1px solid #dce6eb; border-radius: 6px; padding: 9px 10px; height: 35px; color: #2b4e5f; font-size: 12px; font-family: Arial, sans-serif; text-align: right; }
 td input[type=number] { width: 80px; }
 .money-input { width: 128px; }
+td input[readonly] { background: #edf4f4; cursor: default; }
+.quantity-fixed-label { display: block; margin-top: 5px; color: #597681; font-size: 10px; }
 .factor-field { display: flex; gap: 6px; align-items: center; font-size: 10px; color: #7d919b; }
 .factor-field input { width: 72px; }
 .row-total { font-size: 12px; font-weight: 650; text-align: right; white-space: nowrap; }

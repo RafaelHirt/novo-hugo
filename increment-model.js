@@ -2,9 +2,9 @@ import { bedTotals, DAYS_PER_MONTH } from './data.js';
 import { roundCurrency } from './format.js';
 import { validOccupancy } from './occupancy.js';
 
-// Keep imported workbook prices intact; explicit user corrections apply to the
+// Keep imported workbook values intact; explicit user corrections apply to the
 // scenario and remain traceable against the original worksheet totals.
-export function createIncrementModel(importedSource, basisName, { unitCorrections = [] } = {}) {
+export function createIncrementModel(importedSource, basisName, { unitCorrections = [], quantityCorrections = [] } = {}) {
   const source = structuredClone(importedSource);
   for (const correction of unitCorrections) {
     const row = Object.values(source.bases).flat().find(item => item.id === correction.id);
@@ -13,6 +13,14 @@ export function createIncrementModel(importedSource, basisName, { unitCorrection
     row.unit = correction.unit;
     if (correction.sourceUnitCell) row.sourceUnitCell = correction.sourceUnitCell;
     for (const increment of source.increments) if (increment.patches[row.id]?.unit !== undefined) increment.patches[row.id].unit = correction.unit;
+  }
+  for (const correction of quantityCorrections) {
+    const row = Object.values(source.bases).flat().find(item => item.id === correction.id);
+    if (!row) throw new Error('Linha da correção de quantidade não encontrada: ' + correction.id);
+    row.quantityCorrection = { originalQty: row.qty, qty: correction.qty, reason: correction.reason };
+    row.qty = correction.qty;
+    if (correction.fixed) row.fixedQty = correction.qty;
+    for (const increment of source.increments) if (increment.patches[row.id]?.qty !== undefined) increment.patches[row.id].qty = correction.qty;
   }
   const bedPackage = source.increments.find(item => item.id === 'beds');
   const newBase = source.bases.new;
@@ -149,7 +157,7 @@ export function createIncrementModel(importedSource, basisName, { unitCorrection
       const candidate = edits[row.id] || {};
       state[row.id] = {
         enabled: row.available && (typeof candidate.enabled === 'boolean' ? candidate.enabled : row.qty > 0),
-        qty: Number.isFinite(candidate.qty) && candidate.qty >= 0 && Number.isInteger(candidate.qty) ? candidate.qty : row.qty,
+        qty: row.fixedQty ?? (Number.isFinite(candidate.qty) && candidate.qty >= 0 && Number.isInteger(candidate.qty) ? candidate.qty : row.qty),
         unit: Number.isFinite(candidate.unit) && candidate.unit >= 0 ? roundCurrency(candidate.unit) : row.unit,
         factor: row.factor,
       };
@@ -210,7 +218,7 @@ export function createIncrementModel(importedSource, basisName, { unitCorrection
   function workbookAudit(policy) {
     return presets.filter(preset => Number.isFinite(preset.sourceTotalCents)).map(preset => {
       const snapshot = scenarioSnapshot(presetState(preset.id), policy);
-      return { ...preset, dashboardTotal: snapshot.total, difference: roundCurrency(snapshot.total - preset.sourceTotalCents / 100), corrected: unitCorrections.some(item => snapshot.rows.some(row => row.id === item.id)) };
+      return { ...preset, dashboardTotal: snapshot.total, difference: roundCurrency(snapshot.total - preset.sourceTotalCents / 100), corrected: [...unitCorrections, ...quantityCorrections].some(item => snapshot.rows.some(row => row.id === item.id)) };
     });
   }
 
